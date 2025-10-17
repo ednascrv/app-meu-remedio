@@ -1,21 +1,21 @@
 {
   "name": "Meu Remédio",
   "short_name": "Remédio",
-  "description": "Lembrete de remédio com notificações e voz",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0288d1",
   "theme_color": "#0288d1",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
