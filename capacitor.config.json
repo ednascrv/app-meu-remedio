@@ -1,0 +1,6 @@
+{
+  "appId": "com.seunome.meuremedio",
+  "appName": "Meu Remédio",
+  "webDir": "./",
+  "bundledWebRuntime": false
+}

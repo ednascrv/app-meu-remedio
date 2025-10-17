@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Meu Remédio</title>
+<link rel="manifest" href="manifest.json" />
+<style>
+  :root{
+    --blue1:#4fc3f7;
+    --blue2:#0288d1;
+    --accent:#01579b;
+    --bg:#ffffff;
+    --card-shadow: 0 6px 18px rgba(1,25,60,0.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: "Arial",sans-serif;
+    background:var(--bg); color:var(--accent);
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    background: linear-gradient(90deg,var(--blue1), var(--blue2));
+    color:white; padding:22px 16px; text-align:center;
+    font-size:20px; font-weight:700;
+    border-bottom-left-radius:18px;border-bottom-right-radius:18px;
+  }
+  .app{
+    padding: 16px;
+    padding-bottom: 90px; /* espaço para footer */
+    max-width:720px;margin:0 auto;
+  }
+
+  .btn-primary{
+    width:100%; display:flex; align-items:center; justify-content:center;
+    gap:10px; padding:18px; font-size:20px; font-weight:700;
+    border-radius:16px; border:none; color:white;
+    background:linear-gradient(90deg,var(--blue1),var(--blue2));
+    box-shadow: var(--card-shadow); cursor:pointer;
+  }
+  .btn-small{
+    padding:10px 14px; border-radius:12px; border:none;
+    background:linear-gradient(90deg,var(--blue1),var(--blue2));
+    color:white; font-weight:700; cursor:pointer;
+  }
+
+  .row{display:flex; gap:12px; align-items:center;}
+  .card{
+    background: #f8fafc; border-radius:16px; padding:14px;
+    box-shadow: var(--card-shadow); margin-top:14px;
+  }
+  .block{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:16px; border-radius:14px;
+    background:linear-gradient(180deg,#fff,#f2fbff);
+    box-shadow: 0 3px 10px rgba(2,136,209,0.06);
+  }
+  .block .left{display:flex; gap:12px; align-items:center;}
+  .pill-img{width:84px;height:84px;border-radius:12px;object-fit:cover;border:3px solid rgba(2,136,209,0.12); background:#fff}
+  h2.title{margin:0;font-size:20px;}
+  p.time{margin:0;font-size:28px;font-weight:800;color:var(--accent);}
+
+  .actions{display:flex; gap:8px;}
+  .btn-took{
+    padding:12px 18px;border-radius:28px;border:none;font-weight:800;color:white;
+  }
+  .green{background:linear-gradient(90deg,#66bb6a,#2e7d32);}
+  .red{background:linear-gradient(90deg,#ef5350,#c62828);}
+  .ghost{background:transparent;border:2px solid rgba(1,87,155,0.12); color:var(--accent)}
+
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:16px}
+  th,td{padding:8px;border-bottom:1px solid #e6f0f7;text-align:left}
+  th{color:#012b48;font-weight:700}
+
+  footer{
+    position:fixed; left:0; right:0; bottom:0; height:68px;
+    background: linear-gradient(90deg,var(--blue1), var(--blue2));
+    display:flex; align-items:center; justify-content:center; color:white;
+    font-weight:700; border-top-left-radius:14px;border-top-right-radius:14px;
+  }
+
+  /* modal simples */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:9999;}
+  .modal.open{display:flex;}
+  .modal-content{width:94%; max-width:540px; background:white; border-radius:12px; padding:16px;}
+  .form-row{margin-bottom:10px}
+  label{display:block; font-size:14px; margin-bottom:6px}
+  input[type="text"], input[type="time"], textarea, select{
+    width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;
+  }
+  .small{font-size:13px;color:#666;margin-top:6px}
+  .history-list{max-height:260px; overflow:auto; padding:6px}
+  .history-item{padding:10px;border-radius:8px;background:#f6fdff;margin-bottom:8px;font-size:14px}
+  .flex-space{display:flex; justify-content:space-between; align-items:center}
+  @media(min-width:680px){ .app{padding:28px} }
+
+  /* elemento invisível para narrador de voz */
+  #ariaStatus{position:absolute; left:-9999px; top:auto;}
+</style>
+</head>
+<body>
+<header>💊 Lembrete de Remédio</header>
+
+<div class="app">
+  <button id="btnAdd" class="btn-primary" aria-label="Adicionar novo remédio">📸 Adicionar remédio</button>
+
+  <div id="blocosContainer" aria-live="polite"></div>
+
+  <div class="card">
+    <div class="flex-space">
+      <h2 style="margin:0">Lista de medicamentos</h2>
+      <div>
+        <button id="btnExport" class="btn-small">Exportar JSON</button>
+        <button id="btnImport" class="btn-small">Importar JSON</button>
+      </div>
+    </div>
+
+    <table id="tblRemedios" aria-label="Lista de medicamentos">
+      <thead>
+        <tr><th scope="col">Foto</th><th scope="col">Nome</th><th scope="col">Horários</th><th scope="col">Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="flex-space">
+      <h2 style="margin:0">Histórico</h2>
+      <button id="btnLimparHistorico" class="btn-small ghost">Limpar</button>
+    </div>
+    <div id="historyList" class="history-list" aria-live="polite"></div>
+  </div>
+</div>
+
+<footer>💙 Meu Remédio</footer>
+
+<div id="ariaStatus" aria-live="polite"></div>
+
+<!-- modais -->
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-content">
+    <h3 id="modalTitle">Adicionar remédio</h3>
+    <div class="form-row">
+      <label>Nome</label>
+      <input id="inpNome" type="text" placeholder="Ex: Losartana">
+    </div>
+    <div class="form-row">
+      <label>Instruções</label>
+      <textarea id="inpReceita" rows="2" placeholder="Tomar com água..."></textarea>
+    </div>
+    <div class="form-row">
+      <label>Horários (separados por vírgula - HH:MM)</label>
+      <input id="inpHorario" type="text" placeholder="08:00, 21:00">
+    </div>
+    <div class="form-row">
+      <label>Foto (tire uma foto ou escolha)</label>
+      <input id="inpFoto" type="file" accept="image/*" capture="environment">
+      <div class="small">Se preferir, deixe em branco e será usada uma imagem padrão.</div>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px;">
+      <button id="btnCancel" class="btn-small ghost">Cancelar</button>
+      <button id="btnSave" class="btn-small" style="background:linear-gradient(90deg,var(--blue1),var(--blue2)); color:white">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS_KEY = 'meu_remedio_dados_v1';
+const LS_HIST = 'meu_remedio_hist_v1';
+let remedios = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+let historico = JSON.parse(localStorage.getItem(LS_HIST) || '[]');
+
+const blocosContainer = document.getElementById('blocosContainer');
+const tblBody = document.querySelector('#tblRemedios tbody');
+const historyList = document.getElementById('historyList');
+const ariaStatus = document.getElementById('ariaStatus');
+
+let scheduledTimeouts = [];
+
+// utils
+function salvarTudo(){ localStorage.setItem(LS_KEY, JSON.stringify(remedios)); localStorage.setItem(LS_HIST, JSON.stringify(historico)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function timeToNext(hhmm){ const [hh,mm] = hhmm.split(':').map(n=>parseInt(n,10)); const now = new Date(); let target = new Date(now.getFullYear(),now.getMonth(),now.getDate(),hh,mm,0,0); if(target.getTime() <= Date.now()) target.setDate(target.getDate()+1); return target.getTime() - Date.now(); }
+function friendlyDate(ts){ const d = new Date(ts); return d.toLocaleString(); }
+function announce(text){ ariaStatus.textContent = text; }
+
+// render
+function render(){
+  scheduledTimeouts.forEach(t=>clearTimeout(t)); scheduledTimeouts=[];
+  blocosContainer.innerHTML=''; tblBody.innerHTML='';
+
+  remedios.forEach(r=>{
+    // bloco
+    const block = document.createElement('div'); block.className='block'; block.setAttribute('role','region'); block.setAttribute('aria-labelledby','remedio-'+r.id);
+    block.style.marginTop='12px';
+
+    const left = document.createElement('div'); left.className='left';
+    const img = document.createElement('img'); img.className='pill-img'; img.src=r.foto||defaultImgFor(r); img.alt=r.nome;
+
+    const info = document.createElement('div');
+    const ttitle = document.createElement('h2'); ttitle.className='title'; ttitle.id='remedio-'+r.id; ttitle.textContent=r.nome;
+    const tinstr = document.createElement('div'); tinstr.textContent=r.instrucao||''; tinstr.className='small';
+    const th = document.createElement('p'); th.className='time'; th.textContent=r.horarios.join(', ');
+
+    info.appendChild(ttitle); info.appendChild(tinstr); info.appendChild(th);
+    left.appendChild(img); left.appendChild(info);
+
+    const actions = document.createElement('div'); actions.className='actions';
+    const btnHear = document.createElement('button'); btnHear.className='btn-small'; btnHear.textContent='🔊'; btnHear.title='Ouvir instruções'; btnHear.setAttribute('aria-label','Ouvir instruções de '+r.nome); btnHear.onclick = ()=> speak(r.instrucao || 'Sem instruções');
+
+    const btnEdit = document.createElement('button'); btnEdit.className='btn-small ghost'; btnEdit.textContent='Editar'; btnEdit.setAttribute('aria-label','Editar '+r.nome); btnEdit.onclick = ()=> openModal(r.id);
+
+    const btnTook = document.createElement('button'); btnTook.className='btn-took green'; btnTook.textContent='Eu tomei'; btnTook.setAttribute('aria-label','Marcar '+r.nome+' como tomado'); btnTook.onclick = ()=> marcarTomado(r.id);
+
+    const btnDel = document.createElement('button'); btnDel.className='btn-small'; btnDel.textContent='Excluir'; btnDel.setAttribute('aria-label','Excluir '+r.nome); btnDel.onclick = ()=> { if(confirm('Excluir este remédio?')) { excluirRemedio(r.id); } };
+
+    actions.appendChild(btnHear); actions.appendChild(btnEdit); actions.appendChild(btnTook); actions.appendChild(btnDel);
+
+    block.appendChild(left); block.appendChild(actions);
+    const wrapper = document.createElement('div'); wrapper.className='card'; wrapper.appendChild(block);
+    blocosContainer.appendChild(wrapper);
+
+    // tabela
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="width:84px"><img src="${r.foto || defaultImgFor(r)}" style="width:64px;height:64px;border-radius:8px;object-fit:cover" alt="${r.nome}"></td>
+      <td>${r.nome}</td>
+      <td>${r.horarios.join(', ')}</td>
+      <td>
+        <button class="btn-small" onclick="window.openModalFromTable && window.openModalFromTable('${r.id}')">Editar</button>
+        <button class="btn-small" onclick="window.marcarTomadoFromTable && window.marcarTomadoFromTable('${r.id}')">Eu tomei</button>
+      </td>
+    `;
+    tblBody.appendChild(tr);
+
+    scheduleRemedio(r);
+  });
+
+  renderHistory();
+}
+
+function defaultImgFor(r){ const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect rx='20' width='100%' height='100%' fill='#e1f5fe'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='#0288d1'>${(r.nome||'Rem').slice(0,6)}</text></svg>`; return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+
+// modal
+const modal = document.getElementById('modal');
+const inpNome = document.getElementById('inpNome');
+const inpReceita = document.getElementById('inpReceita');
+const inpHorario = document.getElementById('inpHorario');
+const inpFoto = document.getElementById('inpFoto');
+const modalTitle = document.getElementById('modalTitle');
+let editingId = null;
+
+document.getElementById('btnAdd').addEventListener('click', ()=> openModal());
+document.getElementById('btnCancel').addEventListener('click', ()=> closeModal());
+document.getElementById('btnSave').addEventListener('click', saveModal);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+
+function openModal(id=null){
+  editingId=id; modal.classList.add('open'); modalTitle.textContent = id ? 'Editar remédio' : 'Adicionar remédio';
+  setTimeout(()=> inpNome.focus(),100);
+  if(id){
+    const r = remedios.find(x=>x.id===id);
+    inpNome.value=r.nome; inpReceita.value=r.instrucao||''; inpHorario.value=r.horarios.join(','); inpFoto.value='';
+  } else { inpNome.value=''; inpReceita.value=''; inpHorario.value='08:00,21:00'; inpFoto.value=''; }
+}
+function closeModal(){ modal.classList.remove('open'); }
+
+function saveModal(){
+  const nome = inpNome.value.trim() || ('Remédio ' + (remedios.length+1));
+  const instr = inpReceita.value.trim() || '';
+  const horarios = inpHorario.value.split(',').map(s=>s.trim()).filter(s=>s);
+  if(horarios.length===0){ alert('Insira ao menos um horário (HH:MM).'); return; }
+
+  const file = inpFoto.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ()=> { persistRemedio({ nome, instrucao: instr, horarios, foto: reader.result }); closeModal(); announce(nome+' adicionado/atualizado'); };
+    reader.readAsDataURL(file);
+  } else { persistRemedio({ nome, instrucao: instr, horarios, foto: null }); closeModal(); announce(nome+' adicionado/atualizado'); }
+}
+
+function persistRemedio(data){
+  if(editingId){
+    const i = remedios.findIndex(r=>r.id===editingId);
+    if(i>=0){ remedios[i].nome=data.nome; remedios[i].instrucao=data.instrucao; remedios[i].horarios=data.horarios; if(data.foto) remedios[i].foto=data.foto; }
+  } else { remedios.push({ id:uid(), nome:data.nome, instrucao:data.instrucao, horarios:data.horarios, foto:data.foto, criadoEm:Date.now() }); }
+  salvarTudo(); render();
+}
+
+function excluirRemedio(id){ const r = remedios.find(x=>x.id===id); remedios = remedios.filter(r=>r.id!==id); salvarTudo(); render(); announce(r.nome+' excluído'); }
+
+function marcarTomado(id){
+  const r = remedios.find(x=>x.id===id); if(!r) return;
+  const entry={id:uid(), remedioId:r.id, nome:r.nome, horario:new Date().toISOString(), instrucao:r.instrucao||''};
+  historico.unshift(entry); salvarTudo(); render();
+  announce('Remédio '+r.nome+' marcado como tomado.');
+}
+
+window.openModalFromTable=openModal;
+window.marcarTomadoFromTable=marcarTomado;
+
+function renderHistory(){
+  historyList.innerHTML='';
+  if(historico.length===0) historyList.innerHTML='<div class="small">Sem histórico ainda.</div>';
+  historico.forEach(h=>{ const div=document.createElement('div'); div.className='history-item'; div.innerHTML=`<div style="font-weight:700">${h.nome}</div><div class="small">${new Date(h.horario).toLocaleString()}</div>`; historyList.appendChild(div); });
+}
+
+document.getElementById('btnLimparHistorico').addEventListener('click',()=>{ if(confirm('Limpar todo histórico?')){ historico=[]; salvarTudo(); render(); announce('Histórico limpo'); } });
+
+// fala texto
+function speak(text){ if(!text) return; if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(text); u.lang='pt-BR'; speechSynthesis.speak(u); } }
+
+// notificações simples
+function showNotification(title, opts){ if("Notification" in window){ if(Notification.permission==="granted"){ new Notification(title,opts); } else { Notification.requestPermission(); } } }
+
+// agendamento fake
+function scheduleRemedio(r){ r.horarios.forEach(hhmm=>{ const delay=timeToNext(hhmm); const t=setTimeout(()=>{ announce('Hora do remédio '+r.nome+' ('+hhmm+')'); showNotification('Hora do remédio '+r.nome,{body:'Tome agora!'}); }, delay); scheduledTimeouts.push(t); }); }
+
+render();
+</script>
+</body>
+</html>
