@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -8,47 +7,17 @@
 <link rel="manifest" href="manifest.json" />
 <style>
 :root{
-  --blue1:#4fc3f7;
-  --blue2:#0288d1;
-  --accent:#01579b;
-  --bg:#ffffff;
-  --card-shadow:0 6px 18px rgba(1,25,60,0.08);
+  --blue1:#4fc3f7; --blue2:#0288d1; --accent:#01579b; --bg:#ffffff; --card-shadow:0 6px 18px rgba(1,25,60,0.08);
 }
 *{box-sizing:border-box}
-body{
-  margin:0; font-family:"Arial",sans-serif;
-  background:var(--bg); color:var(--accent);
-  -webkit-font-smoothing:antialiased;
-}
-header{
-  background:linear-gradient(90deg,var(--blue1), var(--blue2));
-  color:white; padding:22px 16px; text-align:center;
-  font-size:22px; font-weight:700;
-  border-bottom-left-radius:18px;border-bottom-right-radius:18px;
-}
+body{margin:0;font-family:"Arial",sans-serif;background:var(--bg);color:var(--accent);-webkit-font-smoothing:antialiased;}
+header{background:linear-gradient(90deg,var(--blue1), var(--blue2));color:white;padding:22px 16px;text-align:center;font-size:22px;font-weight:700;border-bottom-left-radius:18px;border-bottom-right-radius:18px;}
 .app{padding:16px;padding-bottom:90px;max-width:720px;margin:0 auto;}
-.btn-primary{
-  width:100%; display:flex; align-items:center; justify-content:center;
-  gap:10px; padding:18px; font-size:20px; font-weight:700;
-  border-radius:16px; border:none; color:white;
-  background:linear-gradient(90deg,var(--blue1),var(--blue2));
-  box-shadow: var(--card-shadow); cursor:pointer; margin-bottom:8px;
-}
-.btn-small{
-  padding:10px 14px; border-radius:12px; border:none;
-  background:linear-gradient(90deg,var(--blue1),var(--blue2));
-  color:white; font-weight:700; cursor:pointer;
-}
+.btn-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;font-size:20px;font-weight:700;border-radius:16px;border:none;color:white;background:linear-gradient(90deg,var(--blue1),var(--blue2));box-shadow: var(--card-shadow);cursor:pointer;margin-bottom:8px;}
+.btn-small{padding:10px 14px;border-radius:12px;border:none;background:linear-gradient(90deg,var(--blue1),var(--blue2));color:white;font-weight:700;cursor:pointer;}
 .row{display:flex; gap:12px; align-items:center;}
-.card{
-  background:#f8fafc; border-radius:16px; padding:14px;
-  box-shadow: var(--card-shadow); margin-top:14px;
-}
-.block{display:flex; align-items:center; justify-content:space-between;
-  gap:12px; padding:16px; border-radius:14px;
-  background:linear-gradient(180deg,#fff,#f2fbff);
-  box-shadow:0 3px 10px rgba(2,136,209,0.06);
-}
+.card{background:#f8fafc; border-radius:16px; padding:14px; box-shadow: var(--card-shadow); margin-top:14px;}
+.block{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px; border-radius:14px; background:linear-gradient(180deg,#fff,#f2fbff); box-shadow:0 3px 10px rgba(2,136,209,0.06);}
 .block .left{display:flex; gap:12px; align-items:center;}
 .pill-img{width:84px;height:84px;border-radius:12px;object-fit:cover;border:3px solid rgba(2,136,209,0.12); background:#fff}
 h2.title{margin:0;font-size:20px;}
@@ -61,20 +30,13 @@ p.time{margin:0;font-size:28px;font-weight:800;color:var(--accent);}
 table{width:100%;border-collapse:collapse;margin-top:14px;font-size:16px}
 th,td{padding:8px;border-bottom:1px solid #e6f0f7;text-align:left}
 th{color:#012b48;font-weight:700}
-footer{
-  position:fixed; left:0; right:0; bottom:0; height:68px;
-  background: linear-gradient(90deg,var(--blue1), var(--blue2));
-  display:flex; align-items:center; justify-content:center; color:white;
-  font-weight:700; border-top-left-radius:14px;border-top-right-radius:14px;
-}
+footer{position:fixed; left:0; right:0; bottom:0; height:68px; background: linear-gradient(90deg,var(--blue1), var(--blue2)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; border-top-left-radius:14px;border-top-right-radius:14px;}
 .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:9999;}
 .modal.open{display:flex;}
 .modal-content{width:94%; max-width:540px; background:white; border-radius:12px; padding:16px;}
 .form-row{margin-bottom:10px}
 label{display:block; font-size:14px; margin-bottom:6px}
-input[type="text"], input[type="time"], textarea, select, input[type="file"]{
-  width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;
-}
+input[type="text"], input[type="time"], textarea, select, input[type="file"], input[type="number"]{width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;}
 .small{font-size:13px;color:#666;margin-top:6px}
 .history-list{max-height:260px; overflow:auto; padding:6px}
 .history-item{padding:10px;border-radius:8px;background:#f6fdff;margin-bottom:8px;font-size:14px}
@@ -141,7 +103,12 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"]{
       <input id="inpHorario" type="text" placeholder="08:00,13:00,21:00">
     </div>
     <div class="form-row">
-      <label>Foto do remédio</label>
+      <label>Intervalo automático (horas, opcional)</label>
+      <input id="inpIntervalo" type="number" placeholder="Ex: 8">
+      <small class="small">Se preenchido, gera horários automaticamente</small>
+    </div>
+    <div class="form-row">
+      <label>Foto da caixa do remédio</label>
       <input id="inpFoto" type="file" accept="image/*" capture="environment">
     </div>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px;">
@@ -169,6 +136,7 @@ const inpPaciente=document.getElementById('inpPaciente');
 const inpNome=document.getElementById('inpNome');
 const inpReceita=document.getElementById('inpReceita');
 const inpHorario=document.getElementById('inpHorario');
+const inpIntervalo=document.getElementById('inpIntervalo');
 const inpFoto=document.getElementById('inpFoto');
 const inpFotoOCR=document.getElementById('inpFotoOCR');
 const fullAlert=document.getElementById('fullAlert');
@@ -184,43 +152,58 @@ function nowBrasilia(){ const now=new Date(); const utc=now.getTime()+now.getTim
 function defaultImgFor(r){ const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect rx='20' width='100%' height='100%' fill='#e1f5fe'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='#0288d1'>${(r.nome||'Rem').slice(0,6)}</text></svg>`; return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }
 function sugestaoInstrucao(nome){ return `Tomar ${nome} com água, após as refeições.`; }
 
+/*================== FUNÇÃO HORÁRIOS AUTOMÁTICOS ==================*/
+function gerarHorariosPorIntervalo(horaInicial, intervaloHoras, maxQtd=24){
+  const [hh, mm] = horaInicial.split(':').map(Number);
+  let horarios = [];
+  let current = new Date();
+  current.setHours(hh, mm, 0, 0);
+  for(let i=0;i<maxQtd;i++){
+    horarios.push(current.toTimeString().slice(0,5));
+    current.setHours(current.getHours()+intervaloHoras);
+    if(current.getDate()!==new Date().getDate()) break;
+  }
+  return horarios;
+}
+
 /*================== MODAL ==================*/
 function openModal(id=null){
   editingId=id; modal.classList.add('open'); document.getElementById('modalTitle').textContent=id?'Editar remédio':'Adicionar remédio';
   setTimeout(()=> inpPaciente.focus(),100);
   if(id){
     const r=remedios.find(x=>x.id===id);
-    inpPaciente.value=r.paciente||''; inpNome.value=r.nome; inpReceita.value=r.instrucao||''; inpHorario.value=r.horarios.join(','); inpFoto.value='';
-  } else{ inpPaciente.value=''; inpNome.value=''; inpReceita.value=''; inpHorario.value='08:00,21:00'; inpFoto.value=''; }
+    inpPaciente.value=r.paciente||''; inpNome.value=r.nome; inpReceita.value=r.instrucao||''; inpHorario.value=r.horarios.join(','); inpIntervalo.value=''; inpFoto.value='';
+  } else{ inpPaciente.value=''; inpNome.value=''; inpReceita.value=''; inpHorario.value=''; inpIntervalo.value=''; inpFoto.value=''; }
 }
 document.getElementById('btnCancel').addEventListener('click',()=>modal.classList.remove('open'));
-document.getElementById('btnSave').addEventListener('click',saveModal);
 
-function saveModal(){
+document.getElementById('btnSave').addEventListener('click',()=>{
   const paciente=inpPaciente.value.trim()||'Paciente';
   const nome=inpNome.value.trim()||('Remédio '+(remedios.length+1));
   const instr=inpReceita.value.trim()||sugestaoInstrucao(nome);
-  const horarios=inpHorario.value.match(/\d{2}:\d{2}/g);
-  if(!horarios || horarios.length===0){ alert('Insira ao menos um horário HH:MM'); return; }
+  let horarios = inpHorario.value.match(/\d{2}:\d{2}/g)||[];
+  const intervalo=parseInt(inpIntervalo.value);
+  if(intervalo>0 && horarios.length===0){
+    horarios=gerarHorariosPorIntervalo("08:00",intervalo);
+  }
+  if(!horarios.length){ alert('Insira ao menos um horário HH:MM ou intervalo'); return; }
   const file=inpFoto.files[0];
+  function persist(data){ 
+    if(editingId){ 
+      const i=remedios.findIndex(r=>r.id===editingId); if(i>=0) remedios[i]=Object.assign(remedios[i],data); 
+    } else{ remedios.push(Object.assign({id:uid(),criadoEm:Date.now()},data)); }
+    salvarTudo(); render(); announce(`${nome} adicionado/atualizado`); speak(`${nome} adicionado/atualizado`);
+  }
   if(file){
     const reader=new FileReader();
-    reader.onload=()=>{ persistRemedio({paciente,nome,instr,horarios,foto:reader.result}); modal.classList.remove('open'); announce(`${nome} adicionado/atualizado`); speak(`${nome} adicionado/atualizado`); };
+    reader.onload=()=>{ persist({paciente,nome,instr,horarios,foto:reader.result}); modal.classList.remove('open'); };
     reader.readAsDataURL(file);
-  } else{ persistRemedio({paciente,nome,instr,horarios,foto:null}); modal.classList.remove('open'); announce(`${nome} adicionado/atualizado`); speak(`${nome} adicionado/atualizado`); }
-}
-
-function persistRemedio(data){
-  if(editingId){
-    const i=remedios.findIndex(r=>r.id===editingId);
-    if(i>=0){ remedios[i]=Object.assign(remedios[i],data); }
-  } else{ remedios.push(Object.assign({id:uid(),criadoEm:Date.now()},data)); }
-  salvarTudo(); render();
-}
+  } else{ persist({paciente,nome,instr,horarios,foto:null}); modal.classList.remove('open'); }
+});
 
 /*================== RENDER ==================*/
 function render(){
-  scheduledIntervals.forEach(t=>clearInterval(t)); scheduledIntervals=[];
+  scheduledIntervals.forEach(t=>clearTimeout(t)); scheduledIntervals=[];
   blocosContainer.innerHTML=''; tblBody.innerHTML='';
   remedios.forEach(r=>{
     const block=document.createElement('div'); block.className='block'; block.setAttribute('role','region'); block.setAttribute('aria-labelledby','remedio-'+r.id); block.style.marginTop='12px';
@@ -246,7 +229,7 @@ function render(){
                   <td><button class="btn-small" onclick="openModal('${r.id}')">Editar</button>
                       <button class="btn-small" onclick="marcarTomado('${r.id}')">Eu tomei</button></td>`;
     tblBody.appendChild(tr);
-    scheduleRemedio(r); // agenda os alarmes
+    scheduleRemedio(r);
   });
   renderHistory();
 }
@@ -271,16 +254,14 @@ document.getElementById('btnLimparHistorico').addEventListener('click',()=>{ if(
 inpFotoOCR.addEventListener('change', e=>{
   const file=e.target.files[0]; if(file){
     const reader=new FileReader();
-    reader.onload=()=>{
-      Tesseract.recognize(reader.result,'por').then(({data:{text}})=>{
-        const horarios=(text.match(/\d{2}:\d{2}/g)||[]).join(',');
-        const linhas=text.split('\n').filter(l=>l.trim());
-        const paciente=linhas[0]||'Paciente';
-        const nome=linhas[1]||'Remédio';
-        const instr=linhas.slice(2).join('\n');
-        openModal(); inpPaciente.value=paciente; inpNome.value=nome; inpHorario.value=horarios; inpReceita.value=instr;
-      });
-    };
+    reader.onload=()=>{ Tesseract.recognize(reader.result,'por').then(({data:{text}})=>{
+      const horarios=(text.match(/\d{2}:\d{2}/g)||[]).join(',');
+      const linhas=text.split('\n').filter(l=>l.trim());
+      const paciente=linhas[0]||'Paciente';
+      const nome=linhas[1]||'Remédio';
+      const instr=linhas.slice(2).join('\n');
+      openModal(); inpPaciente.value=paciente; inpNome.value=nome; inpHorario.value=horarios; inpReceita.value=instr;
+    }); };
     reader.readAsDataURL(file);
   }
 });
@@ -298,41 +279,61 @@ document.getElementById('btnVoz').addEventListener('click',()=>{
     openModal();
     inpPaciente.value = paciente || 'Paciente';
     inpNome.value = nome || 'Remédio';
-    inpHorario.value = horarios.join(',') || '08:00,21:00';
+    inpHorario.value = horarios.join(',') || '';
     speak(`Abrindo formulário para ${nome}. Verifique e salve.`);
   };
   recognition.start();
 });
 
 /*================== ALERTA TELA CHEIA ==================*/
-function showFullAlert(msg){
-  fullAlert.textContent=msg; fullAlert.style.display='flex';
-  speak(msg);
-  setTimeout(()=>fullAlert.style.display='none',60000);
-}
+function showFullAlert(msg){ fullAlert.textContent=msg; fullAlert.style.display='flex'; speak(msg); setTimeout(()=>fullAlert.style.display='none',60000); }
 
 /*================== AGENDAMENTO HORÁRIO DE BRASÍLIA ==================*/
 function scheduleRemedio(r){
   r.horarios.forEach(hhmm=>{
     const [hh, mm] = hhmm.split(':').map(Number);
     const now = nowBrasilia();
-    let next = new Date(now);
-    next.setHours(hh, mm, 0, 0);
-    if(next < now) next.setDate(next.getDate() + 1); // próximo dia se já passou
+    let next = new Date(now); next.setHours(hh, mm, 0, 0);
+    if(next < now) next.setDate(next.getDate() + 1);
     const delay = next - now;
     const t = setTimeout(() => {
       const msg = `${r.paciente||'Paciente'} tomar ${r.nome} às ${hhmm} horas.`;
-      announce(msg); showNotification('Hora do remédio', {body: msg}); showFullAlert(msg); speak(msg);
-      scheduleRemedio(r); // re-agenda para o próximo dia
+      announce(msg); showNotification('Hora do remédio',{body:msg}); showFullAlert(msg); speak(msg); scheduleRemedio(r);
     }, delay);
     scheduledIntervals.push(t);
   });
 }
 
-/*================== BOTÃO ADIÇÃO MANUAL ==================*/
+/*================== BOTÕES ==================*/
 document.getElementById('btnManual').addEventListener('click',()=> openModal());
+document.getElementById('btnAdd').addEventListener('click',()=> inpFotoOCR.click());
 
+/*================== EXPORT / IMPORT ==================*/
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const data = JSON.stringify(remedios);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='remedios.json'; a.click(); URL.revokeObjectURL(url);
+});
+document.getElementById('btnImport').addEventListener('click',()=>{
+  const input=document.createElement('input'); input.type='file'; input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0]; const reader=new FileReader();
+    reader.onload=()=>{ remedios=JSON.parse(reader.result); salvarTudo(); render(); };
+    reader.readAsText(file);
+  };
+  input.click();
+});
+
+/*================== SERVICE WORKER ==================*/
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js').then(()=>console.log('Service Worker registrado')).catch(e=>console.log(e));
+}
+
+/*================== INICIAR ==================*/
+if("Notification" in window && Notification.permission !== "granted"){ Notification.requestPermission(); }
 render();
 </script>
 </body>
 </html>
+
