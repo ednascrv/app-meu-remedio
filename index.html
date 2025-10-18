@@ -52,6 +52,7 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
   <button id="btnManual" class="btn-primary">✏️ Adicionar medicamento manualmente</button>
   <button id="btnAdd" class="btn-primary">📸 Adicionar receita (OCR)</button>
   <button id="btnVoz" class="btn-primary">🎙️ Comando de voz</button>
+  <button id="btnAlarm" class="btn-primary">⏰ Abrir alarme do dispositivo</button>
   <input id="inpFotoOCR" type="file" accept="image/*" capture="environment" style="display:none;">
   <div id="blocosContainer" aria-live="polite"></div>
 
@@ -79,6 +80,7 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
     <div id="historyList" class="history-list" aria-live="polite"></div>
   </div>
 </div>
+
 <footer>💙 Meu Remédio</footer>
 <div id="ariaStatus" aria-live="polite"></div>
 <div id="fullAlert"></div>
@@ -118,6 +120,9 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
   </div>
 </div>
 
+<!-- Som de alerta -->
+<audio id="alertSound" src="alert.mp3" preload="auto"></audio>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 <script>
 /*================== ARMAZENAMENTO ==================*/
@@ -140,6 +145,7 @@ const inpIntervalo=document.getElementById('inpIntervalo');
 const inpFoto=document.getElementById('inpFoto');
 const inpFotoOCR=document.getElementById('inpFotoOCR');
 const fullAlert=document.getElementById('fullAlert');
+const alertSound = document.getElementById('alertSound');
 let editingId=null;
 
 /*================== UTILIDADES ==================*/
@@ -151,6 +157,7 @@ function showNotification(title,opts){ if("Notification" in window){ if(Notifica
 function nowBrasilia(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+(-3*3600000)); }
 function defaultImgFor(r){ const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect rx='20' width='100%' height='100%' fill='#e1f5fe'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='#0288d1'>${(r.nome||'Rem').slice(0,6)}</text></svg>`; return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }
 function sugestaoInstrucao(nome){ return `Tomar ${nome} com água, após as refeições.`; }
+function playAlertSound(){ alertSound.currentTime=0; alertSound.play().catch(e=>console.log('Erro ao tocar som:', e)); }
 
 /*================== FUNÇÃO HORÁRIOS AUTOMÁTICOS ==================*/
 function gerarHorariosPorIntervalo(horaInicial, intervaloHoras, maxQtd=24){
@@ -286,19 +293,20 @@ document.getElementById('btnVoz').addEventListener('click',()=>{
 });
 
 /*================== ALERTA TELA CHEIA ==================*/
-function showFullAlert(msg){ fullAlert.textContent=msg; fullAlert.style.display='flex'; speak(msg); setTimeout(()=>fullAlert.style.display='none',60000); }
+function showFullAlert(msg){ fullAlert.textContent=msg; fullAlert.style.display='flex'; speak(msg); playAlertSound(); setTimeout(()=>fullAlert.style.display='none',60000); }
 
 /*================== AGENDAMENTO HORÁRIO DE BRASÍLIA ==================*/
 function scheduleRemedio(r){
   r.horarios.forEach(hhmm=>{
     const [hh, mm] = hhmm.split(':').map(Number);
     const now = nowBrasilia();
-    let next = new Date(now); next.setHours(hh, mm, 0, 0);
+    let next = new Date(now);
+    next.setHours(hh, mm, 0, 0);
     if(next < now) next.setDate(next.getDate() + 1);
     const delay = next - now;
     const t = setTimeout(() => {
       const msg = `${r.paciente||'Paciente'} tomar ${r.nome} às ${hhmm} horas.`;
-      announce(msg); showNotification('Hora do remédio',{body:msg}); showFullAlert(msg); speak(msg); scheduleRemedio(r);
+      announce(msg); showNotification('Hora do remédio',{body:msg}); showFullAlert(msg); speak(msg); playAlertSound(); scheduleRemedio(r);
     }, delay);
     scheduledIntervals.push(t);
   });
@@ -307,6 +315,16 @@ function scheduleRemedio(r){
 /*================== BOTÕES ==================*/
 document.getElementById('btnManual').addEventListener('click',()=> openModal());
 document.getElementById('btnAdd').addEventListener('click',()=> inpFotoOCR.click());
+
+document.getElementById('btnAlarm').addEventListener('click', ()=>{
+  if(navigator.userAgent.match(/Android/i)){
+    window.location.href = 'clock://';
+  } else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)){
+    alert('No iOS, abra o app "Relógio" manualmente.');
+  } else {
+    alert('Abrir app de alarme não suportado neste dispositivo.');
+  }
+});
 
 /*================== EXPORT / IMPORT ==================*/
 document.getElementById('btnExport').addEventListener('click',()=>{
