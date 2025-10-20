@@ -1,34 +1,22 @@
-const CACHE_NAME = 'meu-remedio-cache-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/service-worker.js',
-  'https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js'
-];
+const CACHE_NAME='meu-remedio-cache-v3';
+const OFFLINE_URL='/offline.html';
+const ASSETS=['/','/index.html','/alert.mp3','/offline.html','/icon.png'];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
+self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())); });
+self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', e=>{
+  if(e.request.method!=='GET') return;
+  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||caches.match(OFFLINE_URL))));
 });
+self.addEventListener('message', e=>{
+  const data=e.data;
+  if(data && data.type==='REMINDER_MULTI'){
+    data.lista.forEach(remedio=>{
+      self.registration.showNotification('Hora do remédio 💊',{body:`${remedio.paciente||'Paciente'} tomar ${remedio.nome}`,icon:'icon.png',tag:`lembrete-${remedio.id}`,vibrate:[200,100,200]});
+    });
+  }
+});
+self.addEventListener('notificationclick', e=>{ e.notification.close(); e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>c.length?c[0].focus():clients.openWindow('/'))); });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
-});
 
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(keyList =>
-      Promise.all(keyList.map(key => {
-        if (!cacheWhitelist.includes(key)) return caches.delete(key);
-      }))
-    )
-  );
-});
 
