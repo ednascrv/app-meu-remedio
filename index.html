@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -7,6 +8,12 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00796b">
 <link rel="icon" href="icon-192.png" sizes="192x192">
+
+<!-- Apple PWA meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-512.png">
+
 <style>
 :root{
   --blue1:#005580; --green1:#388e3c; --accent:#00695c; --bg:#ffffff; --card-shadow:0 6px 18px rgba(0,0,0,0.12);
@@ -14,26 +21,26 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--accent);-webkit-font-smoothing:antialiased;}
 header{background:linear-gradient(90deg,var(--blue1), var(--green1));color:white;padding:22px 16px;text-align:center;font-size:22px;font-weight:700;border-bottom-left-radius:18px;border-bottom-right-radius:18px;}
-.app{padding:16px;padding-bottom:90px;max-width:720px;margin:0 auto;}
-.btn-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;font-size:20px;font-weight:700;border-radius:16px;border:none;color:white;background:linear-gradient(90deg,var(--blue1),var(--green1));box-shadow: var(--card-shadow);cursor:pointer;margin-bottom:8px;}
-.btn-small{padding:10px 14px;border-radius:12px;border:none;background:linear-gradient(90deg,var(--blue1),var(--green1));color:white;font-weight:700;cursor:pointer;}
+.app{padding:16px;padding-bottom:100px;max-width:720px;margin:0 auto;}
+.btn-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;font-size:18px;font-weight:700;border-radius:12px;border:none;color:white;background:linear-gradient(90deg,var(--blue1),var(--green1));box-shadow: var(--card-shadow);cursor:pointer;margin-bottom:8px;}
+.btn-small{padding:8px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--blue1),var(--green1));color:white;font-weight:700;cursor:pointer;}
 .row{display:flex; gap:12px; align-items:center;}
-.card{background:#f8fafc; border-radius:16px; padding:14px; box-shadow: var(--card-shadow); margin-top:14px;}
-.pill-img{width:84px;height:84px;border-radius:12px;object-fit:cover;border:3px solid rgba(2,136,209,0.12); background:#fff}
-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:16px}
+.card{background:#f8fafc; border-radius:12px; padding:12px; box-shadow: var(--card-shadow); margin-top:12px;}
+.pill-img{width:64px;height:64px;border-radius:10px;object-fit:cover;border:2px solid rgba(2,136,209,0.12); background:#fff}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px}
 th,td{padding:8px;border-bottom:1px solid #e6f0f7;text-align:left}
 th{color:#012b48;font-weight:700}
-footer{position:fixed; left:0; right:0; bottom:0; height:68px; background: linear-gradient(90deg,var(--blue1), var(--green1)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; border-top-left-radius:14px;border-top-right-radius:14px;}
+footer{position:fixed; left:0; right:0; bottom:0; height:64px; background: linear-gradient(90deg,var(--blue1), var(--green1)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; border-top-left-radius:12px;border-top-right-radius:12px;}
 .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:9999;}
 .modal.open{display:flex;}
-.modal-content{width:94%; max-width:540px; background:white; border-radius:12px; padding:16px;}
-.form-row{margin-bottom:10px}
+.modal-content{width:94%; max-width:520px; background:white; border-radius:12px; padding:14px;}
+.form-row{margin-bottom:8px}
 label{display:block; font-size:14px; margin-bottom:6px}
 input[type="text"], input[type="time"], textarea, select, input[type="file"], input[type="number"]{width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;}
-.history-list{max-height:260px; overflow:auto; padding:6px}
+.history-list{max-height:300px; overflow:auto; padding:6px}
 .history-item{padding:10px;border-radius:8px;background:#f6fdff;margin-bottom:8px;font-size:14px}
 .flex-space{display:flex; justify-content:space-between; align-items:center}
-@media(min-width:680px){ .app{padding:28px} }
+@media(min-width:680px){ .app{padding:24px} }
 </style>
 </head>
 <body>
@@ -45,16 +52,16 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
   <button id="btnAlarm" class="btn-primary">⏰ Abrir alarme do dispositivo</button>
   <input id="inpFotoOCR" type="file" accept="image/*" capture="environment" style="display:none;">
 
-  <div id="modalForm" class="modal">
-    <div class="modal-content">
+  <div id="modalForm" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
       <h2>Adicionar Medicamento</h2>
-      <div class="form-row"><label>Nome do Paciente</label><input type="text" id="inputPaciente"></div>
+      <div class="form-row"><label>Nome do Paciente</label><input type="text" id="inputPaciente" autocomplete="name"></div>
       <div class="form-row"><label>Nome do Medicamento</label><input type="text" id="inputNome"></div>
-      <div class="form-row"><label>Instrução</label><input type="text" id="inputInstrucao" placeholder="Ex: a cada 8 horas"></div>
+      <div class="form-row"><label>Instrução</label><input type="text" id="inputInstrucao" placeholder="Ex: a cada 8h ou 1x ao dia"></div>
       <div class="form-row"><label>Hora Inicial</label><input type="time" id="inputHora"></div>
       <div class="form-row"><label>Foto do Medicamento</label><input type="file" id="inputFoto" accept="image/*"></div>
       <div class="row" style="justify-content:flex-end; margin-top:8px;">
-        <button id="btnCancelar" class="btn-small ghost">Cancelar</button>
+        <button id="btnCancelar" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Cancelar</button>
         <button id="btnSalvar" class="btn-small">Salvar</button>
       </div>
     </div>
@@ -63,136 +70,425 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
   <div class="card">
     <div class="flex-space">
       <h2>Lista de medicamentos</h2>
-      <div>
+      <div style="display:flex;gap:8px">
         <button id="btnExport" class="btn-small">Exportar JSON</button>
         <button id="btnImport" class="btn-small">Importar JSON</button>
       </div>
     </div>
-    <table id="tblRemedios">
+    <table id="tblRemedios" aria-live="polite">
       <thead><tr><th>Foto</th><th>Paciente</th><th>Nome</th><th>Horários</th><th>Ações</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <div class="card" style="margin-top:12px">
+  <div class="card">
     <div class="flex-space">
       <h2>Histórico</h2>
-      <button id="btnLimparHistorico" class="btn-small ghost">Limpar</button>
+      <button id="btnLimparHistorico" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Limpar</button>
     </div>
     <div id="historyList" class="history-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="flex-space">
+      <h2>Próximos horários</h2>
+      <button id="btnAtualizarAgenda" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Atualizar</button>
+    </div>
+    <div id="agendaList" class="history-list"></div>
   </div>
 </div>
 
 <footer>💙 Meu Remédio</footer>
 <audio id="alertSound" src="alert.mp3" preload="auto"></audio>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+
 <script type="module">
-window.addEventListener('DOMContentLoaded', async () => {
+/* Universal PWA-ready index.html (Android + iOS fallbacks) */
 
-  const LS_KEY='meu_remedio', LS_HIST='meu_remedio_hist';
-  let remedios=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-  let historico=JSON.parse(localStorage.getItem(LS_HIST)||'[]');
+/* Service Worker registration */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(reg => console.log('Service Worker registrado.', reg))
+    .catch(err => console.error('SW registro falhou:', err));
+}
 
-  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
-  function salvarTudo(){ localStorage.setItem(LS_KEY,JSON.stringify(remedios)); localStorage.setItem(LS_HIST,JSON.stringify(historico)); renderTabela(); renderHistorico(); }
-  function nowBrasilia(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+(-3*3600000)); }
+/* Storage keys */
+const LS_KEY = 'meu_remedio';
+const LS_HIST = 'meu_remedio_hist';
 
-  // === RENDER TABELA ===
-  function renderTabela(){
-    const tbody=document.querySelector('#tblRemedios tbody');
-    if(!tbody) return;
-    tbody.innerHTML='';
-    remedios.forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>${r.foto?`<img src="${r.foto}" class="pill-img">`:''}</td>
-        <td>${r.paciente||''}</td>
-        <td>${r.nome||''}</td>
-        <td>${(r.horarios||[]).join(', ')}</td>
-        <td>
-          <button class="btn-small green" data-id="${r.id}" data-action="tomou">Tomou</button>
-          <button class="btn-small red" data-id="${r.id}" data-action="remover">Remover</button>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }
+/* App state */
+let remedios = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+let historico = JSON.parse(localStorage.getItem(LS_HIST) || '[]');
 
-  // Event delegation para os botões
-  const tbody=document.querySelector('#tblRemedios tbody');
-  if(tbody){
-    tbody.addEventListener('click',(e)=>{
-      const btn=e.target.closest('button');
-      if(!btn) return;
-      const id=btn.dataset.id;
-      const action=btn.dataset.action;
-      if(action==='tomou') window.tomou(id);
-      else if(action==='remover') window.remover(id);
-    });
-  }
-
-  function renderHistorico(){
-    const div=document.getElementById('historyList');
-    if(!div) return;
-    div.innerHTML='';
-    historico.forEach(h=>{
-      const el=document.createElement('div');
-      el.className='history-item';
-      el.textContent=`${h.data}: ${h.paciente} tomou ${h.nome} (${h.horario})`;
-      div.appendChild(el);
-    });
-  }
-
-  // === FUNÇÕES GLOBAIS ===
-  window.tomou = function(id){
-    const r=remedios.find(x=>x.id===id);
-    if(!r) return;
-    historico.unshift({id:uid(), paciente:r.paciente, nome:r.nome, horario:nowBrasilia().toTimeString().slice(0,5), data:new Date().toLocaleString()});
-    salvarTudo();
-    alert(`${r.paciente} tomou ${r.nome}`);
-  };
-
-  window.remover = function(id){
-    remedios=remedios.filter(x=>x.id!==id);
-    salvarTudo();
-  };
-
-  // === MODAL ===
-  const modal=document.getElementById('modalForm');
-  document.getElementById('btnManual').addEventListener('click',()=>modal.classList.add('open'));
-  document.getElementById('btnCancelar').addEventListener('click',()=>modal.classList.remove('open'));
-  document.getElementById('btnSalvar').addEventListener('click',()=>{
-    const paciente=document.getElementById('inputPaciente').value.trim();
-    const nome=document.getElementById('inputNome').value.trim();
-    const instrucao=document.getElementById('inputInstrucao').value.trim();
-    const horaInicial=document.getElementById('inputHora').value;
-    const fotoInput=document.getElementById('inputFoto');
-    if(!nome) return alert('Preencha o nome do medicamento.');
-    const reader=new FileReader();
-    reader.onload=function(e){
-      const novo={id:uid(), paciente,nome,instrucao,horaInicial,foto:e.target.result, horarios:[]};
-      remedios.push(novo);
-      salvarTudo();
-      modal.classList.remove('open');
-    };
-    if(fotoInput.files[0]) reader.readAsDataURL(fotoInput.files[0]);
-    else reader.onload({target:{result:''}});
-  });
-
-  // === OUTROS BOTÕES ===
-  document.getElementById('btnLimparHistorico').addEventListener('click',()=>{ historico=[]; salvarTudo(); });
-  document.getElementById('btnExport').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(remedios,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='remedios.json'; a.click(); URL.revokeObjectURL(url); });
-  document.getElementById('btnImport').addEventListener('click',()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json'; inp.onchange=e=>{ const file=e.target.files[0]; const reader=new FileReader(); reader.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(Array.isArray(data)){remedios=data; salvarTudo(); } }catch(err){alert('Arquivo inválido');} }; reader.readAsText(file); }; inp.click(); });
-  document.getElementById('btnAlarm').addEventListener('click',()=>{ window.location.href='intent://#Intent;action=android.intent.action.SET_ALARM;end'; });
-  document.getElementById('btnVoz').addEventListener('click',()=>{ if(!('webkitSpeechRecognition' in window)) return alert('Seu navegador não suporta comando de voz.'); const recognition=new webkitSpeechRecognition(); recognition.lang='pt-BR'; recognition.interimResults=false; recognition.onresult=(e)=>{ const texto=e.results[0][0].transcript; alert('Você disse: '+texto); }; recognition.start(); });
-  document.getElementById('btnAdd').addEventListener('click',()=>document.getElementById('inpFotoOCR').click());
-  document.getElementById('inpFotoOCR').addEventListener('change', async (e)=>{ const file=e.target.files[0]; if(!file) return; const { data:{ text } } = await Tesseract.recognize(file,'por'); alert('Texto extraído:\n'+text); });
-
+/* Helper */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function salvarTudo() {
+  localStorage.setItem(LS_KEY, JSON.stringify(remedios));
+  localStorage.setItem(LS_HIST, JSON.stringify(historico));
   renderTabela();
   renderHistorico();
+  renderAgenda();
+}
+
+/* Time utilities */
+function nowBrasilia() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + (-3 * 3600000));
+}
+
+/* ===== Notifications permissions & helper (with iOS fallback) ===== */
+async function solicitarPermissaoNotificacoes() {
+  if (!('Notification' in window)) return false;
+  try {
+    const perm = await Notification.requestPermission();
+    return perm === 'granted';
+  } catch (e) {
+    return false;
+  }
+}
+solicitarPermissaoNotificacoes();
+
+/* Post message to SW if possible */
+function enviarParaServiceWorker(tipo, dados) {
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ tipo, dados });
+  } else {
+    // Fallback: if no SW controller, try to show a Notification from the page (needs permission)
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(dados && dados.nome ? `${tipo === 'lembrete' ? '💊 Hora do remédio' : '⚠️ Vencimento'}` : tipo, {
+          body: `${dados.paciente ? dados.paciente + ' — ' : ''}${dados.nome || ''}`,
+          icon: dados && dados.foto ? dados.foto : 'icon-192.png'
+        });
+      } catch(e) { /* ignore */ }
+    }
+  }
+}
+
+/* ===== Scheduling (note: timers work while the page is alive) =====
+   For persistent background scheduling across reboots/closed app you'd need remote push or
+   platform-specific background tasks. This implementation:
+   - Schedules timers while the client is active,
+   - Sends a message to the service worker to show notifications (SW will display them).
+*/
+const scheduledTimers = new Map();
+
+function scheduleTimersForAll() {
+  // clear existing
+  for (const t of scheduledTimers.values()) clearTimeout(t);
+  scheduledTimers.clear();
+
+  remedios.forEach(r => {
+    agendarLembrete(r);
+    agendarVencimento(r);
+  });
+}
+
+function agendarLembrete(remedio) {
+  if (!remedio.horaInicial) return;
+  const keyBase = `lembrete_${remedio.id}`;
+  // compute next occurrence based on horaInicial
+  const [h, m] = remedio.horaInicial.split(':').map(Number);
+  const agora = new Date();
+  let horaAlvo = new Date();
+  horaAlvo.setHours(h, m, 0, 0);
+  if (horaAlvo <= agora) horaAlvo.setDate(horaAlvo.getDate() + 1);
+  const msAte = horaAlvo - agora;
+
+  // schedule a timeout (store so we can clear if needed)
+  const t = setTimeout(function lembreteHandler() {
+    enviarParaServiceWorker('lembrete', remedio);
+
+    // interval logic from instruction (ex: "a cada 8h" or "8h")
+    const match = remedio.instrucao ? remedio.instrucao.match(/(\d+)\s*h/i) : null;
+    if (match) {
+      const horas = parseInt(match[1], 10);
+      // set recurring interval
+      const iv = setInterval(() => enviarParaServiceWorker('lembrete', remedio), horas * 3600000);
+      scheduledTimers.set(keyBase + '_interval', iv);
+    }
+
+    // schedule next occurrence (tomorrow at same time)
+    const next = new Date();
+    next.setHours(h, m, 0, 0);
+    next.setDate(next.getDate() + 1);
+    const msNext = next - new Date();
+    const nxt = setTimeout(lembreteHandler, msNext);
+    scheduledTimers.set(keyBase, nxt);
+  }, msAte);
+
+  scheduledTimers.set(keyBase, t);
+}
+
+function agendarVencimento(remedio) {
+  const key = `venc_${remedio.id}`;
+  const criado = remedio.criadoEm ? new Date(remedio.criadoEm) : new Date();
+  const dias = remedio.validadeDias || 30; // allow override per remédio
+  const venc = new Date(criado.getTime() + dias * 24 * 3600000);
+  const ms = venc - new Date();
+  if (ms <= 0) {
+    // already expired — notify immediately
+    enviarParaServiceWorker('vencimento', remedio);
+    return;
+  }
+  const t = setTimeout(() => enviarParaServiceWorker('vencimento', remedio), ms);
+  scheduledTimers.set(key, t);
+}
+
+/* Re-schedule when visibility changes or on load */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') scheduleTimersForAll();
 });
+
+/* ===== Rendering functions ===== */
+function renderTabela() {
+  const tbody = document.querySelector('#tblRemedios tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  remedios.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.foto?`<img src="${r.foto}" class="pill-img" alt="imagem">`:''}</td>
+      <td>${r.paciente||''}</td>
+      <td>${r.nome||''}</td>
+      <td>${(r.horarios||[]).join(', ') || (r.horaInicial||'')}</td>
+      <td>
+        <button class="btn-small" data-id="${r.id}" data-action="tomou">Tomou</button>
+        <button class="btn-small" data-id="${r.id}" data-action="remover" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Remover</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+const tbodyEl = document.querySelector('#tblRemedios tbody');
+if (tbodyEl) {
+  tbodyEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    if (action === 'tomou') tomou(id);
+    else if (action === 'remover') remover(id);
+  });
+}
+
+function renderHistorico() {
+  const div = document.getElementById('historyList');
+  if (!div) return;
+  div.innerHTML = '';
+  historico.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'history-item';
+    el.textContent = `${h.data}: ${h.paciente} tomou ${h.nome} (${h.horario})`;
+    div.appendChild(el);
+  });
+}
+
+function calcularProximosHorarios(remedio) {
+  const lista = [];
+  if (!remedio.horaInicial) {
+    // still include vencimento
+    const criado = new Date(remedio.criadoEm || Date.now());
+    const venc = new Date(criado.getTime() + (remedio.validadeDias || 30) * 24 * 3600000);
+    lista.push({ data: venc, texto: `⚠️ Receita de ${remedio.nome} vence em ${venc.toLocaleDateString()}` });
+    return lista;
+  }
+  const [h, m] = remedio.horaInicial.split(':').map(Number);
+  const agora = new Date();
+  let proximo = new Date();
+  proximo.setHours(h, m, 0, 0);
+  if (proximo <= agora) proximo.setDate(proximo.getDate() + 1);
+  lista.push({ data: proximo, texto: `${remedio.paciente || 'Paciente'} — ${remedio.nome}` });
+
+  const match = remedio.instrucao ? remedio.instrucao.match(/(\d+)\s*h/i) : null;
+  if (match) {
+    const horas = parseInt(match[1], 10);
+    for (let i = 1; i <= 3; i++) {
+      const prox = new Date(proximo.getTime() + i * horas * 3600000);
+      lista.push({ data: prox, texto: `${remedio.paciente || 'Paciente'} — ${remedio.nome}` });
+    }
+  }
+
+  const criado = new Date(remedio.criadoEm || Date.now());
+  const venc = new Date(criado.getTime() + (remedio.validadeDias || 30) * 24 * 3600000);
+  lista.push({ data: venc, texto: `⚠️ Receita de ${remedio.nome} vence em ${venc.toLocaleDateString()}` });
+
+  return lista;
+}
+
+function renderAgenda() {
+  const div = document.getElementById('agendaList');
+  if (!div) return;
+  div.innerHTML = '';
+  let proximos = [];
+  remedios.forEach(r => proximos.push(...calcularProximosHorarios(r)));
+  proximos.sort((a, b) => a.data - b.data);
+  const agora = new Date();
+  if (proximos.length === 0) {
+    div.innerHTML = '<div class="history-item">Nenhum horário agendado.</div>';
+    return;
+  }
+  proximos.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'history-item';
+    const diffMin = Math.round((item.data - agora) / 60000);
+    const tempo = diffMin > 0 ? (diffMin < 60 ? `em ${diffMin} min` : `em ${Math.floor(diffMin / 60)}h ${diffMin % 60}min`) : 'agora';
+    el.textContent = `${item.texto} — ${item.data.toLocaleString()} (${tempo})`;
+    div.appendChild(el);
+  });
+}
+
+/* ===== Global actions ===== */
+function tomou(id) {
+  const r = remedios.find(x => x.id === id);
+  if (!r) return;
+  historico.unshift({ id: uid(), paciente: r.paciente, nome: r.nome, horario: nowBrasilia().toTimeString().slice(0,5), data: new Date().toLocaleString() });
+  salvarTudo();
+  alert(`${r.paciente || 'Paciente'} tomou ${r.nome}`);
+}
+
+function remover(id) {
+  remedios = remedios.filter(x => x.id !== id);
+  // clear timers related to this id
+  const keys = [...scheduledTimers.keys()].filter(k => k.includes(id));
+  keys.forEach(k => {
+    const t = scheduledTimers.get(k);
+    if (t) clearTimeout(t);
+    scheduledTimers.delete(k);
+  });
+  salvarTudo();
+}
+
+/* ===== Modal / Add medicine logic ===== */
+const modal = document.getElementById('modalForm');
+document.getElementById('btnManual').addEventListener('click', () => {
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+});
+document.getElementById('btnCancelar').addEventListener('click', () => {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+});
+
+document.getElementById('btnSalvar').addEventListener('click', () => {
+  const paciente = document.getElementById('inputPaciente').value.trim();
+  const nome = document.getElementById('inputNome').value.trim();
+  const instrucao = document.getElementById('inputInstrucao').value.trim();
+  const horaInicial = document.getElementById('inputHora').value;
+  const fotoInput = document.getElementById('inputFoto');
+  if (!nome) return alert('Preencha o nome do medicamento.');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const novo = {
+      id: uid(),
+      paciente,
+      nome,
+      instrucao,
+      horaInicial,
+      foto: e.target.result || '',
+      horarios: [],
+      criadoEm: new Date().toISOString(),
+      validadeDias: 30
+    };
+    remedios.push(novo);
+    salvarTudo();
+    modal.classList.remove('open');
+    scheduleTimersForAll();
+  };
+  if (fotoInput.files && fotoInput.files[0]) reader.readAsDataURL(fotoInput.files[0]);
+  else reader.onload({ target: { result: '' } });
+});
+
+/* ===== OCR, Voice, Import/Export, Alarm button ===== */
+document.getElementById('btnAdd').addEventListener('click', () => document.getElementById('inpFotoOCR').click());
+document.getElementById('inpFotoOCR').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const { data: { text } } = await Tesseract.recognize(file, 'por');
+    alert('Texto extraído:\n' + text);
+  } catch (err) {
+    alert('Erro no OCR: ' + err.message);
+  }
+});
+
+document.getElementById('btnVoz').addEventListener('click', () => {
+  if (!('webkitSpeechRecognition' in window)) {
+    // Fallback: prompt typed input
+    const txt = prompt('Comando de voz não suportado neste navegador. Digite o texto:');
+    if (txt) alert('Texto recebido: ' + txt);
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'pt-BR';
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    const texto = e.results[0][0].transcript;
+    alert('Você disse: ' + texto);
+  };
+  recognition.onerror = (err) => alert('Erro no reconhecimento: ' + err.message);
+  recognition.start();
+});
+
+document.getElementById('btnAlarm').addEventListener('click', () => {
+  // Android Intent will work on Android Chrome; on iOS we show fallback
+  const ua = navigator.userAgent || '';
+  if (/Android/i.test(ua)) {
+    window.location.href = 'intent://#Intent;action=android.intent.action.SET_ALARM;end';
+  } else {
+    alert('iOS não permite abrir o app de relógio via intent. Defina um alarme manualmente no app Relógio.');
+  }
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(remedios, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'remedios.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnImport').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'application/json';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (Array.isArray(data)) {
+          remedios = data;
+          salvarTudo();
+          scheduleTimersForAll();
+        } else alert('Arquivo inválido');
+      } catch (err) {
+        alert('Erro ao importar: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+});
+
+document.getElementById('btnLimparHistorico').addEventListener('click', () => {
+  if (!confirm('Limpar histórico?')) return;
+  historico = [];
+  salvarTudo();
+});
+
+document.getElementById('btnAtualizarAgenda').addEventListener('click', renderAgenda);
+
+/* ===== Init ===== */
+renderTabela();
+renderHistorico();
+renderAgenda();
+scheduleTimersForAll();
+
 </script>
 </body>
 </html>
-
-
-
