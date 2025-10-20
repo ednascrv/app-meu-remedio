@@ -1,7 +1,13 @@
 {
-  "appId": "com.seuusuario.meuremedio",
+  "appId": "com.joao.meuremedio",
   "appName": "Meu Remédio",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 0 },
+    "LocalNotifications": {}
+  },
+  "server": {
+    "androidScheme": "https"
+  }
 }
-
