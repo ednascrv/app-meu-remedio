@@ -1,22 +1,59 @@
-const CACHE_NAME='meu-remedio-cache-v3';
-const OFFLINE_URL='/offline.html';
-const ASSETS=['/','/index.html','/alert.mp3','/offline.html','/icon.png'];
+const CACHE_NAME = 'meu-remedio-cache-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/alert.mp3',
+  '/icon-192.png',
+  '/manifest.json',
+  'https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js'
+];
 
-self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())); });
-self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
-self.addEventListener('fetch', e=>{
-  if(e.request.method!=='GET') return;
-  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||caches.match(OFFLINE_URL))));
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
+  self.skipWaiting();
 });
-self.addEventListener('message', e=>{
-  const data=e.data;
-  if(data && data.type==='REMINDER_MULTI'){
-    data.lista.forEach(remedio=>{
-      self.registration.showNotification('Hora do remédio 💊',{body:`${remedio.paciente||'Paciente'} tomar ${remedio.nome}`,icon:'icon.png',tag:`lembrete-${remedio.id}`,vibrate:[200,100,200]});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => resp || fetch(event.request))
+  );
+});
+
+self.addEventListener('message', event => {
+  if(event.data.type==='REMINDER_MULTI'){
+    event.data.lista.forEach(rem=>{
+      const title = `${rem.paciente||'Paciente'} tomar ${rem.nome}`;
+      const options = {
+        body: 'Horário do medicamento!',
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        vibrate:[200,100,200],
+        tag: rem.id
+      };
+      self.registration.showNotification(title, options);
     });
   }
 });
-self.addEventListener('notificationclick', e=>{ e.notification.close(); e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>c.length?c[0].focus():clients.openWindow('/'))); });
 
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({type:'window', includeUncontrolled:true}).then(clientList=>{
+      if(clientList.length>0) clientList[0].focus();
+      else clients.openWindow('/');
+    })
+  );
+});
 
 
