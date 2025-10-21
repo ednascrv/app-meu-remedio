@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -36,65 +35,79 @@ footer{position:fixed; left:0; right:0; bottom:0; height:64px; background: linea
 .modal-content{width:94%; max-width:520px; background:white; border-radius:12px; padding:14px;}
 .form-row{margin-bottom:8px}
 label{display:block; font-size:14px; margin-bottom:6px}
-input[type="text"], input[type="time"], textarea, select, input[type="file"], input[type="number"]{width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;}
+input[type="text"], input[type="time"], textarea, select, input[type="file"], input[type="number"], input[type="date"]{width:100%; padding:10px; border-radius:8px; border:1px solid #d8eefb;}
 .history-list{max-height:300px; overflow:auto; padding:6px}
 .history-item{padding:10px;border-radius:8px;background:#f6fdff;margin-bottom:8px;font-size:14px}
 .flex-space{display:flex; justify-content:space-between; align-items:center}
 @media(min-width:680px){ .app{padding:24px} }
+small{display:block;margin-top:6px}
+.access-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.switch{display:inline-flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
 <header>💊 Meu Remédio</header>
-<div class="app">
-  <button id="btnManual" class="btn-primary">✏️ Adicionar medicamento manualmente</button>
-  <button id="btnAdd" class="btn-primary">📸 Adicionar receita (OCR)</button>
-  <button id="btnVoz" class="btn-primary">🎙️ Comando de voz</button>
-  <button id="btnAlarm" class="btn-primary">⏰ Abrir alarme do dispositivo</button>
+<div class="app" role="main">
+  <button id="btnManual" class="btn-primary" aria-label="Adicionar medicamento manualmente">✏️ Adicionar medicamento manualmente</button>
+  <button id="btnAdd" class="btn-primary" aria-label="Adicionar receita via OCR">📸 Adicionar receita (OCR)</button>
+  <button id="btnOCRRemedio" class="btn-primary" aria-label="Adicionar remédio via OCR">📷 Adicionar remédio (OCR)</button>
+  <button id="btnVoz" class="btn-primary" aria-label="Comando de voz">🎙️ Comando de voz</button>
+  <button id="btnAlarm" class="btn-primary" aria-label="Abrir alarme do dispositivo">⏰ Abrir alarme do dispositivo</button>
   <input id="inpFotoOCR" type="file" accept="image/*" capture="environment" style="display:none;">
 
-  <div id="modalForm" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true">
-      <h2>Adicionar Medicamento</h2>
-      <div class="form-row"><label>Nome do Paciente</label><input type="text" id="inputPaciente" autocomplete="name"></div>
-      <div class="form-row"><label>Nome do Medicamento</label><input type="text" id="inputNome"></div>
-      <div class="form-row"><label>Instrução</label><input type="text" id="inputInstrucao" placeholder="Ex: a cada 8h ou 1x ao dia"></div>
-      <div class="form-row"><label>Hora Inicial</label><input type="time" id="inputHora"></div>
-      <div class="form-row"><label>Foto do Medicamento</label><input type="file" id="inputFoto" accept="image/*"></div>
-      <div class="row" style="justify-content:flex-end; margin-top:8px;">
-        <button id="btnCancelar" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Cancelar</button>
-        <button id="btnSalvar" class="btn-small">Salvar</button>
+  <div class="card" aria-label="Acessibilidade">
+    <div class="flex-space">
+      <h2>Acessibilidade</h2>
+      <div class="access-row">
+        <label class="switch"><input id="toggleFala" type="checkbox" checked> Falar (voz ativa)</label>
+        <label class="switch"><input id="toggleVerboso" type="checkbox"> Verbose (ler lista agenda/histórico ao abrir)</label>
       </div>
     </div>
   </div>
 
-  <div class="card">
+  <div id="modalForm" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <h2>Adicionar Medicamento</h2>
+      <div class="form-row"><label for="inputPaciente">Nome do Paciente</label><input type="text" id="inputPaciente" autocomplete="name"></div>
+      <div class="form-row"><label for="inputNome">Nome do Medicamento</label><input type="text" id="inputNome"></div>
+      <div class="form-row"><label for="inputInstrucao">Instrução</label><input type="text" id="inputInstrucao" placeholder="Ex: a cada 8h ou 1x ao dia"></div>
+      <div class="form-row"><label for="inputHora">Hora Inicial</label><input type="time" id="inputHora"></div>
+      <div class="form-row"><label for="inputFoto">Foto do Medicamento</label><input type="file" id="inputFoto" accept="image/*"></div>
+      <div class="row" style="justify-content:flex-end; margin-top:8px;">
+        <button id="btnCancelar" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;" aria-label="Cancelar">Cancelar</button>
+        <button id="btnSalvar" class="btn-small" aria-label="Salvar medicamento">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" aria-label="Lista de medicamentos">
     <div class="flex-space">
       <h2>Lista de medicamentos</h2>
       <div style="display:flex;gap:8px">
-        <button id="btnExport" class="btn-small">Exportar JSON</button>
-        <button id="btnImport" class="btn-small">Importar JSON</button>
+        <button id="btnExport" class="btn-small" aria-label="Exportar JSON">Exportar JSON</button>
+        <button id="btnImport" class="btn-small" aria-label="Importar JSON">Importar JSON</button>
       </div>
     </div>
-    <table id="tblRemedios" aria-live="polite">
+    <table id="tblRemedios" aria-live="polite" role="table">
       <thead><tr><th>Foto</th><th>Paciente</th><th>Nome</th><th>Horários</th><th>Ações</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <div class="card">
+  <div class="card" aria-label="Histórico">
     <div class="flex-space">
       <h2>Histórico</h2>
-      <button id="btnLimparHistorico" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Limpar</button>
+      <button id="btnLimparHistorico" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;" aria-label="Limpar histórico">Limpar</button>
     </div>
-    <div id="historyList" class="history-list"></div>
+    <div id="historyList" class="history-list" aria-live="polite"></div>
   </div>
 
-  <div class="card">
+  <div class="card" aria-label="Próximos horários">
     <div class="flex-space">
       <h2>Próximos horários</h2>
-      <button id="btnAtualizarAgenda" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Atualizar</button>
+      <button id="btnAtualizarAgenda" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;" aria-label="Atualizar agenda">Atualizar</button>
     </div>
-    <div id="agendaList" class="history-list"></div>
+    <div id="agendaList" class="history-list" aria-live="polite"></div>
   </div>
 </div>
 
@@ -103,26 +116,17 @@ input[type="text"], input[type="time"], textarea, select, input[type="file"], in
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 
 <script type="module">
-/* Universal PWA-ready index.html (Android + iOS fallbacks) */
+/* ======= Meu Remédio (unificado) - OCR, voz ativa, acessibilidade, PWA ready ======= */
 
-/* Service Worker registration */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(reg => console.log('Service Worker registrado.', reg))
-    .catch(err => console.error('SW registro falhou:', err));
-}
-
-/* Storage keys */
+/* ---------- Config e Storage ---------- */
 const LS_KEY = 'meu_remedio';
 const LS_HIST = 'meu_remedio_hist';
-
-/* App state */
 let remedios = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
 let historico = JSON.parse(localStorage.getItem(LS_HIST) || '[]');
 
-/* Helper */
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-function salvarTudo() {
+/* ---------- Utilidades ---------- */
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function salvarTudo(){
   localStorage.setItem(LS_KEY, JSON.stringify(remedios));
   localStorage.setItem(LS_HIST, JSON.stringify(historico));
   renderTabela();
@@ -130,105 +134,128 @@ function salvarTudo() {
   renderAgenda();
 }
 
-/* Time utilities */
-function nowBrasilia() {
-  const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + (-3 * 3600000));
+/* ---------- Voz / Speech Synthesis (ativa) ---------- */
+const toggleFalaEl = document.getElementById('toggleFala');
+const toggleVerboseEl = document.getElementById('toggleVerboso');
+
+function falaAtiva(){ return toggleFalaEl && toggleFalaEl.checked; }
+
+function falar(texto){
+  if (!falaAtiva()) return;
+  try {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(texto);
+      u.lang = 'pt-BR';
+      u.rate = 1;
+      u.pitch = 1;
+      speechSynthesis.speak(u);
+    }
+  } catch(e){
+    console.warn('Erro speechSynthesis:', e);
+  }
 }
 
-/* ===== Notifications permissions & helper (with iOS fallback) ===== */
-async function solicitarPermissaoNotificacoes() {
+/* ---------- Service Worker registration ---------- */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(reg => console.log('SW registrado', reg.scope))
+    .catch(err => console.warn('SW registro falhou', err));
+}
+
+/* ---------- Notificações (permission) ---------- */
+async function solicitarPermissaoNotificacoes(){
   if (!('Notification' in window)) return false;
   try {
     const perm = await Notification.requestPermission();
     return perm === 'granted';
-  } catch (e) {
+  } catch(e){
     return false;
   }
 }
 solicitarPermissaoNotificacoes();
 
-/* Post message to SW if possible */
-function enviarParaServiceWorker(tipo, dados) {
+/* Envia mensagem para SW (para mostrar notificação) */
+function enviarParaServiceWorker(tipo, dados){
   if (navigator.serviceWorker && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ tipo, dados });
   } else {
-    // Fallback: if no SW controller, try to show a Notification from the page (needs permission)
+    // fallback: Notification API direto da página (se permitido)
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification(dados && dados.nome ? `${tipo === 'lembrete' ? '💊 Hora do remédio' : '⚠️ Vencimento'}` : tipo, {
+        const title = tipo === 'lembrete' ? '💊 Hora do remédio' : '⚠️ Vencimento';
+        new Notification(title, {
           body: `${dados.paciente ? dados.paciente + ' — ' : ''}${dados.nome || ''}`,
           icon: dados && dados.foto ? dados.foto : 'icon-192.png'
         });
-      } catch(e) { /* ignore */ }
+      } catch(e){}
     }
+  }
+  // also speak
+  if (tipo === 'lembrete') {
+    falar(`${dados.paciente || 'Paciente'}: hora de tomar ${dados.nome}.`);
+  } else if (tipo === 'vencimento') {
+    falar(`Atenção: receita de ${dados.nome} está vencendo.`);
   }
 }
 
-/* ===== Scheduling (note: timers work while the page is alive) =====
-   For persistent background scheduling across reboots/closed app you'd need remote push or
-   platform-specific background tasks. This implementation:
-   - Schedules timers while the client is active,
-   - Sends a message to the service worker to show notifications (SW will display them).
-*/
+/* ---------- Scheduling (timers while page active) ---------- */
 const scheduledTimers = new Map();
 
-function scheduleTimersForAll() {
-  // clear existing
-  for (const t of scheduledTimers.values()) clearTimeout(t);
+function clearAllScheduled(){
+  for (const t of scheduledTimers.values()) {
+    clearTimeout(t);
+    clearInterval(t);
+  }
   scheduledTimers.clear();
+}
 
+function scheduleTimersForAll(){
+  clearAllScheduled();
   remedios.forEach(r => {
     agendarLembrete(r);
     agendarVencimento(r);
   });
 }
 
-function agendarLembrete(remedio) {
+function agendarLembrete(remedio){
   if (!remedio.horaInicial) return;
   const keyBase = `lembrete_${remedio.id}`;
-  // compute next occurrence based on horaInicial
   const [h, m] = remedio.horaInicial.split(':').map(Number);
   const agora = new Date();
-  let horaAlvo = new Date();
-  horaAlvo.setHours(h, m, 0, 0);
-  if (horaAlvo <= agora) horaAlvo.setDate(horaAlvo.getDate() + 1);
-  const msAte = horaAlvo - agora;
-
-  // schedule a timeout (store so we can clear if needed)
-  const t = setTimeout(function lembreteHandler() {
+  let alvo = new Date();
+  alvo.setHours(h, m, 0, 0);
+  if (alvo <= agora) alvo.setDate(alvo.getDate() + 1);
+  const ms = alvo - agora;
+  const t = setTimeout(function lembreteHandler(){
     enviarParaServiceWorker('lembrete', remedio);
 
-    // interval logic from instruction (ex: "a cada 8h" or "8h")
+    // recurring interval if instrução contains hours (e.g., "a cada 8h")
     const match = remedio.instrucao ? remedio.instrucao.match(/(\d+)\s*h/i) : null;
     if (match) {
       const horas = parseInt(match[1], 10);
-      // set recurring interval
       const iv = setInterval(() => enviarParaServiceWorker('lembrete', remedio), horas * 3600000);
       scheduledTimers.set(keyBase + '_interval', iv);
     }
 
-    // schedule next occurrence (tomorrow at same time)
+    // schedule next day at same time
     const next = new Date();
     next.setHours(h, m, 0, 0);
     next.setDate(next.getDate() + 1);
     const msNext = next - new Date();
     const nxt = setTimeout(lembreteHandler, msNext);
     scheduledTimers.set(keyBase, nxt);
-  }, msAte);
-
+  }, ms);
   scheduledTimers.set(keyBase, t);
 }
 
-function agendarVencimento(remedio) {
+function agendarVencimento(remedio){
   const key = `venc_${remedio.id}`;
   const criado = remedio.criadoEm ? new Date(remedio.criadoEm) : new Date();
-  const dias = remedio.validadeDias || 30; // allow override per remédio
+  const dias = remedio.validadeDias || 30;
   const venc = new Date(criado.getTime() + dias * 24 * 3600000);
-  const ms = venc - new Date();
+  const ms = venc - Date.now();
   if (ms <= 0) {
-    // already expired — notify immediately
     enviarParaServiceWorker('vencimento', remedio);
     return;
   }
@@ -236,119 +263,118 @@ function agendarVencimento(remedio) {
   scheduledTimers.set(key, t);
 }
 
-/* Re-schedule when visibility changes or on load */
+/* Re-schedule on visibility change (when user returns to page) */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') scheduleTimersForAll();
 });
 
-/* ===== Rendering functions ===== */
-function renderTabela() {
+/* ---------- Rendering ---------- */
+function renderTabela(){
   const tbody = document.querySelector('#tblRemedios tbody');
-  if (!tbody) return;
   tbody.innerHTML = '';
   remedios.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${r.foto?`<img src="${r.foto}" class="pill-img" alt="imagem">`:''}</td>
-      <td>${r.paciente||''}</td>
-      <td>${r.nome||''}</td>
+      <td>${r.foto?`<img src="${r.foto}" class="pill-img" alt="Imagem do medicamento ${escapeHtml(r.nome)}">`:''}</td>
+      <td>${escapeHtml(r.paciente||'')}</td>
+      <td>${escapeHtml(r.nome||'')}</td>
       <td>${(r.horarios||[]).join(', ') || (r.horaInicial||'')}</td>
       <td>
-        <button class="btn-small" data-id="${r.id}" data-action="tomou">Tomou</button>
-        <button class="btn-small" data-id="${r.id}" data-action="remover" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Remover</button>
-      </td>`;
+        <button class="btn-small" aria-label="Registrar que tomou ${escapeHtml(r.nome)}" data-id="${r.id}" data-action="tomou">Tomou</button>
+        <button class="btn-small" aria-label="Remover ${escapeHtml(r.nome)}" data-id="${r.id}" data-action="remover" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Remover</button>
+      </td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-const tbodyEl = document.querySelector('#tblRemedios tbody');
-if (tbodyEl) {
-  tbodyEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const action = btn.dataset.action;
-    if (action === 'tomou') tomou(id);
-    else if (action === 'remover') remover(id);
-  });
-}
-
-function renderHistorico() {
+function renderHistorico(){
   const div = document.getElementById('historyList');
-  if (!div) return;
   div.innerHTML = '';
   historico.forEach(h => {
     const el = document.createElement('div');
     el.className = 'history-item';
-    el.textContent = `${h.data}: ${h.paciente} tomou ${h.nome} (${h.horario})`;
+    el.setAttribute('role','text');
+    el.textContent = `${h.data}: ${h.paciente} tomou ${h.nome} ${h.horario ? '('+h.horario+')' : ''}`;
     div.appendChild(el);
   });
 }
 
-function calcularProximosHorarios(remedio) {
+function calcularProximosHorarios(remedio){
   const lista = [];
   if (!remedio.horaInicial) {
-    // still include vencimento
     const criado = new Date(remedio.criadoEm || Date.now());
     const venc = new Date(criado.getTime() + (remedio.validadeDias || 30) * 24 * 3600000);
     lista.push({ data: venc, texto: `⚠️ Receita de ${remedio.nome} vence em ${venc.toLocaleDateString()}` });
     return lista;
   }
-  const [h, m] = remedio.horaInicial.split(':').map(Number);
+  const [h,m] = remedio.horaInicial.split(':').map(Number);
   const agora = new Date();
   let proximo = new Date();
-  proximo.setHours(h, m, 0, 0);
+  proximo.setHours(h,m,0,0);
   if (proximo <= agora) proximo.setDate(proximo.getDate() + 1);
   lista.push({ data: proximo, texto: `${remedio.paciente || 'Paciente'} — ${remedio.nome}` });
-
   const match = remedio.instrucao ? remedio.instrucao.match(/(\d+)\s*h/i) : null;
   if (match) {
-    const horas = parseInt(match[1], 10);
-    for (let i = 1; i <= 3; i++) {
-      const prox = new Date(proximo.getTime() + i * horas * 3600000);
+    const horas = parseInt(match[1],10);
+    for (let i=1;i<=3;i++){
+      const prox = new Date(proximo.getTime() + i*horas*3600000);
       lista.push({ data: prox, texto: `${remedio.paciente || 'Paciente'} — ${remedio.nome}` });
     }
   }
-
   const criado = new Date(remedio.criadoEm || Date.now());
   const venc = new Date(criado.getTime() + (remedio.validadeDias || 30) * 24 * 3600000);
   lista.push({ data: venc, texto: `⚠️ Receita de ${remedio.nome} vence em ${venc.toLocaleDateString()}` });
-
   return lista;
 }
 
-function renderAgenda() {
+function renderAgenda(){
   const div = document.getElementById('agendaList');
-  if (!div) return;
   div.innerHTML = '';
   let proximos = [];
   remedios.forEach(r => proximos.push(...calcularProximosHorarios(r)));
-  proximos.sort((a, b) => a.data - b.data);
+  proximos.sort((a,b)=>a.data - b.data);
   const agora = new Date();
-  if (proximos.length === 0) {
-    div.innerHTML = '<div class="history-item">Nenhum horário agendado.</div>';
-    return;
-  }
+  if (proximos.length === 0) { div.innerHTML = '<div class="history-item">Nenhum horário agendado.</div>'; return; }
   proximos.forEach(item => {
     const el = document.createElement('div');
     el.className = 'history-item';
-    const diffMin = Math.round((item.data - agora) / 60000);
-    const tempo = diffMin > 0 ? (diffMin < 60 ? `em ${diffMin} min` : `em ${Math.floor(diffMin / 60)}h ${diffMin % 60}min`) : 'agora';
+    const diffMin = Math.round((item.data - agora)/60000);
+    const tempo = diffMin > 0 ? (diffMin < 60 ? `em ${diffMin} min` : `em ${Math.floor(diffMin/60)}h ${diffMin%60}min`) : 'agora';
     el.textContent = `${item.texto} — ${item.data.toLocaleString()} (${tempo})`;
     div.appendChild(el);
   });
 }
 
-/* ===== Global actions ===== */
-function tomou(id) {
-  const r = remedios.find(x => x.id === id);
-  if (!r) return;
-  historico.unshift({ id: uid(), paciente: r.paciente, nome: r.nome, horario: nowBrasilia().toTimeString().slice(0,5), data: new Date().toLocaleString() });
-  salvarTudo();
-  alert(`${r.paciente || 'Paciente'} tomou ${r.nome}`);
+/* ---------- Actions: Tomou / Remover ---------- */
+document.querySelector('#tblRemedios tbody').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if (action === 'tomou') tomou(id);
+  else if (action === 'remover') remover(id);
+});
+
+function nowBrasilia(){
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + (-3 * 3600000));
 }
 
-function remover(id) {
+function tomou(id){
+  const r = remedios.find(x => x.id === id);
+  if (!r) return;
+  const horario = nowBrasilia().toTimeString().slice(0,5);
+  historico.unshift({ id: uid(), paciente: r.paciente, nome: r.nome, horario, data: new Date().toLocaleString() });
+  salvarTudo();
+  falar(`${r.paciente || 'Paciente'} tomou ${r.nome} às ${horario}.`);
+  // optional: play sound
+  const s = document.getElementById('alertSound');
+  if (s) s.play().catch(()=>{});
+}
+
+function remover(id){
   remedios = remedios.filter(x => x.id !== id);
   // clear timers related to this id
   const keys = [...scheduledTimers.keys()].filter(k => k.includes(id));
@@ -358,17 +384,19 @@ function remover(id) {
     scheduledTimers.delete(k);
   });
   salvarTudo();
+  falar('Remédio removido.');
 }
 
-/* ===== Modal / Add medicine logic ===== */
+/* ---------- Modal manual add ---------- */
 const modal = document.getElementById('modalForm');
 document.getElementById('btnManual').addEventListener('click', () => {
   modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
+  modal.setAttribute('aria-hidden','false');
+  document.getElementById('inputPaciente').focus();
 });
 document.getElementById('btnCancelar').addEventListener('click', () => {
   modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
+  modal.setAttribute('aria-hidden','true');
 });
 
 document.getElementById('btnSalvar').addEventListener('click', () => {
@@ -377,9 +405,9 @@ document.getElementById('btnSalvar').addEventListener('click', () => {
   const instrucao = document.getElementById('inputInstrucao').value.trim();
   const horaInicial = document.getElementById('inputHora').value;
   const fotoInput = document.getElementById('inputFoto');
-  if (!nome) return alert('Preencha o nome do medicamento.');
+  if (!nome) { alert('Preencha o nome do medicamento.'); return; }
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function(e){
     const novo = {
       id: uid(),
       paciente,
@@ -395,44 +423,160 @@ document.getElementById('btnSalvar').addEventListener('click', () => {
     salvarTudo();
     modal.classList.remove('open');
     scheduleTimersForAll();
+    falar(`Medicamento ${nome} adicionado.`);
   };
   if (fotoInput.files && fotoInput.files[0]) reader.readAsDataURL(fotoInput.files[0]);
   else reader.onload({ target: { result: '' } });
 });
 
-/* ===== OCR, Voice, Import/Export, Alarm button ===== */
-document.getElementById('btnAdd').addEventListener('click', () => document.getElementById('inpFotoOCR').click());
-document.getElementById('inpFotoOCR').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
+/* ---------- OCR avançado (receita + remédio) ---------- */
+const NOMES_REMEDIOS_COMUNS = [
+  "paracetamol","dipirona","ibuprofeno","amoxicilina","azitromicina",
+  "losartana","omeprazol","metformina","sinvastatina","cetoprofeno",
+  "prednisona","clonazepam","fluoxetina","diclofenaco","enalapril",
+  "loratadina","naproxeno","sertralina","atorvastatina","nimesulida",
+  "captopril","cetirizina","rosuvastatina"
+];
+
+function detectarNomeMedicamento(texto){
+  const lower = texto.toLowerCase();
+  for (const nome of NOMES_REMEDIOS_COMUNS){
+    if (lower.includes(nome)) return nome.charAt(0).toUpperCase()+nome.slice(1);
+  }
+  const linha1 = texto.split('\n').map(s=>s.trim()).filter(Boolean)[0];
+  return linha1 ? linha1.slice(0,60) : '';
+}
+
+async function processarOCR(tipo, file){
   if (!file) return;
   try {
     const { data: { text } } = await Tesseract.recognize(file, 'por');
-    alert('Texto extraído:\n' + text);
+    console.log('OCR text:', text);
+    const nomeDetectado = detectarNomeMedicamento(text);
+    const modalOCR = document.createElement('div');
+    modalOCR.className = 'modal open';
+    modalOCR.innerHTML = `
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <h2>${tipo === 'receita' ? 'Revisar Receita OCR' : 'Revisar Remédio OCR'}</h2>
+        <div class="form-row"><label>Nome do Paciente</label><input type="text" id="ocrPaciente"></div>
+        <div class="form-row"><label>Nome do Medicamento</label>
+          <input type="text" id="ocrNome" value="${escapeHtmlAttr(nomeDetectado)}">
+          ${nomeDetectado ? `<small style="color:var(--accent)">Detectado automaticamente: ${escapeHtml(nomeDetectado)}</small>` : ''}
+        </div>
+        <div class="form-row"><label>Instrução</label><input type="text" id="ocrInstrucao" placeholder="Ex: a cada 8h ou 1x ao dia"></div>
+        <div class="form-row"><label>Hora Inicial</label><input type="time" id="ocrHora"></div>
+        <div class="form-row"><label>Data de Vencimento da Receita</label><input type="date" id="ocrVencimento"></div>
+        ${tipo === 'remedio' ? `<div class="form-row"><label><input type="checkbox" id="ocrUsarFoto"> Usar foto como imagem do remédio</label></div>` : ''}
+        <div class="row" style="justify-content:flex-end; margin-top:8px;">
+          <button id="ocrCancelar" class="btn-small" style="background:transparent;color:var(--accent);border:1px solid #d8eefb;">Cancelar</button>
+          <button id="ocrSalvar" class="btn-small">Salvar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalOCR);
+    // speak the action
+    falar(tipo === 'receita' ? 'Revisar os dados da receita extraída' : 'Revisar os dados do rótulo extraído');
+
+    modalOCR.querySelector('#ocrCancelar').addEventListener('click', () => {
+      document.body.removeChild(modalOCR);
+      falar('Edição cancelada.');
+    });
+
+    modalOCR.querySelector('#ocrSalvar').addEventListener('click', () => {
+      const paciente = modalOCR.querySelector('#ocrPaciente').value.trim();
+      const nome = modalOCR.querySelector('#ocrNome').value.trim();
+      const instrucao = modalOCR.querySelector('#ocrInstrucao').value.trim();
+      const horaInicial = modalOCR.querySelector('#ocrHora').value;
+      const vencimentoStr = modalOCR.querySelector('#ocrVencimento').value;
+      const usarFoto = tipo === 'remedio' && modalOCR.querySelector('#ocrUsarFoto')?.checked;
+
+      if (!nome) { alert('Preencha o nome do medicamento.'); return; }
+
+      let validadeDias = 30;
+      if (vencimentoStr) {
+        const hoje = new Date();
+        const venc = new Date(vencimentoStr);
+        validadeDias = Math.max(1, Math.round((venc - hoje) / (24 * 3600000)));
+      }
+
+      const novo = {
+        id: uid(),
+        paciente,
+        nome,
+        instrucao,
+        horaInicial,
+        foto: '',
+        horarios: [],
+        criadoEm: new Date().toISOString(),
+        validadeDias
+      };
+
+      if (usarFoto) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          novo.foto = ev.target.result;
+          remedios.push(novo);
+          salvarTudo();
+          scheduleTimersForAll();
+          document.body.removeChild(modalOCR);
+          falar(`Remédio ${nome} adicionado com foto.`);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        remedios.push(novo);
+        salvarTudo();
+        scheduleTimersForAll();
+        document.body.removeChild(modalOCR);
+        falar(`Medicamento ${nome} adicionado.`);
+      }
+    });
+
   } catch (err) {
-    alert('Erro no OCR: ' + err.message);
+    alert('Erro no OCR: ' + (err.message || err));
+    console.error(err);
   }
+}
+
+/* Hook up OCR buttons (uses dynamic input to avoid needing visible input) */
+document.getElementById('btnAdd').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.capture = 'environment';
+  inp.onchange = e => processarOCR('receita', e.target.files[0]);
+  inp.click();
+});
+document.getElementById('btnOCRRemedio').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.capture = 'environment';
+  inp.onchange = e => processarOCR('remedio', e.target.files[0]);
+  inp.click();
 });
 
+/* ---------- Voice command (speech recognition) ---------- */
 document.getElementById('btnVoz').addEventListener('click', () => {
-  if (!('webkitSpeechRecognition' in window)) {
-    // Fallback: prompt typed input
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     const txt = prompt('Comando de voz não suportado neste navegador. Digite o texto:');
     if (txt) alert('Texto recebido: ' + txt);
     return;
   }
-  const recognition = new webkitSpeechRecognition();
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new Rec();
   recognition.lang = 'pt-BR';
   recognition.interimResults = false;
   recognition.onresult = (e) => {
     const texto = e.results[0][0].transcript;
-    alert('Você disse: ' + texto);
+    falar('Você disse: ' + texto);
+    // You can implement further voice commands parsing here (add medicine, list, etc.)
   };
-  recognition.onerror = (err) => alert('Erro no reconhecimento: ' + err.message);
+  recognition.onerror = (err) => { alert('Erro no reconhecimento: ' + err.message); };
   recognition.start();
 });
 
+/* ---------- Alarm button fallback ---------- */
 document.getElementById('btnAlarm').addEventListener('click', () => {
-  // Android Intent will work on Android Chrome; on iOS we show fallback
   const ua = navigator.userAgent || '';
   if (/Android/i.test(ua)) {
     window.location.href = 'intent://#Intent;action=android.intent.action.SET_ALARM;end';
@@ -441,6 +585,7 @@ document.getElementById('btnAlarm').addEventListener('click', () => {
   }
 });
 
+/* ---------- Export / Import ---------- */
 document.getElementById('btnExport').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(remedios, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -450,13 +595,12 @@ document.getElementById('btnExport').addEventListener('click', () => {
   a.click();
   URL.revokeObjectURL(url);
 });
-
 document.getElementById('btnImport').addEventListener('click', () => {
   const inp = document.createElement('input');
   inp.type = 'file';
   inp.accept = 'application/json';
   inp.onchange = e => {
-    const file = e.target.files[0];
+    const f = e.target.files[0];
     const reader = new FileReader();
     reader.onload = ev => {
       try {
@@ -465,29 +609,49 @@ document.getElementById('btnImport').addEventListener('click', () => {
           remedios = data;
           salvarTudo();
           scheduleTimersForAll();
+          falar('Importação concluída.');
         } else alert('Arquivo inválido');
       } catch (err) {
         alert('Erro ao importar: ' + err.message);
       }
     };
-    reader.readAsText(file);
+    reader.readAsText(f);
   };
   inp.click();
 });
 
+/* ---------- Clear history ---------- */
 document.getElementById('btnLimparHistorico').addEventListener('click', () => {
   if (!confirm('Limpar histórico?')) return;
   historico = [];
   salvarTudo();
+  falar('Histórico limpo.');
 });
 
-document.getElementById('btnAtualizarAgenda').addEventListener('click', renderAgenda);
+/* ---------- Atualizar agenda ---------- */
+document.getElementById('btnAtualizarAgenda').addEventListener('click', () => {
+  renderAgenda();
+  if (toggleVerboseEl && toggleVerboseEl.checked) {
+    // read next items
+    const proximos = [];
+    remedios.forEach(r => {
+      const arr = calcularProximosHorarios(r).slice(0,1);
+      arr.forEach(a => proximos.push(`${a.texto} às ${a.data.toLocaleString()}`));
+    });
+    if (proximos.length) falar('Próximos horários: ' + proximos.slice(0,5).join('. '));
+  }
+});
 
-/* ===== Init ===== */
+/* ---------- Init ---------- */
 renderTabela();
 renderHistorico();
 renderAgenda();
 scheduleTimersForAll();
+falar('Aplicativo Meu Remédio pronto. Use os botões para adicionar medicamentos ou tirar foto da receita.');
+
+/* ---------- Helpers ---------- */
+function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s])); }
+function escapeHtmlAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 
 </script>
 </body>
