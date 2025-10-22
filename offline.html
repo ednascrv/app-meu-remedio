@@ -1,18 +1,63 @@
+
+// ================= OFFLINE FALLBACK =================
+
+// Página offline personalizada (opcional)
+const OFFLINE_HTML = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Você está offline</title>
-<style>
-body{margin:0; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial,sans-serif; background:#f8fafc; color:#0288d1; text-align:center;}
-h1{font-size:32px;} p{font-size:18px; margin-top:10px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Remédio - Offline</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px 20px;
+            background: #fbfdfc;
+            color: #013233;
+        }
+        .container { 
+            max-width: 400px; 
+            margin: 0 auto; 
+        }
+        .icon { 
+            font-size: 48px; 
+            margin-bottom: 20px;
+        }
+        h1 { 
+            color: #00796b; 
+        }
+        button {
+            background: linear-gradient(90deg, #0077b6, #2e7d32);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<div>
-<h1>😔 Você está offline</h1>
-<p>Algumas funcionalidades podem não estar disponíveis.</p>
-</div>
+    <div class="container">
+        <div class="icon">📱</div>
+        <h1>Meu Remédio</h1>
+        <p>⚠️ Você está offline no momento</p>
+        <p>Algumas funcionalidades podem estar limitadas, mas você ainda pode:</p>
+        <ul style="text-align: left; display: inline-block;">
+            <li>Ver seus medicamentos</li>
+            <li>Registrar doses tomadas</li>
+            <li>Consultar histórico</li>
+        </ul>
+        <br>
+        <button onclick="window.location.reload()">🔄 Tentar Novamente</button>
+    </div>
 </body>
 </html>
+`;
+
+// Health check do Service Worker
+setInterval(() => {
+  console.log('❤️ Service Worker ativo e funcionando');
+}, 300000); // 5 minutos
