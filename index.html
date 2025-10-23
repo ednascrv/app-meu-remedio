@@ -13,6 +13,85 @@
 <meta name="apple-mobile-web-app-title" content="Meu Remédio">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+  /* ================= CORREÇÕES PARA BOTÕES ================= */
+.btn-primary, .btn-small, .btn-ghost {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+}
+
+/* Garantir que botões estejam clicáveis */
+button:not(:disabled) {
+  cursor: pointer !important;
+}
+
+/* Remover estilos padrão que podem interferir */
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+/* Correção específica para botões do tutorial */
+.tutorial-nav-buttons button {
+  min-width: 120px;
+  padding: 12px 16px !important;
+  margin: 5px;
+  flex: 1;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Botão Começar a Usar - Correção Definitiva */
+#btnStartApp {
+  display: none;
+  background: linear-gradient(135deg, #66bb6a, #81c784) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#btnStartApp[style*="block"] {
+  display: block !important;
+}
+
+.tutorial-step[data-step="4"] #btnStartApp {
+  display: block !important;
+}
+
+/* Botões na tabela */
+.actions button {
+  margin: 2px;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+/* Botões de controle de texto */
+.text-controls button {
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  border: 1px solid #e1e8ed !important;
+}
+
+/* Hover states para melhor feedback */
+.btn-primary:hover, .btn-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+.btn-ghost:hover {
+  background: #f8f9fa !important;
+  border-color: #4a9eff !important;
+  color: #4a9eff !important;
+}
 /* ================= VARIÁVEIS E ESTILOS GERAIS ================= */
 :root{ 
   --blue:#0077b6; --green:#2e7d32; --accent:#013233; --bg:#fbfdfc; 
@@ -1042,6 +1121,628 @@ let isOnline = navigator.onLine;
 let currentStep = 1;
 const totalSteps = 4;
 
+// ================= DEBUG DE BOTÕES =================
+function debugBotoes() {
+  console.log('=== DEBUG DE BOTÕES ===');
+  
+  // Verificar botões principais
+  const botoesPrincipais = [
+    'btnAddMed', 'btnVoiceFlow', 'btnAlarm', 
+    'btnAddReceita', 'btnAddConsult'
+  ];
+  
+  botoesPrincipais.forEach(id => {
+    const btn = document.getElementById(id);
+    console.log(`${id}:`, {
+      existe: !!btn,
+      display: btn?.style?.display,
+      visibility: btn?.style?.visibility,
+      opacity: btn?.style?.opacity,
+      pointerEvents: btn?.style?.pointerEvents,
+      disabled: btn?.disabled
+    });
+  });
+
+  // Verificar botões do tutorial
+  const botoesTutorial = [
+    'btnNextTutorial', 'btnPrevTutorial', 
+    'btnSkipTutorial', 'btnStartApp'
+  ];
+  
+  botoesTutorial.forEach(id => {
+    const btn = document.getElementById(id);
+    console.log(`${id}:`, {
+      existe: !!btn,
+      display: getComputedStyle(btn).display,
+      visibility: getComputedStyle(btn).visibility,
+      opacity: getComputedStyle(btn).opacity
+    });
+  });
+}
+
+// Testar clique em todos os botões
+function testarCliqueBotoes() {
+  console.log('=== TESTANDO CLIQUE EM BOTÕES ===');
+  
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+      const btn = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+      console.log('Botão clicado:', {
+        id: btn.id,
+        text: btn.textContent,
+        classe: btn.className
+      });
+    }
+  }, true);
+}
+
+// ================= CORREÇÃO DE EVENT LISTENERS =================
+function corrigirEventListeners() {
+  console.log('=== CORRIGINDO EVENT LISTENERS ===');
+  
+  // Botões principais
+  const botoesConfig = [
+    { id: 'btnAddMed', event: 'click', action: () => openMedModal() },
+    { id: 'btnVoiceFlow', event: 'click', action: () => iniciarFluxoVoz() },
+    { id: 'btnAlarm', event: 'click', action: () => abrirConfigAlarme() },
+    { id: 'btnAddReceita', event: 'click', action: () => openReceitaModal() },
+    { id: 'btnAddConsult', event: 'click', action: () => openConsultModal() },
+    { id: 'btnExport', event: 'click', action: () => exportarDados() },
+    { id: 'btnImport', event: 'click', action: () => importarDados() },
+    { id: 'btnClearHist', event: 'click', action: () => limparHistorico() }
+  ];
+
+  botoesConfig.forEach(config => {
+    const btn = document.getElementById(config.id);
+    if (btn) {
+      // Remover event listeners antigos
+      btn.replaceWith(btn.cloneNode(true));
+      const newBtn = document.getElementById(config.id);
+      
+      // Adicionar novo event listener
+      newBtn.addEventListener(config.event, config.action);
+      console.log(`✅ ${config.id} - Event listener configurado`);
+    } else {
+      console.log(`❌ ${config.id} - Botão não encontrado`);
+    }
+  });
+}
+// ================= FUNÇÕES DE ABERTURA DE FORMULÁRIOS =================
+function openMedModal(editId = null) {
+  console.log('💊 Abrindo modal de medicamento...');
+  
+  // Resetar formulário
+  document.getElementById('medPaciente').value = '';
+  document.getElementById('medNome').value = '';
+  document.getElementById('medInstr').value = '';
+  document.getElementById('medHora').value = '';
+  document.getElementById('medFotoInput').value = '';
+  document.getElementById('medFotoPreview').src = '';
+  document.getElementById('medFotoPreview').classList.add('hidden');
+  document.getElementById('btnRemoverFoto').classList.add('hidden');
+  
+  // Se for edição, preencher dados
+  if (editId) {
+    const med = meds.find(m => m.id === editId);
+    if (med) {
+      document.getElementById('medPaciente').value = med.paciente || '';
+      document.getElementById('medNome').value = med.nome || '';
+      document.getElementById('medInstr').value = med.instrucao || '';
+      document.getElementById('medHora').value = med.hora || '';
+      
+      if (med.foto) {
+        document.getElementById('medFotoPreview').src = med.foto;
+        document.getElementById('medFotoPreview').classList.remove('hidden');
+        document.getElementById('btnRemoverFoto').classList.remove('hidden');
+      }
+    }
+  }
+  
+  // Abrir modal
+  const modal = document.getElementById('modalMed');
+  modal.classList.add('open');
+  
+  if (narrarEnabled()) {
+    speak('Formulário de medicamento aberto. Preencha os dados necessários.');
+  }
+}
+
+function openReceitaModal(editId = null) {
+  console.log('📋 Abrindo modal de receita...');
+  
+  // Resetar formulário
+  document.getElementById('receitaMedico').value = '';
+  document.getElementById('receitaPaciente').value = '';
+  document.getElementById('receitaMedicamentos').value = '';
+  document.getElementById('receitaDataEmissao').value = '';
+  document.getElementById('receitaDataValidade').value = '';
+  document.getElementById('receitaObservacoes').value = '';
+  document.getElementById('receitaFotoInput').value = '';
+  document.getElementById('receitaFotoPreview').src = '';
+  document.getElementById('receitaFotoPreview').classList.add('hidden');
+  document.getElementById('btnRemoverFotoReceita').classList.add('hidden');
+  
+  // Se for edição, preencher dados
+  if (editId) {
+    const receita = receitas.find(r => r.id === editId);
+    if (receita) {
+      document.getElementById('receitaMedico').value = receita.medico || '';
+      document.getElementById('receitaPaciente').value = receita.paciente || '';
+      document.getElementById('receitaMedicamentos').value = receita.medicamentos || '';
+      document.getElementById('receitaDataEmissao').value = receita.dataEmissao || '';
+      document.getElementById('receitaDataValidade').value = receita.dataValidade || '';
+      document.getElementById('receitaObservacoes').value = receita.observacoes || '';
+      
+      if (receita.foto) {
+        document.getElementById('receitaFotoPreview').src = receita.foto;
+        document.getElementById('receitaFotoPreview').classList.remove('hidden');
+        document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
+      }
+    }
+  }
+  
+  // Abrir modal
+  const modal = document.getElementById('modalReceita');
+  modal.classList.add('open');
+  
+  if (narrarEnabled()) {
+    speak('Formulário de receita médica aberto. Preencha os dados da receita.');
+  }
+}
+
+function openConsultModal(editId = null) {
+  console.log('📅 Abrindo modal de consulta...');
+  
+  // Resetar formulário
+  document.getElementById('consData').value = '';
+  document.getElementById('consProf').value = '';
+  document.getElementById('consObs').value = '';
+  
+  // Se for edição, preencher dados
+  if (editId) {
+    const consult = consults.find(c => c.id === editId);
+    if (consult) {
+      document.getElementById('consData').value = consult.data || '';
+      document.getElementById('consProf').value = consult.prof || '';
+      document.getElementById('consObs').value = consult.obs || '';
+    }
+  }
+  
+  // Abrir modal
+  const modal = document.getElementById('modalConsult');
+  modal.classList.add('open');
+  
+  if (narrarEnabled()) {
+    speak('Formulário de consulta aberto. Preencha os dados da consulta.');
+  }
+}
+
+function openNotifSettings() {
+  console.log('⚙️ Abrindo configurações de notificação...');
+  document.getElementById('modalNotifSettings').classList.add('open');
+  
+  if (narrarEnabled()) {
+    speak('Configurações de notificação abertas.');
+  }
+}
+
+// ================= CONFIGURAÇÃO CORRETA DOS EVENT LISTENERS =================
+function configurarEventListeners() {
+  console.log('🎯 Configurando event listeners...');
+  
+  // Botões principais - Usando onclick para maior confiabilidade
+  const btnAddMed = document.getElementById('btnAddMed');
+  const btnAddReceita = document.getElementById('btnAddReceita');
+  const btnAddConsult = document.getElementById('btnAddConsult');
+  const btnAlarm = document.getElementById('btnAlarm');
+  const btnVoiceFlow = document.getElementById('btnVoiceFlow');
+  const btnExport = document.getElementById('btnExport');
+  const btnImport = document.getElementById('btnImport');
+  const btnClearHist = document.getElementById('btnClearHist');
+  const notificationStatus = document.getElementById('notificationStatus');
+  
+  // Configurar usando onclick (mais confiável que addEventListener)
+  if (btnAddMed) {
+    btnAddMed.onclick = () => openMedModal();
+    console.log('✅ btnAddMed configurado');
+  }
+  
+  if (btnAddReceita) {
+    btnAddReceita.onclick = () => openReceitaModal();
+    console.log('✅ btnAddReceita configurado');
+  }
+  
+  if (btnAddConsult) {
+    btnAddConsult.onclick = () => openConsultModal();
+    console.log('✅ btnAddConsult configurado');
+  }
+  
+  if (btnAlarm) {
+    btnAlarm.onclick = () => openNotifSettings();
+    console.log('✅ btnAlarm configurado');
+  }
+  
+  if (btnVoiceFlow) {
+    btnVoiceFlow.onclick = iniciarFluxoVoz;
+    console.log('✅ btnVoiceFlow configurado');
+  }
+  
+  if (btnExport) {
+    btnExport.onclick = exportarDados;
+    console.log('✅ btnExport configurado');
+  }
+  
+  if (btnImport) {
+    btnImport.onclick = importarDados;
+    console.log('✅ btnImport configurado');
+  }
+  
+  if (btnClearHist) {
+    btnClearHist.onclick = limparHistorico;
+    console.log('✅ btnClearHist configurado');
+  }
+  
+  if (notificationStatus) {
+    notificationStatus.onclick = () => {
+      console.log('🔔 Abrindo configurações de notificação...');
+      openNotifSettings();
+    };
+    console.log('✅ notificationStatus configurado');
+  }
+  
+  // Botões de fechar modais
+  const btnCancelMed = document.getElementById('btnCancelMed');
+  const btnCancelReceita = document.getElementById('btnCancelReceita');
+  const btnCancelCons = document.getElementById('btnCancelCons');
+  const btnCancelNotif = document.getElementById('btnCancelNotif');
+  
+  if (btnCancelMed) {
+    btnCancelMed.onclick = () => {
+      document.getElementById('modalMed').classList.remove('open');
+      console.log('❌ Modal medicamento fechado');
+    };
+  }
+  
+  if (btnCancelReceita) {
+    btnCancelReceita.onclick = () => {
+      document.getElementById('modalReceita').classList.remove('open');
+      console.log('❌ Modal receita fechado');
+    };
+  }
+  
+  if (btnCancelCons) {
+    btnCancelCons.onclick = () => {
+      document.getElementById('modalConsult').classList.remove('open');
+      console.log('❌ Modal consulta fechado');
+    };
+  }
+  
+  if (btnCancelNotif) {
+    btnCancelNotif.onclick = () => {
+      document.getElementById('modalNotifSettings').classList.remove('open');
+      console.log('❌ Modal notificações fechado');
+    };
+  }
+  
+  // Botões de salvar
+  const btnSaveMed = document.getElementById('btnSaveMed');
+  const btnSaveReceita = document.getElementById('btnSaveReceita');
+  const btnSaveCons = document.getElementById('btnSaveCons');
+  
+  if (btnSaveMed) {
+    btnSaveMed.onclick = salvarMedicamento;
+    console.log('✅ btnSaveMed configurado');
+  }
+  
+  if (btnSaveReceita) {
+    btnSaveReceita.onclick = salvarReceita;
+    console.log('✅ btnSaveReceita configurado');
+  }
+  
+  if (btnSaveCons) {
+    btnSaveCons.onclick = salvarConsulta;
+    console.log('✅ btnSaveCons configurado');
+  }
+  
+  // Fechar modais clicando fora
+  configurarFechamentoModais();
+}
+
+function configurarFechamentoModais() {
+  console.log('🎯 Configurando fechamento de modais...');
+  
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        console.log(`❌ Modal ${modal.id} fechado (clique fora)`);
+      }
+    };
+  });
+}
+
+// ================= FUNÇÕES DE SALVAR =================
+function salvarMedicamento() {
+  console.log('💾 Salvando medicamento...');
+  
+  const nome = document.getElementById('medNome').value.trim();
+  if (!nome) {
+    alert('Preencha o nome do medicamento.');
+    return;
+  }
+  
+  const paciente = document.getElementById('medPaciente').value.trim();
+  const instr = document.getElementById('medInstr').value.trim();
+  const hora = document.getElementById('medHora').value;
+  
+  // Verificar se é edição
+  const editId = document.getElementById('modalMed').getAttribute('data-edit-id');
+  
+  if (editId) {
+    // Edição
+    const idx = meds.findIndex(m => m.id === editId);
+    if (idx > -1) {
+      meds[idx].paciente = paciente;
+      meds[idx].nome = nome;
+      meds[idx].instrucao = instr;
+      meds[idx].hora = hora;
+    }
+    document.getElementById('modalMed').removeAttribute('data-edit-id');
+  } else {
+    // Novo medicamento
+    meds.push({
+      id: uid(),
+      paciente,
+      nome,
+      instrucao: instr,
+      hora,
+      foto: document.getElementById('medFotoPreview').src || '',
+      criadoEm: new Date().toISOString()
+    });
+  }
+  
+  saveAll();
+  refreshUI();
+  document.getElementById('modalMed').classList.remove('open');
+  
+  if (narrarEnabled()) {
+    speak('Medicamento salvo com sucesso.');
+  }
+  
+  console.log('✅ Medicamento salvo');
+}
+
+function salvarReceita() {
+  console.log('💾 Salvando receita...');
+  
+  const medico = document.getElementById('receitaMedico').value.trim();
+  const paciente = document.getElementById('receitaPaciente').value.trim();
+  const dataEmissao = document.getElementById('receitaDataEmissao').value;
+  const dataValidade = document.getElementById('receitaDataValidade').value;
+  
+  if (!medico || !paciente || !dataEmissao || !dataValidade) {
+    alert('Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.');
+    return;
+  }
+  
+  const receitaData = {
+    medico,
+    paciente,
+    medicamentos: document.getElementById('receitaMedicamentos').value.trim(),
+    dataEmissao,
+    dataValidade,
+    observacoes: document.getElementById('receitaObservacoes').value.trim(),
+    foto: document.getElementById('receitaFotoPreview').src || '',
+    criadoEm: new Date().toISOString()
+  };
+  
+  // Verificar se é edição
+  const editId = document.getElementById('modalReceita').getAttribute('data-edit-id');
+  
+  if (editId) {
+    // Edição
+    const idx = receitas.findIndex(r => r.id === editId);
+    if (idx > -1) {
+      receitas[idx] = { ...receitas[idx], ...receitaData };
+    }
+    document.getElementById('modalReceita').removeAttribute('data-edit-id');
+  } else {
+    // Nova receita
+    receitas.push({
+      id: uid(),
+      ...receitaData
+    });
+  }
+  
+  localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
+  renderReceitas();
+  scheduleReceitaAlerts();
+  document.getElementById('modalReceita').classList.remove('open');
+  
+  if (narrarEnabled()) {
+    speak('Receita salva com sucesso.');
+  }
+  
+  console.log('✅ Receita salva');
+}
+
+function salvarConsulta() {
+  console.log('💾 Salvando consulta...');
+  
+  const data = document.getElementById('consData').value;
+  const prof = document.getElementById('consProf').value.trim();
+  
+  if (!data || !prof) {
+    alert('Preencha a data e o profissional/local.');
+    return;
+  }
+  
+  const obs = document.getElementById('consObs').value.trim();
+  
+  // Verificar se é edição
+  const editId = document.getElementById('modalConsult').getAttribute('data-edit-id');
+  
+  if (editId) {
+    // Edição
+    const idx = consults.findIndex(c => c.id === editId);
+    if (idx > -1) {
+      consults[idx].data = data;
+      consults[idx].prof = prof;
+      consults[idx].obs = obs;
+    }
+    document.getElementById('modalConsult').removeAttribute('data-edit-id');
+  } else {
+    // Nova consulta
+    consults.push({
+      id: uid(),
+      data,
+      prof,
+      obs,
+      criadoEm: new Date().toISOString()
+    });
+  }
+  
+  saveAll();
+  refreshUI();
+  document.getElementById('modalConsult').classList.remove('open');
+  
+  if (narrarEnabled()) {
+    speak('Consulta salva com sucesso.');
+  }
+  
+  console.log('✅ Consulta salva');
+}
+
+// ================= INICIALIZAÇÃO CORRIGIDA =================
+document.addEventListener("DOMContentLoaded", () => {
+  console.log('🚀 DOM Carregado - Iniciando configuração...');
+  
+  // Configurar event listeners primeiro
+  setTimeout(() => {
+    configurarEventListeners();
+    debugBotoes();
+  }, 100);
+  
+  // Inicializar sistemas
+  initTutorial();
+  initReceitas();
+  setupAccessibilityControls();
+  
+  console.log('✅ Aplicação completamente inicializada');
+});
+
+// ================= DEBUG MELHORADO =================
+function debugBotoes() {
+  console.log('=== DEBUG COMPLETO DE BOTÕES ===');
+  
+  const botoesTeste = [
+    'btnAddMed', 'btnAddReceita', 'btnAddConsult', 
+    'btnAlarm', 'btnVoiceFlow', 'btnExport', 'btnImport'
+  ];
+  
+  botoesTeste.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      console.log(`🔘 ${id}:`, {
+        existe: true,
+        onclick: typeof btn.onclick,
+        display: getComputedStyle(btn).display,
+        visibility: getComputedStyle(btn).visibility,
+        pointerEvents: getComputedStyle(btn).pointerEvents
+      });
+      
+      // Testar clique programático
+      btn.addEventListener('click', () => {
+        console.log(`🎯 ${id} - CLIQUE DETECTADO VIA EVENT LISTENER`);
+      });
+    } else {
+      console.log(`❌ ${id}: BOTÃO NÃO ENCONTRADO`);
+    }
+  });
+}
+
+// ================= BOTÃO DE TESTE RÁPIDO =================
+// Adicione este botão para teste rápido
+const testBtn = document.createElement('button');
+testBtn.textContent = '🧪 Testar Formulários';
+testBtn.style.cssText = `
+  position: fixed;
+  top: 100px;
+  left: 10px;
+  z-index: 10000;
+  padding: 8px 12px;
+  background: #9c27b0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+`;
+testBtn.onclick = () => {
+  console.log('🧪 TESTANDO TODOS OS FORMULÁRIOS...');
+  openMedModal();
+  setTimeout(() => {
+    document.getElementById('modalMed').classList.remove('open');
+    openReceitaModal();
+  }, 1000);
+  setTimeout(() => {
+    document.getElementById('modalReceita').classList.remove('open');
+    openConsultModal();
+  }, 2000);
+  setTimeout(() => {
+    document.getElementById('modalConsult').classList.remove('open');
+    openNotifSettings();
+  }, 3000);
+};
+document.body.appendChild(testBtn);
+
+// ================= FUNÇÕES SIMPLES PARA TESTE =================
+function openMedModal() {
+  console.log('Abrindo modal de medicamento...');
+  document.getElementById('modalMed').classList.add('open');
+}
+
+function iniciarFluxoVoz() {
+  console.log('Iniciando fluxo por voz...');
+  if (narrarEnabled()) speak('Iniciando assistente por voz.');
+}
+
+function abrirConfigAlarme() {
+  console.log('Abrindo configurações de alarme...');
+  document.getElementById('modalNotifSettings').classList.add('open');
+}
+
+function openReceitaModal() {
+  console.log('Abrindo modal de receita...');
+  document.getElementById('modalReceita').classList.add('open');
+}
+
+function openConsultModal() {
+  console.log('Abrindo modal de consulta...');
+  document.getElementById('modalConsult').classList.add('open');
+}
+
+function exportarDados() {
+  console.log('Exportando dados...');
+  // Implementação simples de export
+  alert('Funcionalidade de exportação');
+}
+
+function importarDados() {
+  console.log('Importando dados...');
+  // Implementação simples de import
+  alert('Funcionalidade de importação');
+}
+
+function limparHistorico() {
+  console.log('Limpando histórico...');
+  if (confirm('Tem certeza que deseja limpar o histórico?')) {
+    hist = [];
+    saveAll();
+    refreshUI();
+  }
+}
 // ================= FUNÇÕES UTILITÁRIAS =================
 function uid(){
   return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -1601,6 +2302,7 @@ function updateNotificationStatus(status){
 }
 
 // ... (adicione aqui as funções refreshUI() e outras funções de renderização que faltam)
+
 
 // ================= TESTE MANUAL (remover depois) =================
 // Adicione este código temporário para testar
