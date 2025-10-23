@@ -705,6 +705,45 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
+/* ================= CORREÇÃO ESPECÍFICA PARA MODAL RECEITA ================= */
+#modalReceita {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+#modalReceita.open {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#btnAddReceita {
+  position: relative !important;
+  z-index: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Garantir que o modal fique acima de tudo */
+.modal {
+  z-index: 9999 !important;
+}
+
+.modal.open {
+  display: flex !important;
+  animation: modalFadeIn 0.3s ease !important;
+}
+
+@keyframes modalFadeIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
 </style>
 
 </head> 
@@ -1043,6 +1082,9 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     </div>
   </div>
 </div>
+<script>
+const eR=document.getElementById("modalReceita"),bA=document.getElementById("btnAddReceita"),bC=document.getElementById("btnCancelReceita"),bS=document.getElementById("btnSaveReceita"),iM=document.getElementById("receitaMedico"),iP=document.getElementById("receitaPaciente"),iE=document.getElementById("receitaDataEmissao"),iV=document.getElementById("receitaDataValidade");function oR(){eR.classList.add("open")}function fR(){eR.classList.remove("open")}function vR(){if(!iM.value.trim()||!iP.value.trim()||!iE.value||!iV.value){alert("Preencha todos os campos obrigatórios (*)");return!1}return!0}function sR(){if(!vR())return;let r={medico:iM.value.trim(),paciente:iP.value.trim(),emissao:iE.value,validade:iV.value,medicamentos:document.getElementById("receitaMedicamentos").value.trim(),obs:document.getElementById("receitaObservacoes").value.trim()};let a=JSON.parse(localStorage.getItem("receitas")||"[]");a.push(r),localStorage.setItem("receitas",JSON.stringify(a)),alert("✅ Receita salva com sucesso!"),fR(),iM.value=iP.value=iE.value=iV.value=document.getElementById("receitaMedicamentos").value=document.getElementById("receitaObservacoes").value=""}bA&&bA.addEventListener("click",oR),bC&&bC.addEventListener("click",fR),bS&&bS.addEventListener("click",sR);
+</script>
 
 <!-- Botão flutuante de Ajuda -->
 <button id="btnHelp" class="help-floating" aria-label="Ajuda e tutorial" title="Precisa de ajuda?">
@@ -1069,39 +1111,7 @@ const fixStyle = document.createElement('style');
 fixStyle.textContent = tutorialCSSFix;
 document.head.appendChild(fixStyle);
 
-// ================= TESTE RÁPIDO =================
-// Adicione este código para testar imediatamente
-function testarBotaoComecarUsar() {
-  console.log('=== TESTANDO BOTÃO COMEÇAR A USAR ===');
-  
-  const btnStart = document.getElementById('btnStartApp');
-  console.log('Botão encontrado:', !!btnStart);
-  console.log('Display atual:', btnStart?.style.display);
-  console.log('Classe atual:', btnStart?.className);
-  
-  // Forçar exibição para teste
-  if (btnStart) {
-    btnStart.style.display = 'block';
-    btnStart.classList.remove('hidden');
-    console.log('Botão forçado a aparecer');
-  }
-}
 
-// Testar após 2 segundos (remova depois que funcionar)
-setTimeout(testarBotaoComecarUsar, 2000);
-// ================= CONFIGURAÇÕES INICIAIS =================
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(function(registration) {
-        console.log('✅ Service Worker registrado com sucesso:', registration.scope);
-      })
-      .catch(function(error) {
-        console.log('❌ Falha no registro do Service Worker:', error);
-      });
-  });
-}
 
 // ================= VARIÁVEIS GLOBAIS =================
 const LS_MED = 'meu_remedio_med_photos_v3';
@@ -1661,41 +1671,37 @@ function debugBotoes() {
     }
   });
 }
+// Debug do modal de receitas
+function debugReceitaModal() {
+  console.log('=== DEBUG MODAL RECEITA ===');
+  
+  const modal = document.getElementById('modalReceita');
+  const btnAdd = document.getElementById('btnAddReceita');
+  
+  console.log('Modal encontrado:', !!modal);
+  console.log('Botão adicionar encontrado:', !!btnAdd);
+  
+  if (modal) {
+    console.log('Modal styles:', {
+      display: getComputedStyle(modal).display,
+      visibility: getComputedStyle(modal).visibility,
+      opacity: getComputedStyle(modal).opacity
+    });
+  }
+  
+  if (btnAdd) {
+    console.log('Botão onclick:', typeof btnAdd.onclick);
+    console.log('Botão display:', getComputedStyle(btnAdd).display);
+    
+    // Testar abertura programática
+    console.log('🧪 Testando abertura programática...');
+    modal.classList.add('open');
+    console.log('Modal aberto?', modal.classList.contains('open'));
+  }
+}
 
-// ================= BOTÃO DE TESTE RÁPIDO =================
-// Adicione este botão para teste rápido
-const testBtn = document.createElement('button');
-testBtn.textContent = '🧪 Testar Formulários';
-testBtn.style.cssText = `
-  position: fixed;
-  top: 100px;
-  left: 10px;
-  z-index: 10000;
-  padding: 8px 12px;
-  background: #9c27b0;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-`;
-testBtn.onclick = () => {
-  console.log('🧪 TESTANDO TODOS OS FORMULÁRIOS...');
-  openMedModal();
-  setTimeout(() => {
-    document.getElementById('modalMed').classList.remove('open');
-    openReceitaModal();
-  }, 1000);
-  setTimeout(() => {
-    document.getElementById('modalReceita').classList.remove('open');
-    openConsultModal();
-  }, 2000);
-  setTimeout(() => {
-    document.getElementById('modalConsult').classList.remove('open');
-    openNotifSettings();
-  }, 3000);
-};
-document.body.appendChild(testBtn);
+// Execute no console: debugReceitaModal()
+
 
 // ================= FUNÇÕES SIMPLES PARA TESTE =================
 function openMedModal() {
@@ -2304,411 +2310,9 @@ function updateNotificationStatus(status){
 // ... (adicione aqui as funções refreshUI() e outras funções de renderização que faltam)
 
 
-// ================= TESTE MANUAL (remover depois) =================
-// Adicione este código temporário para testar
-function testTutorial() {
-  console.log('=== TESTE MANUAL DO TUTORIAL ===');
-  showTutorial();
-  // Ir direto para o último passo para testar
-  setTimeout(() => {
-    updateTutorialStep(4);
-  }, 1000);
-}
-
-// Botão de teste temporário - remover na versão final
-const testButton = document.createElement('button');
-testButton.textContent = '🔧 Testar Tutorial';
-testButton.style.cssText = `
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 10000;
-  padding: 8px 12px;
-  background: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-`;
-testButton.onclick = testTutorial;
 document.body.appendChild(testButton);
-// ================= VARIÁVEIS PARA RECEITAS =================
-const LS_RECEITAS = 'meu_remedio_receitas_v1';
-let receitas = JSON.parse(localStorage.getItem(LS_RECEITAS) || '[]');
+const LS_RECEITAS="meu_remedio_receitas_v1";let receitas=JSON.parse(localStorage.getItem(LS_RECEITAS)||"[]");function initReceitas(){renderReceitas();checkReceitasVencidas();scheduleReceitaAlerts()}function renderReceitas(){const e=document.querySelector("#tblReceitas tbody");e.innerHTML="",document.getElementById("receitaCount").textContent=receitas.length,0===receitas.length?(document.getElementById("emptyReceitas").style.display="block",document.getElementById("receitaAlerts").innerHTML=""):(document.getElementById("emptyReceitas").style.display="none",receitas.sort((e,t)=>new Date(e.dataValidade)-new Date(t.dataValidade)),receitas.forEach(t=>{const a=document.createElement("tr"),i=getReceitaStatus(t);a.innerHTML=`<td>${t.foto?`<img src="${t.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${t.foto}')" style="cursor:pointer;">`:"—"}</td><td>${esc(t.paciente)}</td><td>${esc(t.medico)}</td><td>${formatarDataPTBR(t.dataEmissao)}</td><td>${formatarDataPTBR(t.dataValidade)}</td><td><span class="status-receita ${i.classe}">${i.texto}</span>${i.dias?`<br><small>${i.dias}</small>`:""}</td><td><div class="actions">${t.foto?`<button class="btn-small" data-id="${t.id}" data-act="verFoto">👁️ Ver</button>`:""}<button class="btn-ghost" data-id="${t.id}" data-act="editarReceita">✏️ Editar</button><button class="btn-ghost" data-id="${t.id}" data-act="excluirReceita">🗑️ Excluir</button></div></td>`,e.appendChild(a)}),updateReceitaAlerts())}function getReceitaStatus(e){const t=new Date,a=new Date(e.dataValidade),i=a-t,c=Math.ceil(i/864e5);return c<0?{texto:"VENCIDA",classe:"status-vencida",dias:`Há ${Math.abs(c)} dias`}:c<=7?{texto:"VENCE EM BREVE",classe:"status-proximo",dias:`${c} dias`}:{texto:"VÁLIDA",classe:"status-valida",dias:`${c} dias restantes`}}function updateReceitaAlerts(){const e=document.getElementById("receitaAlerts"),t=new Date;let a=[];receitas.forEach(i=>{const c=new Date(i.dataValidade),s=c-t,n=Math.ceil(s/864e5);n<0?a.push({tipo:"danger",mensagem:`⚠️ <strong>RECEITA VENCIDA:</strong> ${i.paciente} - ${i.medico} (Venceu há ${Math.abs(n)} dias)`,receita:i}):n<=3?a.push({tipo:"warning",mensagem:`🔔 <strong>RECEITA VENCE EM BREVE:</strong> ${i.paciente} - ${i.medico} (Vence em ${n} dias)`,receita:i}):n<=7&&a.push({tipo:"info",mensagem:`📅 <strong>RECEITA PRÓXIMA DO VENCIMENTO:</strong> ${i.paciente} - ${i.medico} (Vence em ${n} dias)`,receita:i})}),0===a.length?(e.innerHTML="",void 0):(a.sort((e,a)=>{const i=Math.ceil((new Date(e.receita.dataValidade)-t)/864e5),c=Math.ceil((new Date(a.receita.dataValidade)-t)/864e5);return i-c}),e.innerHTML=a.map(e=>`<div class="alert-${e.tipo}">${e.mensagem}</div>`).join(""))}function checkReceitasVencidas(){const e=(new Date).toISOString().split("T")[0],t=receitas.filter(t=>t.dataValidade<e);t.length>0&&narrarEnabled()&&speak(`Atenção: você tem ${t.length} receita(s) vencida(s). Verifique a lista de receitas.`)}function scheduleReceitaAlerts(){for(const[e,t]of scheduledTimers.entries())e.startsWith("receita_")&&(clearTimeout(t),scheduledTimers.delete(e));receitas.forEach(e=>{const t=new Date(e.dataValidade),a=new Date(t);a.setDate(t.getDate()-7),a>new Date()&&scheduleNotification(`receita_${e.id}`,a,"📋 Receita Vencendo em Breve",`${e.paciente} - ${e.medico}\nValidade: ${formatarDataPTBR(e.dataValidade)}`,{type:"receita",id:e.id});const i=new Date(t);i.setHours(9,0,0,0),i>new Date()&&scheduleNotification(`receita_venc_${e.id}`,i,"⚠️ Receita Vencendo Hoje",`${e.paciente} - ${e.medico}\nValidade hoje!`,{type:"receita_venc",id:e.id})})}function openReceitaModal(e=null){const t=document.getElementById("modalReceita"),a=t.querySelector("form")||t;if(e){const t=receitas.find(t=>t.id===e);t&&(document.getElementById("receitaMedico").value=t.medico,document.getElementById("receitaPaciente").value=t.paciente,document.getElementById("receitaMedicamentos").value=t.medicamentos||"",document.getElementById("receitaDataEmissao").value=t.dataEmissao,document.getElementById("receitaDataValidade").value=t.dataValidade,document.getElementById("receitaObservacoes").value=t.observacoes||"",t.foto&&(document.getElementById("receitaFotoPreview").src=t.foto,document.getElementById("receitaFotoPreview").classList.remove("hidden"),document.getElementById("btnRemoverFotoReceita").classList.remove("hidden")))}else a.reset(),document.getElementById("receitaFotoPreview").src="",document.getElementById("receitaFotoPreview").classList.add("hidden"),document.getElementById("btnRemoverFotoReceita").classList.add("hidden");t.classList.add("open"),narrarEnabled()&&speak("Abrindo formulário de receita médica.")}function saveReceita(){const e=document.getElementById("receitaMedico").value.trim(),t=document.getElementById("receitaPaciente").value.trim(),a=document.getElementById("receitaDataEmissao").value,i=document.getElementById("receitaDataValidade").value;if(!e||!t||!a||!i)return void alert("Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.");if(new Date(i)<new Date(a))return void alert("A data de validade não pode ser anterior à data de emissão.");const c={medico:e,paciente:t,medicamentos:document.getElementById("receitaMedicamentos").value.trim(),dataEmissao:a,dataValidade:i,observacoes:document.getElementById("receitaObservacoes").value.trim(),foto:document.getElementById("receitaFotoPreview").src||"",criadoEm:new Date().toISOString()},s=document.getElementById("receitaFotoInput");s.files&&s.files[0]?(()=>{const e=new FileReader;e.onload=function(e){c.foto=e.target.result,commitSaveReceita(c)},e.readAsDataURL(s.files[0])})():commitSaveReceita(c)}function commitSaveReceita(e){const t=document.getElementById("modalReceita").getAttribute("data-edit-id");if(t){const a=receitas.findIndex(e=>e.id===t);a>-1&&(receitas[a]={...receitas[a],...e}),document.getElementById("modalReceita").removeAttribute("data-edit-id")}else receitas.push({id:uid(),...e});localStorage.setItem(LS_RECEITAS,JSON.stringify(receitas)),renderReceitas(),scheduleReceitaAlerts(),document.getElementById("modalReceita").classList.remove("open"),narrarEnabled()&&speak("Receita salva com sucesso. Lembretes configurados.")}function ampliarFoto(e){const t=document.createElement("div");t.className="receita-modal-overlay open",t.innerHTML=`<img src="${e}" class="receita-modal-img" alt="Receita ampliada"><button onclick="this.parentElement.remove()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>`,document.body.appendChild(t),t.addEventListener("click",a=>{a.target===t&&t.remove()})}function configurarBotaoReceitas(){console.log("🎯 Configurando botão de receitas...");const e=document.getElementById("btnAddReceita");if(!e){console.error("❌ Botão btnAddReceita não encontrado!");const e=document.querySelectorAll("button");return void e.forEach((e,t)=>{(e.textContent.includes("Receita")||e.textContent.includes("receita"))&&(console.log(`📌 Botão similar encontrado [${t}]:`,e.textContent),e.onclick=()=>openReceitaModal())})}console.log("✅ Botão encontrado, configurando onclick..."),e.onclick=function(t){console.log("🎯 CLIQUE NO BOTÃO RECEITA DETECTADO!",{eventType:t.type,target:t.target.id}),t.preventDefault(),t.stopPropagation(),openReceitaModal()},e.addEventListener("click",function(e){console.log("📝 EVENT LISTENER: Botão receita clicado"),e.preventDefault(),e.stopPropagation(),openReceitaModal()},!0),e.style.pointerEvents="auto",e.style.cursor="pointer",e.style.position="relative",e.style.zIndex="100",console.log("✅ Botão de receitas completamente configurado")}document.addEventListener("DOMContentLoaded",()=>{document.getElementById("btnAddReceita").addEventListener("click",()=>openReceitaModal()),document.getElementById("btnCancelReceita").addEventListener("click",()=>{document.getElementById("modalReceita").classList.remove("open")}),document.getElementById("btnSaveReceita").addEventListener("click",saveReceita),document.getElementById("receitaFotoInput").addEventListener("change",function(e){const t=e.target.files[0];if(t){const e=new FileReader;e.onload=function(e){document.getElementById("receitaFotoPreview").src=e.target.result,document.getElementById("receitaFotoPreview").classList.remove("hidden"),document.getElementById("btnRemoverFotoReceita").classList.remove("hidden")},e.readAsDataURL(t)}}),document.getElementById("btnRemoverFotoReceita").addEventListener("click",function(){document.getElementById("receitaFotoInput").value="",document.getElementById("receitaFotoPreview").src="",document.getElementById("receitaFotoPreview").classList.add("hidden"),this.classList.add("hidden")}),document.getElementById("tblReceitas").addEventListener("click",function(e){const t=e.target.closest("button");if(!t)return;const a=t.dataset.id,i=t.dataset.act,c=receitas.find(e=>e.id===a);c&&("verFoto"===i?ampliarFoto(c.foto):"editarReceita"===i?(document.getElementById("modalReceita").setAttribute("data-edit-id",a),openReceitaModal(a)):"excluirReceita"===i&&confirm("Excluir esta receita?")&&(receitas=receitas.filter(e=>e.id!==a),localStorage.setItem(LS_RECEITAS,JSON.stringify(receitas)),renderReceitas(),scheduleReceitaAlerts(),narrarEnabled()&&speak("Receita excluída.")))}),initReceitas()});
 
-// ================= FUNÇÕES PARA RECEITAS =================
-function initReceitas() {
-  renderReceitas();
-  checkReceitasVencidas();
-  scheduleReceitaAlerts();
-}
-
-function renderReceitas() {
-  const tbody = document.querySelector('#tblReceitas tbody');
-  tbody.innerHTML = '';
-  
-  document.getElementById('receitaCount').textContent = receitas.length;
-  
-  if (receitas.length === 0) {
-    document.getElementById('emptyReceitas').style.display = 'block';
-    document.getElementById('receitaAlerts').innerHTML = '';
-    return;
-  }
-  
-  document.getElementById('emptyReceitas').style.display = 'none';
-  
-  // Ordenar por data de validade (mais próximas primeiro)
-  receitas.sort((a, b) => new Date(a.dataValidade) - new Date(b.dataValidade));
-  
-  receitas.forEach(receita => {
-    const tr = document.createElement('tr');
-    const status = getReceitaStatus(receita);
-    
-    tr.innerHTML = `
-      <td>
-        ${receita.foto ? 
-          `<img src="${receita.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${receita.foto}')" style="cursor: pointer;">` 
-          : '—'
-        }
-      </td>
-      <td>${esc(receita.paciente)}</td>
-      <td>${esc(receita.medico)}</td>
-      <td>${formatarDataPTBR(receita.dataEmissao)}</td>
-      <td>${formatarDataPTBR(receita.dataValidade)}</td>
-      <td>
-        <span class="status-receita ${status.classe}">${status.texto}</span>
-        ${status.dias ? `<br><small>${status.dias}</small>` : ''}
-      </td>
-      <td>
-        <div class="actions">
-          ${receita.foto ? `<button class="btn-small" data-id="${receita.id}" data-act="verFoto">👁️ Ver</button>` : ''}
-          <button class="btn-ghost" data-id="${receita.id}" data-act="editarReceita">✏️ Editar</button>
-          <button class="btn-ghost" data-id="${receita.id}" data-act="excluirReceita">🗑️ Excluir</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  
-  updateReceitaAlerts();
-}
-
-function getReceitaStatus(receita) {
-  const hoje = new Date();
-  const validade = new Date(receita.dataValidade);
-  const diffTime = validade - hoje;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays < 0) {
-    return {
-      texto: 'VENCIDA',
-      classe: 'status-vencida',
-      dias: `Há ${Math.abs(diffDays)} dias`
-    };
-  } else if (diffDays <= 7) {
-    return {
-      texto: 'VENCE EM BREVE',
-      classe: 'status-proximo',
-      dias: `${diffDays} dias`
-    };
-  } else {
-    return {
-      texto: 'VÁLIDA',
-      classe: 'status-valida',
-      dias: `${diffDays} dias restantes`
-    };
-  }
-}
-
-function updateReceitaAlerts() {
-  const alertsContainer = document.getElementById('receitaAlerts');
-  const hoje = new Date();
-  let alertas = [];
-  
-  receitas.forEach(receita => {
-    const validade = new Date(receita.dataValidade);
-    const diffTime = validade - hoje;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-      alertas.push({
-        tipo: 'danger',
-        mensagem: `⚠️ <strong>RECEITA VENCIDA:</strong> ${receita.paciente} - ${receita.medico} (Venceu há ${Math.abs(diffDays)} dias)`,
-        receita: receita
-      });
-    } else if (diffDays <= 3) {
-      alertas.push({
-        tipo: 'warning', 
-        mensagem: `🔔 <strong>RECEITA VENCE EM BREVE:</strong> ${receita.paciente} - ${receita.medico} (Vence em ${diffDays} dias)`,
-        receita: receita
-      });
-    } else if (diffDays <= 7) {
-      alertas.push({
-        tipo: 'info',
-        mensagem: `📅 <strong>RECEITA PRÓXIMA DO VENCIMENTO:</strong> ${receita.paciente} - ${receita.medico} (Vence em ${diffDays} dias)`,
-        receita: receita
-      });
-    }
-  });
-  
-  if (alertas.length === 0) {
-    alertsContainer.innerHTML = '';
-    return;
-  }
-  
-  // Ordenar alertas: vencidas primeiro, depois por proximidade
-  alertas.sort((a, b) => {
-    const diasA = Math.ceil((new Date(a.receita.dataValidade) - hoje) / (1000 * 60 * 60 * 24));
-    const diasB = Math.ceil((new Date(b.receita.dataValidade) - hoje) / (1000 * 60 * 60 * 24));
-    return diasA - diasB;
-  });
-  
-  let alertsHTML = '';
-  alertas.forEach(alerta => {
-    alertsHTML += `<div class="alert-${alerta.tipo}">${alerta.mensagem}</div>`;
-  });
-  
-  alertsContainer.innerHTML = alertsHTML;
-}
-
-function checkReceitasVencidas() {
-  const hoje = new Date().toISOString().split('T')[0];
-  const receitasVencidas = receitas.filter(r => r.dataValidade < hoje);
-  
-  if (receitasVencidas.length > 0 && narrarEnabled()) {
-    speak(`Atenção: você tem ${receitasVencidas.length} receita(s) vencida(s). Verifique a lista de receitas.`);
-  }
-}
-
-function scheduleReceitaAlerts() {
-  // Limpar alertas antigos
-  for (const [id, timer] of scheduledTimers.entries()) {
-    if (id.startsWith('receita_')) {
-      clearTimeout(timer);
-      scheduledTimers.delete(id);
-    }
-  }
-  
-  receitas.forEach(receita => {
-    const validade = new Date(receita.dataValidade);
-    const alertDate = new Date(validade);
-    alertDate.setDate(validade.getDate() - 7); // 7 dias antes
-    
-    if (alertDate > new Date()) {
-      scheduleNotification(
-        `receita_${receita.id}`,
-        alertDate,
-        '📋 Receita Vencendo em Breve',
-        `${receita.paciente} - ${receita.medico}\nValidade: ${formatarDataPTBR(receita.dataValidade)}`,
-        { type: 'receita', id: receita.id }
-      );
-    }
-    
-    // Alerta no dia do vencimento
-    const diaVencimento = new Date(validade);
-    diaVencimento.setHours(9, 0, 0, 0);
-    
-    if (diaVencimento > new Date()) {
-      scheduleNotification(
-        `receita_venc_${receita.id}`,
-        diaVencimento,
-        '⚠️ Receita Vencendo Hoje',
-        `${receita.paciente} - ${receita.medico}\nValidade hoje!`,
-        { type: 'receita_venc', id: receita.id }
-      );
-    }
-  });
-}
-
-// ================= MODAL E GESTÃO DE RECEITAS =================
-function openReceitaModal(editId = null) {
-  const modal = document.getElementById('modalReceita');
-  const form = modal.querySelector('form') || modal;
-  
-  if (editId) {
-    const receita = receitas.find(r => r.id === editId);
-    if (receita) {
-      document.getElementById('receitaMedico').value = receita.medico;
-      document.getElementById('receitaPaciente').value = receita.paciente;
-      document.getElementById('receitaMedicamentos').value = receita.medicamentos || '';
-      document.getElementById('receitaDataEmissao').value = receita.dataEmissao;
-      document.getElementById('receitaDataValidade').value = receita.dataValidade;
-      document.getElementById('receitaObservacoes').value = receita.observacoes || '';
-      
-      if (receita.foto) {
-        document.getElementById('receitaFotoPreview').src = receita.foto;
-        document.getElementById('receitaFotoPreview').classList.remove('hidden');
-        document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
-      }
-    }
-  } else {
-    // Limpar formulário
-    form.reset();
-    document.getElementById('receitaFotoPreview').src = '';
-    document.getElementById('receitaFotoPreview').classList.add('hidden');
-    document.getElementById('btnRemoverFotoReceita').classList.add('hidden');
-  }
-  
-  modal.classList.add('open');
-  if (narrarEnabled()) speak('Abrindo formulário de receita médica.');
-}
-
-function saveReceita() {
-  const medico = document.getElementById('receitaMedico').value.trim();
-  const paciente = document.getElementById('receitaPaciente').value.trim();
-  const dataEmissao = document.getElementById('receitaDataEmissao').value;
-  const dataValidade = document.getElementById('receitaDataValidade').value;
-  
-  if (!medico || !paciente || !dataEmissao || !dataValidade) {
-    alert('Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.');
-    return;
-  }
-  
-  if (new Date(dataValidade) < new Date(dataEmissao)) {
-    alert('A data de validade não pode ser anterior à data de emissão.');
-    return;
-  }
-  
-  const receitaData = {
-    medico,
-    paciente,
-    medicamentos: document.getElementById('receitaMedicamentos').value.trim(),
-    dataEmissao,
-    dataValidade,
-    observacoes: document.getElementById('receitaObservacoes').value.trim(),
-    foto: document.getElementById('receitaFotoPreview').src || '',
-    criadoEm: new Date().toISOString()
-  };
-  
-  // Processar foto se houver
-  const fotoInput = document.getElementById('receitaFotoInput');
-  if (fotoInput.files && fotoInput.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      receitaData.foto = e.target.result;
-      commitSaveReceita(receitaData);
-    };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    commitSaveReceita(receitaData);
-  }
-}
-
-function commitSaveReceita(receitaData) {
-  const editId = document.getElementById('modalReceita').getAttribute('data-edit-id');
-  
-  if (editId) {
-    const index = receitas.findIndex(r => r.id === editId);
-    if (index > -1) {
-      receitas[index] = { ...receitas[index], ...receitaData };
-    }
-    document.getElementById('modalReceita').removeAttribute('data-edit-id');
-  } else {
-    receitas.push({
-      id: uid(),
-      ...receitaData
-    });
-  }
-  
-  localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
-  renderReceitas();
-  scheduleReceitaAlerts();
-  document.getElementById('modalReceita').classList.remove('open');
-  
-  if (narrarEnabled()) {
-    speak('Receita salva com sucesso. Lembretes configurados.');
-  }
-}
-
-function ampliarFoto(src) {
-  const overlay = document.createElement('div');
-  overlay.className = 'receita-modal-overlay open';
-  overlay.innerHTML = `
-    <img src="${src}" class="receita-modal-img" alt="Receita ampliada">
-    <button onclick="this.parentElement.remove()" style="
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      cursor: pointer;
-    ">✕</button>
-  `;
-  document.body.appendChild(overlay);
-  
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-}
-
-// ================= INICIALIZAÇÃO - Atualize o DOMContentLoaded =================
-// Adicione isso no seu DOMContentLoaded existente:
-document.addEventListener('DOMContentLoaded', () => {
-  // ... código existente ...
-  
-  // ================= RECEITAS - EVENT LISTENERS =================
-  document.getElementById('btnAddReceita').addEventListener('click', () => openReceitaModal());
-  document.getElementById('btnCancelReceita').addEventListener('click', () => {
-    document.getElementById('modalReceita').classList.remove('open');
-  });
-  document.getElementById('btnSaveReceita').addEventListener('click', saveReceita);
-  
-  // Preview da foto da receita
-  document.getElementById('receitaFotoInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        document.getElementById('receitaFotoPreview').src = ev.target.result;
-        document.getElementById('receitaFotoPreview').classList.remove('hidden');
-        document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-  
-  document.getElementById('btnRemoverFotoReceita').addEventListener('click', function() {
-    document.getElementById('receitaFotoInput').value = '';
-    document.getElementById('receitaFotoPreview').src = '';
-    document.getElementById('receitaFotoPreview').classList.add('hidden');
-    this.classList.add('hidden');
-  });
-  
-  // Delegation para ações das receitas
-  document.getElementById('tblReceitas').addEventListener('click', function(e) {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    
-    const id = btn.dataset.id;
-    const act = btn.dataset.act;
-    const receita = receitas.find(r => r.id === id);
-    if (!receita) return;
-    
-    if (act === 'verFoto') {
-      ampliarFoto(receita.foto);
-    } else if (act === 'editarReceita') {
-      document.getElementById('modalReceita').setAttribute('data-edit-id', id);
-      openReceitaModal(id);
-    } else if (act === 'excluirReceita') {
-      if (confirm('Excluir esta receita?')) {
-        receitas = receitas.filter(r => r.id !== id);
-        localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
-        renderReceitas();
-        scheduleReceitaAlerts();
-        if (narrarEnabled()) speak('Receita excluída.');
-      }
-    }
-  });
-  
-  // Inicializar receitas
-  initReceitas();
-});
 </script>
 
 </body>
