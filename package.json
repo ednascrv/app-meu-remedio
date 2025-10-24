@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build": "cp seu-html-original/* src/",
+    "ios": "npm run build && npx cap sync && npx cap open ios",
+    "android": "npm run build && npx cap sync && npx cap open android"
+  }
+}
