@@ -12,86 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Meu Remédio">
 <link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
-  /* ================= CORREÇÕES PARA BOTÕES ================= */
-.btn-primary, .btn-small, .btn-ghost {
-  position: relative;
-  z-index: 1;
-  pointer-events: auto !important;
-  touch-action: manipulation;
-}
-
-/* Garantir que botões estejam clicáveis */
-button:not(:disabled) {
-  cursor: pointer !important;
-}
-
-/* Remover estilos padrão que podem interferir */
-button {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: none;
-  border: none;
-  font-family: inherit;
-}
-
-/* Correção específica para botões do tutorial */
-.tutorial-nav-buttons button {
-  min-width: 120px;
-  padding: 12px 16px !important;
-  margin: 5px;
-  flex: 1;
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Botão Começar a Usar - Correção Definitiva */
-#btnStartApp {
-  display: none;
-  background: linear-gradient(135deg, #66bb6a, #81c784) !important;
-  color: white !important;
-  border: none !important;
-  font-weight: 600;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-#btnStartApp[style*="block"] {
-  display: block !important;
-}
-
-.tutorial-step[data-step="4"] #btnStartApp {
-  display: block !important;
-}
-
-/* Botões na tabela */
-.actions button {
-  margin: 2px;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  white-space: nowrap;
-}
-
-/* Botões de controle de texto */
-.text-controls button {
-  padding: 8px 12px !important;
-  font-size: 13px !important;
-  border: 1px solid #e1e8ed !important;
-}
-
-/* Hover states para melhor feedback */
-.btn-primary:hover, .btn-small:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
-}
-
-.btn-ghost:hover {
-  background: #f8f9fa !important;
-  border-color: #4a9eff !important;
-  color: #4a9eff !important;
-}
 /* ================= VARIÁVEIS E ESTILOS GERAIS ================= */
 :root{ 
   --blue:#0077b6; --green:#2e7d32; --accent:#013233; --bg:#fbfdfc; 
@@ -156,6 +78,10 @@ header{
   box-shadow:var(--shadow);
   width:100%;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  touch-action: manipulation;
 } 
 
 .btn-small{
@@ -167,6 +93,9 @@ header{
   font-weight:700;
   cursor:pointer;
   font-size: 14px;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
 }
 
 .btn-ghost{
@@ -177,6 +106,9 @@ header{
   color:var(--accent);
   cursor:pointer;
   font-size: 14px;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
 }
 
 .card{
@@ -457,18 +389,6 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   100% { transform: scale(1); }
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideOut {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
-}
-
-
-
 /* Acessibilidade - Controles de Texto */
 .text-controls {
   display: flex;
@@ -496,32 +416,6 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
 
 .tutorial-nav-buttons button {
   min-width: 120px;
-  flex: 1;
-}
-
-/* CORREÇÃO DEFINITIVA PARA BOTÕES DO TUTORIAL */
-#btnStartApp {
-  display: none !important;
-}
-
-#btnStartApp[style*="display: block"] {
-  display: block !important;
-}
-
-#btnNextTutorial, #btnSkipTutorial {
-  display: block;
-}
-
-.tutorial-nav-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.tutorial-nav-buttons button {
-  min-width: 120px;
   padding: 10px 15px;
   border: none;
   border-radius: 8px;
@@ -534,21 +428,10 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   background: linear-gradient(90deg, #2e7d32, #4caf50) !important;
   color: white !important;
   border: 2px solid #1b5e20 !important;
-}
-
-#btnStartApp:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-}
-
-/* Garantir que os botões fiquem visíveis */
-#btnStartApp {
   display: none !important;
-  background: linear-gradient(90deg, #2e7d32, #4caf50) !important;
-  font-weight: bold;
 }
 
-#btnStartApp:not(.hidden) {
+#btnStartApp.show {
   display: block !important;
 }
 
@@ -592,6 +475,7 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   color: #0077b6;
   text-align: center;
 }
+
 /* ================= ESTILOS PARA RECEITAS ================= */
 .receita-item {
   background: #f8fdff;
@@ -705,6 +589,7 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
+
 /* ================= CORREÇÃO ESPECÍFICA PARA MODAL RECEITA ================= */
 #modalReceita {
   position: fixed !important;
@@ -745,7 +630,6 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
   }
 }
 </style>
-
 </head> 
 
 <body> 
@@ -772,7 +656,6 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     <div class="text-controls">
       <button onclick="increaseTextSize()" title="Aumentar texto">A+</button>
       <button onclick="decreaseTextSize()" title="Diminuir texto">A-</button>
-   
       <button onclick="readCurrentScreen()" title="Ler tela atual">🔊 Ler Tela</button>
     </div>
     
@@ -797,6 +680,34 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     <div id="emptyMeds" class="small">Nenhum medicamento cadastrado.</div>
   </section> 
 
+  <!-- Seção de Receitas -->
+  <section class="card" id="receitaSection">
+    <div class="flex-space">
+      <h2>📋 Receitas Médicas <span id="receitaCount" class="badge">0</span></h2>
+      <div class="actions">
+        <button id="btnAddReceita" class="btn-small">➕ Nova Receita</button>
+      </div>
+    </div>
+    
+    <div id="receitaAlerts" style="margin: 10px 0;"></div>
+    
+    <table class="table" id="tblReceitas" aria-describedby="Lista de receitas médicas">
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Paciente</th>
+          <th>Médico</th>
+          <th>Emissão</th>
+          <th>Validade</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="emptyReceitas" class="small">Nenhuma receita cadastrada.</div>
+  </section>
+
   <section class="card" id="histSection"> 
     <div class="flex-space"> 
       <h2>Histórico (doses tomadas) <span id="histCount" class="badge">0</span></h2> 
@@ -817,6 +728,7 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     <div id="emptyConsults" class="small">Nenhuma consulta cadastrada.</div>
   </section> 
 </main> 
+
 <!-- Modal: Receitas Médicas -->
 <div id="modalReceita" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalReceitaTitle">
   <div class="modal-content">
@@ -872,34 +784,6 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     </div>
   </div>
 </div>
-
-<!-- Seção de Receitas no HTML principal - Adicione após a seção de Consultas -->
-<section class="card" id="receitaSection">
-  <div class="flex-space">
-    <h2>📋 Receitas Médicas <span id="receitaCount" class="badge">0</span></h2>
-    <div class="actions">
-      <button id="btnAddReceita" class="btn-small">➕ Nova Receita</button>
-    </div>
-  </div>
-  
-  <div id="receitaAlerts" style="margin: 10px 0;"></div>
-  
-  <table class="table" id="tblReceitas" aria-describedby="Lista de receitas médicas">
-    <thead>
-      <tr>
-        <th>Foto</th>
-        <th>Paciente</th>
-        <th>Médico</th>
-        <th>Emissão</th>
-        <th>Validade</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="emptyReceitas" class="small">Nenhuma receita cadastrada.</div>
-</section>
 
 <div class="footer">Meu Remédio — Privado & Local</div> 
 
@@ -1067,11 +951,11 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+    <div class="tutorial-nav-buttons">
       <button id="btnPrevTutorial" class="btn-ghost" disabled>⬅️ Anterior</button>
       <button id="btnNextTutorial" class="btn-small">Próximo ➡️</button>
       <button id="btnSkipTutorial" class="btn-ghost">Pular Tutorial</button>
-      <button id="btnStartApp" class="btn-small hidden">🎉 Começar a Usar!</button>
+      <button id="btnStartApp" class="btn-small">🎉 Começar a Usar!</button>
     </div>
 
     <div style="text-align: center; margin-top: 15px;">
@@ -1082,400 +966,256 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     </div>
   </div>
 </div>
-<script>
-const eR=document.getElementById("modalReceita"),bA=document.getElementById("btnAddReceita"),bC=document.getElementById("btnCancelReceita"),bS=document.getElementById("btnSaveReceita"),iM=document.getElementById("receitaMedico"),iP=document.getElementById("receitaPaciente"),iE=document.getElementById("receitaDataEmissao"),iV=document.getElementById("receitaDataValidade");function oR(){eR.classList.add("open")}function fR(){eR.classList.remove("open")}function vR(){if(!iM.value.trim()||!iP.value.trim()||!iE.value||!iV.value){alert("Preencha todos os campos obrigatórios (*)");return!1}return!0}function sR(){if(!vR())return;let r={medico:iM.value.trim(),paciente:iP.value.trim(),emissao:iE.value,validade:iV.value,medicamentos:document.getElementById("receitaMedicamentos").value.trim(),obs:document.getElementById("receitaObservacoes").value.trim()};let a=JSON.parse(localStorage.getItem("receitas")||"[]");a.push(r),localStorage.setItem("receitas",JSON.stringify(a)),alert("✅ Receita salva com sucesso!"),fR(),iM.value=iP.value=iE.value=iV.value=document.getElementById("receitaMedicamentos").value=document.getElementById("receitaObservacoes").value=""}bA&&bA.addEventListener("click",oR),bC&&bC.addEventListener("click",fR),bS&&bS.addEventListener("click",sR);
-</script>
 
 <!-- Botão flutuante de Ajuda -->
 <button id="btnHelp" class="help-floating" aria-label="Ajuda e tutorial" title="Precisa de ajuda?">
   ❓ Ajuda
 </button>
 <script>
-  // ================= CSS CORRETIVO DINÂMICO =================
-// Adicione este código no seu JavaScript para garantir que o botão fique visível
-const tutorialCSSFix = `
-/* CORREÇÃO EXTRA PARA BOTÃO COMEÇAR A USAR */
-#btnStartApp[style*="display: block"] {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+// ================= SERVICE WORKER REGISTRATION =================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('ServiceWorker registrado com sucesso:', registration);
+    } catch (error) {
+      console.log('ServiceWorker registration failed:', error);
+      // Fallback: usar service worker inline se o arquivo não existir
+      registerInlineServiceWorker();
+    }
+  });
 }
 
-.tutorial-step[data-step="4"] #btnStartApp {
-  display: block !important;
+function registerInlineServiceWorker() {
+  const swCode = `
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+  console.log('Service Worker instalado');
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+  console.log('Service Worker ativado');
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SCHEDULE_ALARM') {
+    const { id, time, title, body } = event.data;
+    scheduleAlarm(id, time, title, body);
+  }
+});
+
+function scheduleAlarm(id, time, title, body) {
+  const now = Date.now();
+  const targetTime = new Date(time).getTime();
+  const timeout = targetTime - now;
+
+  if (timeout > 0) {
+    setTimeout(() => {
+      self.registration.showNotification(title, {
+        body: body,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: id,
+        requireInteraction: true,
+        actions: [
+          { action: 'tomei', title: '✅ Tomei' },
+          { action: 'adiar', title: '⏰ Adiar 10min' }
+        ]
+      });
+    }, timeout);
+    console.log(\`Alarme \${id} agendado para \${new Date(time)}\`);
+  }
 }
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  if (event.action === 'tomei') {
+    // Marcar como tomado via postMessage para o client
+    event.waitUntil(
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'MEDICATION_TAKEN',
+            medId: event.notification.tag
+          });
+        });
+      })
+    );
+  } else if (event.action === 'adiar') {
+    // Reagendar para 10 minutos depois
+    const newTime = new Date(Date.now() + 10 * 60 * 1000);
+    scheduleAlarm(event.notification.tag, newTime, 
+      event.notification.title, 
+      'Lembrete adiado: ' + event.notification.body);
+  } else {
+    // Clique na notificação - focar na app
+    event.waitUntil(
+      self.clients.matchAll().then(clients => {
+        if (clients.length > 0) {
+          clients[0].focus();
+        } else {
+          self.clients.openWindow('/');
+        }
+      })
+    );
+  }
+});
 `;
 
-// Adicionar CSS corretivo dinamicamente
-const fixStyle = document.createElement('style');
-fixStyle.textContent = tutorialCSSFix;
-document.head.appendChild(fixStyle);
-
-
-
-// ================= VARIÁVEIS GLOBAIS =================
-const LS_MED = 'meu_remedio_med_photos_v3';
-const LS_HIST = 'meu_remedio_hist_v3';
-const LS_CONS = 'meu_remedio_consults_v3';
-const LS_TERMS = 'meu_remedio_termos_v3';
-const LS_TUTORIAL = 'meu_remedio_tutorial_v3';
-const LS_NOTIF_SETTINGS = 'meu_remedio_notif_settings_v3';
-
-let meds = JSON.parse(localStorage.getItem(LS_MED) || '[]');
-let hist = JSON.parse(localStorage.getItem(LS_HIST) || '[]');
-let consults = JSON.parse(localStorage.getItem(LS_CONS) || '[]');
-const notifSettings = JSON.parse(localStorage.getItem(LS_NOTIF_SETTINGS) || '{"medEnabled":true,"consEnabled":true,"soundEnabled":true,"advanceTime":15}');
-
-const scheduledTimers = new Map();
-let isOnline = navigator.onLine;
-let currentStep = 1;
-const totalSteps = 4;
-
-// ================= DEBUG DE BOTÕES =================
-function debugBotoes() {
-  console.log('=== DEBUG DE BOTÕES ===');
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swURL = URL.createObjectURL(blob);
   
-  // Verificar botões principais
-  const botoesPrincipais = [
-    'btnAddMed', 'btnVoiceFlow', 'btnAlarm', 
-    'btnAddReceita', 'btnAddConsult'
-  ];
-  
-  botoesPrincipais.forEach(id => {
-    const btn = document.getElementById(id);
-    console.log(`${id}:`, {
-      existe: !!btn,
-      display: btn?.style?.display,
-      visibility: btn?.style?.visibility,
-      opacity: btn?.style?.opacity,
-      pointerEvents: btn?.style?.pointerEvents,
-      disabled: btn?.disabled
-    });
-  });
-
-  // Verificar botões do tutorial
-  const botoesTutorial = [
-    'btnNextTutorial', 'btnPrevTutorial', 
-    'btnSkipTutorial', 'btnStartApp'
-  ];
-  
-  botoesTutorial.forEach(id => {
-    const btn = document.getElementById(id);
-    console.log(`${id}:`, {
-      existe: !!btn,
-      display: getComputedStyle(btn).display,
-      visibility: getComputedStyle(btn).visibility,
-      opacity: getComputedStyle(btn).opacity
-    });
-  });
+  navigator.serviceWorker.register(swURL)
+    .then(registration => console.log('Inline ServiceWorker registrado'))
+    .catch(error => console.log('Falha no ServiceWorker inline:', error));
 }
 
-// Testar clique em todos os botões
-function testarCliqueBotoes() {
-  console.log('=== TESTANDO CLIQUE EM BOTÕES ===');
+// ================= SISTEMA DE ALARMES OFFLINE =================
+const alarmStorageKey = 'meu_remedio_alarms_v2';
+
+function scheduleOfflineAlarms() {
+  if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+    console.log('Service Worker não disponível para alarmes offline');
+    return;
+  }
+
+  // Limpar alarmes antigos
+  const now = new Date().getTime();
+  const storedAlarms = JSON.parse(localStorage.getItem(alarmStorageKey) || '{}');
   
-  document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
-      const btn = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
-      console.log('Botão clicado:', {
-        id: btn.id,
-        text: btn.textContent,
-        classe: btn.className
+  Object.keys(storedAlarms).forEach(key => {
+    if (new Date(storedAlarms[key].time).getTime() < now) {
+      delete storedAlarms[key];
+    }
+  });
+
+  // Agendar alarmes dos medicamentos
+  meds.forEach(med => {
+    if (med.hora && med.ativo !== false) {
+      scheduleMedicationAlarm(med);
+    }
+  });
+
+  // Agendar alarmes das receitas
+  scheduleReceitaAlerts();
+
+  localStorage.setItem(alarmStorageKey, JSON.stringify(storedAlarms));
+}
+
+function scheduleMedicationAlarm(med) {
+  const [hours, minutes] = med.hora.split(':').map(Number);
+  const now = new Date();
+  const alarmTime = new Date();
+  
+  alarmTime.setHours(hours, minutes, 0, 0);
+  
+  // Se o horário já passou hoje, agenda para amanhã
+  if (alarmTime <= now) {
+    alarmTime.setDate(alarmTime.getDate() + 1);
+  }
+
+  const alarmId = `med_${med.id}_${alarmTime.getTime()}`;
+  const alarmData = {
+    id: alarmId,
+    time: alarmTime.toISOString(),
+    title: '💊 Hora do Remédio',
+    body: `${med.nome} - ${med.paciente}${med.instrucao ? ` (${med.instrucao})` : ''}`,
+    medId: med.id
+  };
+
+  // Enviar para Service Worker
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SCHEDULE_ALARM',
+      ...alarmData
+    });
+  }
+
+  // Armazenar localmente para recuperação
+  const storedAlarms = JSON.parse(localStorage.getItem(alarmStorageKey) || '{}');
+  storedAlarms[alarmId] = alarmData;
+  localStorage.setItem(alarmStorageKey, JSON.stringify(storedAlarms));
+
+  console.log(`Alarme agendado: ${med.nome} às ${alarmTime.toLocaleTimeString('pt-BR')}`);
+}
+
+// ================= NOTIFICAÇÕES PERSISTENTES =================
+async function initializeNotifications() {
+  if (!('Notification' in window)) {
+    updateNotificationStatus('unsupported');
+    return false;
+  }
+
+  if (Notification.permission === 'granted') {
+    await setupPeriodicSync();
+    updateNotificationStatus('granted');
+    return true;
+  }
+
+  // Solicitar permissão com contexto melhor
+  const result = await Notification.requestPermission();
+  const granted = result === 'granted';
+  
+  if (granted) {
+    await setupPeriodicSync();
+    updateNotificationStatus('granted');
+  } else {
+    updateNotificationStatus('denied');
+  }
+  
+  return granted;
+}
+
+async function setupPeriodicSync() {
+  if ('periodicSync' in window && 'serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.periodicSync.register('medication-reminders', {
+        minInterval: 24 * 60 * 60 * 1000 // 1 dia
       });
-    }
-  }, true);
-}
-
-// ================= CORREÇÃO DE EVENT LISTENERS =================
-function corrigirEventListeners() {
-  console.log('=== CORRIGINDO EVENT LISTENERS ===');
-  
-  // Botões principais
-  const botoesConfig = [
-    { id: 'btnAddMed', event: 'click', action: () => openMedModal() },
-    { id: 'btnVoiceFlow', event: 'click', action: () => iniciarFluxoVoz() },
-    { id: 'btnAlarm', event: 'click', action: () => abrirConfigAlarme() },
-    { id: 'btnAddReceita', event: 'click', action: () => openReceitaModal() },
-    { id: 'btnAddConsult', event: 'click', action: () => openConsultModal() },
-    { id: 'btnExport', event: 'click', action: () => exportarDados() },
-    { id: 'btnImport', event: 'click', action: () => importarDados() },
-    { id: 'btnClearHist', event: 'click', action: () => limparHistorico() }
-  ];
-
-  botoesConfig.forEach(config => {
-    const btn = document.getElementById(config.id);
-    if (btn) {
-      // Remover event listeners antigos
-      btn.replaceWith(btn.cloneNode(true));
-      const newBtn = document.getElementById(config.id);
-      
-      // Adicionar novo event listener
-      newBtn.addEventListener(config.event, config.action);
-      console.log(`✅ ${config.id} - Event listener configurado`);
-    } else {
-      console.log(`❌ ${config.id} - Botão não encontrado`);
-    }
-  });
-}
-// ================= FUNÇÕES DE ABERTURA DE FORMULÁRIOS =================
-function openMedModal(editId = null) {
-  console.log('💊 Abrindo modal de medicamento...');
-  
-  // Resetar formulário
-  document.getElementById('medPaciente').value = '';
-  document.getElementById('medNome').value = '';
-  document.getElementById('medInstr').value = '';
-  document.getElementById('medHora').value = '';
-  document.getElementById('medFotoInput').value = '';
-  document.getElementById('medFotoPreview').src = '';
-  document.getElementById('medFotoPreview').classList.add('hidden');
-  document.getElementById('btnRemoverFoto').classList.add('hidden');
-  
-  // Se for edição, preencher dados
-  if (editId) {
-    const med = meds.find(m => m.id === editId);
-    if (med) {
-      document.getElementById('medPaciente').value = med.paciente || '';
-      document.getElementById('medNome').value = med.nome || '';
-      document.getElementById('medInstr').value = med.instrucao || '';
-      document.getElementById('medHora').value = med.hora || '';
-      
-      if (med.foto) {
-        document.getElementById('medFotoPreview').src = med.foto;
-        document.getElementById('medFotoPreview').classList.remove('hidden');
-        document.getElementById('btnRemoverFoto').classList.remove('hidden');
-      }
+      console.log('Periodic Sync registrado');
+    } catch (error) {
+      console.log('Periodic Sync não suportado:', error);
     }
   }
-  
-  // Abrir modal
-  const modal = document.getElementById('modalMed');
-  modal.classList.add('open');
-  
-  if (narrarEnabled()) {
-    speak('Formulário de medicamento aberto. Preencha os dados necessários.');
-  }
+
+  // Fallback: usar alarmes offline
+  scheduleOfflineAlarms();
 }
 
-function openReceitaModal(editId = null) {
-  console.log('📋 Abrindo modal de receita...');
-  
-  // Resetar formulário
-  document.getElementById('receitaMedico').value = '';
-  document.getElementById('receitaPaciente').value = '';
-  document.getElementById('receitaMedicamentos').value = '';
-  document.getElementById('receitaDataEmissao').value = '';
-  document.getElementById('receitaDataValidade').value = '';
-  document.getElementById('receitaObservacoes').value = '';
-  document.getElementById('receitaFotoInput').value = '';
-  document.getElementById('receitaFotoPreview').src = '';
-  document.getElementById('receitaFotoPreview').classList.add('hidden');
-  document.getElementById('btnRemoverFotoReceita').classList.add('hidden');
-  
-  // Se for edição, preencher dados
-  if (editId) {
-    const receita = receitas.find(r => r.id === editId);
-    if (receita) {
-      document.getElementById('receitaMedico').value = receita.medico || '';
-      document.getElementById('receitaPaciente').value = receita.paciente || '';
-      document.getElementById('receitaMedicamentos').value = receita.medicamentos || '';
-      document.getElementById('receitaDataEmissao').value = receita.dataEmissao || '';
-      document.getElementById('receitaDataValidade').value = receita.dataValidade || '';
-      document.getElementById('receitaObservacoes').value = receita.observacoes || '';
-      
-      if (receita.foto) {
-        document.getElementById('receitaFotoPreview').src = receita.foto;
-        document.getElementById('receitaFotoPreview').classList.remove('hidden');
-        document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
-      }
-    }
-  }
-  
-  // Abrir modal
-  const modal = document.getElementById('modalReceita');
-  modal.classList.add('open');
-  
-  if (narrarEnabled()) {
-    speak('Formulário de receita médica aberto. Preencha os dados da receita.');
-  }
+// ================= GESTÃO DE ESTADO OFFLINE =================
+let isOnline = navigator.onLine;
+
+window.addEventListener('online', () => {
+  isOnline = true;
+  document.getElementById('connectionStatus').textContent = '● Online';
+  document.getElementById('connectionStatus').className = 'status-online';
+  console.log('App online - sincronizando alarmes');
+  scheduleOfflineAlarms();
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  document.getElementById('connectionStatus').textContent = '● Offline';
+  document.getElementById('connectionStatus').className = 'status-offline';
+  console.log('App offline - usando alarmes locais');
+});
+
+// ================= ATUALIZAÇÃO DO CÓDIGO EXISTENTE =================
+
+// Modifique a função refreshUI para incluir agendamento de alarmes
+function refreshUI() {
+  renderMeds();
+  renderHist();
+  renderConsults();
+  renderReceitas();
+  scheduleOfflineAlarms(); // ← ADICIONAR ESTA LINHA
 }
 
-function openConsultModal(editId = null) {
-  console.log('📅 Abrindo modal de consulta...');
-  
-  // Resetar formulário
-  document.getElementById('consData').value = '';
-  document.getElementById('consProf').value = '';
-  document.getElementById('consObs').value = '';
-  
-  // Se for edição, preencher dados
-  if (editId) {
-    const consult = consults.find(c => c.id === editId);
-    if (consult) {
-      document.getElementById('consData').value = consult.data || '';
-      document.getElementById('consProf').value = consult.prof || '';
-      document.getElementById('consObs').value = consult.obs || '';
-    }
-  }
-  
-  // Abrir modal
-  const modal = document.getElementById('modalConsult');
-  modal.classList.add('open');
-  
-  if (narrarEnabled()) {
-    speak('Formulário de consulta aberto. Preencha os dados da consulta.');
-  }
-}
-
-function openNotifSettings() {
-  console.log('⚙️ Abrindo configurações de notificação...');
-  document.getElementById('modalNotifSettings').classList.add('open');
-  
-  if (narrarEnabled()) {
-    speak('Configurações de notificação abertas.');
-  }
-}
-
-// ================= CONFIGURAÇÃO CORRETA DOS EVENT LISTENERS =================
-function configurarEventListeners() {
-  console.log('🎯 Configurando event listeners...');
-  
-  // Botões principais - Usando onclick para maior confiabilidade
-  const btnAddMed = document.getElementById('btnAddMed');
-  const btnAddReceita = document.getElementById('btnAddReceita');
-  const btnAddConsult = document.getElementById('btnAddConsult');
-  const btnAlarm = document.getElementById('btnAlarm');
-  const btnVoiceFlow = document.getElementById('btnVoiceFlow');
-  const btnExport = document.getElementById('btnExport');
-  const btnImport = document.getElementById('btnImport');
-  const btnClearHist = document.getElementById('btnClearHist');
-  const notificationStatus = document.getElementById('notificationStatus');
-  
-  // Configurar usando onclick (mais confiável que addEventListener)
-  if (btnAddMed) {
-    btnAddMed.onclick = () => openMedModal();
-    console.log('✅ btnAddMed configurado');
-  }
-  
-  if (btnAddReceita) {
-    btnAddReceita.onclick = () => openReceitaModal();
-    console.log('✅ btnAddReceita configurado');
-  }
-  
-  if (btnAddConsult) {
-    btnAddConsult.onclick = () => openConsultModal();
-    console.log('✅ btnAddConsult configurado');
-  }
-  
-  if (btnAlarm) {
-    btnAlarm.onclick = () => openNotifSettings();
-    console.log('✅ btnAlarm configurado');
-  }
-  
-  if (btnVoiceFlow) {
-    btnVoiceFlow.onclick = iniciarFluxoVoz;
-    console.log('✅ btnVoiceFlow configurado');
-  }
-  
-  if (btnExport) {
-    btnExport.onclick = exportarDados;
-    console.log('✅ btnExport configurado');
-  }
-  
-  if (btnImport) {
-    btnImport.onclick = importarDados;
-    console.log('✅ btnImport configurado');
-  }
-  
-  if (btnClearHist) {
-    btnClearHist.onclick = limparHistorico;
-    console.log('✅ btnClearHist configurado');
-  }
-  
-  if (notificationStatus) {
-    notificationStatus.onclick = () => {
-      console.log('🔔 Abrindo configurações de notificação...');
-      openNotifSettings();
-    };
-    console.log('✅ notificationStatus configurado');
-  }
-  
-  // Botões de fechar modais
-  const btnCancelMed = document.getElementById('btnCancelMed');
-  const btnCancelReceita = document.getElementById('btnCancelReceita');
-  const btnCancelCons = document.getElementById('btnCancelCons');
-  const btnCancelNotif = document.getElementById('btnCancelNotif');
-  
-  if (btnCancelMed) {
-    btnCancelMed.onclick = () => {
-      document.getElementById('modalMed').classList.remove('open');
-      console.log('❌ Modal medicamento fechado');
-    };
-  }
-  
-  if (btnCancelReceita) {
-    btnCancelReceita.onclick = () => {
-      document.getElementById('modalReceita').classList.remove('open');
-      console.log('❌ Modal receita fechado');
-    };
-  }
-  
-  if (btnCancelCons) {
-    btnCancelCons.onclick = () => {
-      document.getElementById('modalConsult').classList.remove('open');
-      console.log('❌ Modal consulta fechado');
-    };
-  }
-  
-  if (btnCancelNotif) {
-    btnCancelNotif.onclick = () => {
-      document.getElementById('modalNotifSettings').classList.remove('open');
-      console.log('❌ Modal notificações fechado');
-    };
-  }
-  
-  // Botões de salvar
-  const btnSaveMed = document.getElementById('btnSaveMed');
-  const btnSaveReceita = document.getElementById('btnSaveReceita');
-  const btnSaveCons = document.getElementById('btnSaveCons');
-  
-  if (btnSaveMed) {
-    btnSaveMed.onclick = salvarMedicamento;
-    console.log('✅ btnSaveMed configurado');
-  }
-  
-  if (btnSaveReceita) {
-    btnSaveReceita.onclick = salvarReceita;
-    console.log('✅ btnSaveReceita configurado');
-  }
-  
-  if (btnSaveCons) {
-    btnSaveCons.onclick = salvarConsulta;
-    console.log('✅ btnSaveCons configurado');
-  }
-  
-  // Fechar modais clicando fora
-  configurarFechamentoModais();
-}
-
-function configurarFechamentoModais() {
-  console.log('🎯 Configurando fechamento de modais...');
-  
-  const modals = document.querySelectorAll('.modal');
-  modals.forEach(modal => {
-    modal.onclick = (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('open');
-        console.log(`❌ Modal ${modal.id} fechado (clique fora)`);
-      }
-    };
-  });
-}
-
-// ================= FUNÇÕES DE SALVAR =================
+// Modifique a função salvarMedicamento para agendar alarmes
 function salvarMedicamento() {
-  console.log('💾 Salvando medicamento...');
-  
   const nome = document.getElementById('medNome').value.trim();
   if (!nome) {
     alert('Preencha o nome do medicamento.');
@@ -1486,29 +1226,24 @@ function salvarMedicamento() {
   const instr = document.getElementById('medInstr').value.trim();
   const hora = document.getElementById('medHora').value;
   
-  // Verificar se é edição
   const editId = document.getElementById('modalMed').getAttribute('data-edit-id');
+  const foto = document.getElementById('medFotoPreview').src || '';
   
   if (editId) {
-    // Edição
     const idx = meds.findIndex(m => m.id === editId);
     if (idx > -1) {
-      meds[idx].paciente = paciente;
-      meds[idx].nome = nome;
-      meds[idx].instrucao = instr;
-      meds[idx].hora = hora;
+      meds[idx] = { ...meds[idx], paciente, nome, instrucao: instr, hora, foto };
     }
-    document.getElementById('modalMed').removeAttribute('data-edit-id');
   } else {
-    // Novo medicamento
     meds.push({
       id: uid(),
       paciente,
       nome,
       instrucao: instr,
       hora,
-      foto: document.getElementById('medFotoPreview').src || '',
-      criadoEm: new Date().toISOString()
+      foto,
+      criadoEm: new Date().toISOString(),
+      ativo: true
     });
   }
   
@@ -1516,803 +1251,173 @@ function salvarMedicamento() {
   refreshUI();
   document.getElementById('modalMed').classList.remove('open');
   
-  if (narrarEnabled()) {
-    speak('Medicamento salvo com sucesso.');
+  // Agendar alarme para o novo medicamento
+  if (hora) {
+    const novoMed = meds.find(m => m.nome === nome && m.paciente === paciente);
+    if (novoMed) scheduleMedicationAlarm(novoMed);
   }
   
-  console.log('✅ Medicamento salvo');
+  if (narrarEnabled()) speak('Medicamento salvo com sucesso.');
 }
 
-function salvarReceita() {
-  console.log('💾 Salvando receita...');
+// Adicione esta função para lidar com notificações de tomou o remédio
+function setupNotificationHandlers() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'MEDICATION_TAKEN') {
+        const medId = event.data.medId.split('_')[1]; // Extrair ID do medicamento
+        marcarComoTomado(medId);
+      }
+    });
+  }
+}
+
+// ================= CONFIGURAÇÃO DE NOTIFICAÇÕES =================
+function openNotifSettings() {
+  const modal = document.getElementById('modalNotifSettings');
   
-  const medico = document.getElementById('receitaMedico').value.trim();
-  const paciente = document.getElementById('receitaPaciente').value.trim();
-  const dataEmissao = document.getElementById('receitaDataEmissao').value;
-  const dataValidade = document.getElementById('receitaDataValidade').value;
+  // Preencher configurações atuais
+  document.getElementById('notifMedEnabled').checked = notifSettings.medEnabled;
+  document.getElementById('notifConsEnabled').checked = notifSettings.consEnabled;
+  document.getElementById('notifSoundEnabled').checked = notifSettings.soundEnabled;
+  document.getElementById('notifAdvanceTime').value = notifSettings.advanceTime;
   
-  if (!medico || !paciente || !dataEmissao || !dataValidade) {
-    alert('Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.');
+  // Mostrar próximos alarmes
+  updateNextAlarmsList();
+  
+  modal.classList.add('open');
+  if (narrarEnabled()) speak('Configurações de notificação abertas.');
+}
+
+function updateNextAlarmsList() {
+  const list = document.getElementById('nextAlarmsList');
+  const now = new Date();
+  const nextAlarms = [];
+  
+  // Próximos alarmes de medicamentos
+  meds.forEach(med => {
+    if (med.hora && med.ativo !== false) {
+      const [hours, minutes] = med.hora.split(':').map(Number);
+      const alarmTime = new Date();
+      alarmTime.setHours(hours, minutes, 0, 0);
+      if (alarmTime <= now) alarmTime.setDate(alarmTime.getDate() + 1);
+      
+      nextAlarms.push({
+        time: alarmTime,
+        text: `${med.nome} - ${med.paciente}`
+      });
+    }
+  });
+  
+  // Ordenar por horário
+  nextAlarms.sort((a, b) => a.time - b.time);
+  
+  if (nextAlarms.length === 0) {
+    list.innerHTML = '<em>Nenhum alarme agendado</em>';
+  } else {
+    list.innerHTML = nextAlarms.slice(0, 5).map(alarm => 
+      `<div>🕒 ${alarm.time.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} - ${alarm.text}</div>`
+    ).join('');
+  }
+}
+
+function saveNotifSettings() {
+  notifSettings.medEnabled = document.getElementById('notifMedEnabled').checked;
+  notifSettings.consEnabled = document.getElementById('notifConsEnabled').checked;
+  notifSettings.soundEnabled = document.getElementById('notifSoundEnabled').checked;
+  notifSettings.advanceTime = parseInt(document.getElementById('notifAdvanceTime').value);
+  
+  localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
+  
+  // Reagendar alarmes com novas configurações
+  scheduleOfflineAlarms();
+  
+  document.getElementById('modalNotifSettings').classList.remove('open');
+  if (narrarEnabled()) speak('Configurações salvas.');
+}
+
+function testNotification() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    alert('Permissão de notificação não concedida.');
     return;
   }
   
-  const receitaData = {
-    medico,
-    paciente,
-    medicamentos: document.getElementById('receitaMedicamentos').value.trim(),
-    dataEmissao,
-    dataValidade,
-    observacoes: document.getElementById('receitaObservacoes').value.trim(),
-    foto: document.getElementById('receitaFotoPreview').src || '',
-    criadoEm: new Date().toISOString()
-  };
+  const notification = new Notification('✅ Teste do Meu Remédio', {
+    body: 'Esta é uma notificação de teste. Se você vê esta mensagem, as notificações estão funcionando!',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    requireInteraction: true
+  });
   
-  // Verificar se é edição
-  const editId = document.getElementById('modalReceita').getAttribute('data-edit-id');
-  
-  if (editId) {
-    // Edição
-    const idx = receitas.findIndex(r => r.id === editId);
-    if (idx > -1) {
-      receitas[idx] = { ...receitas[idx], ...receitaData };
-    }
-    document.getElementById('modalReceita').removeAttribute('data-edit-id');
-  } else {
-    // Nova receita
-    receitas.push({
-      id: uid(),
-      ...receitaData
-    });
-  }
-  
-  localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
-  renderReceitas();
-  scheduleReceitaAlerts();
-  document.getElementById('modalReceita').classList.remove('open');
-  
-  if (narrarEnabled()) {
-    speak('Receita salva com sucesso.');
-  }
-  
-  console.log('✅ Receita salva');
+  setTimeout(() => notification.close(), 5000);
 }
 
-function salvarConsulta() {
-  console.log('💾 Salvando consulta...');
+// ================= INICIALIZAÇÃO ATUALIZADA =================
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log('🚀 Iniciando Meu Remédio PWA...');
   
-  const data = document.getElementById('consData').value;
-  const prof = document.getElementById('consProf').value.trim();
+  // Configurações básicas
+  const savedTextSize = localStorage.getItem('textSize');
+  if (savedTextSize) document.body.style.fontSize = savedTextSize;
   
-  if (!data || !prof) {
-    alert('Preencha a data e o profissional/local.');
-    return;
-  }
+  // Inicializar notificações
+  await initializeNotifications();
   
-  const obs = document.getElementById('consObs').value.trim();
-  
-  // Verificar se é edição
-  const editId = document.getElementById('modalConsult').getAttribute('data-edit-id');
-  
-  if (editId) {
-    // Edição
-    const idx = consults.findIndex(c => c.id === editId);
-    if (idx > -1) {
-      consults[idx].data = data;
-      consults[idx].prof = prof;
-      consults[idx].obs = obs;
-    }
-    document.getElementById('modalConsult').removeAttribute('data-edit-id');
-  } else {
-    // Nova consulta
-    consults.push({
-      id: uid(),
-      data,
-      prof,
-      obs,
-      criadoEm: new Date().toISOString()
-    });
-  }
-  
-  saveAll();
-  refreshUI();
-  document.getElementById('modalConsult').classList.remove('open');
-  
-  if (narrarEnabled()) {
-    speak('Consulta salva com sucesso.');
-  }
-  
-  console.log('✅ Consulta salva');
-}
-
-// ================= INICIALIZAÇÃO CORRIGIDA =================
-document.addEventListener("DOMContentLoaded", () => {
-  console.log('🚀 DOM Carregado - Iniciando configuração...');
-  
-  // Configurar event listeners primeiro
-  setTimeout(() => {
-    configurarEventListeners();
-    debugBotoes();
-  }, 100);
+  // Configurar handlers
+  configurarEventListeners();
+  setupNotificationHandlers();
   
   // Inicializar sistemas
   initTutorial();
-  initReceitas();
-  setupAccessibilityControls();
   
-  console.log('✅ Aplicação completamente inicializada');
+  // Verificar estado online/offline
+  if (!isOnline) {
+    document.getElementById('connectionStatus').textContent = '● Offline';
+    document.getElementById('connectionStatus').className = 'status-offline';
+  }
+  
+  console.log('✅ PWA inicializado com sistema de alarmes offline');
 });
 
-// ================= DEBUG MELHORADO =================
-function debugBotoes() {
-  console.log('=== DEBUG COMPLETO DE BOTÕES ===');
+// ================= ATUALIZAR CONFIGURAÇÃO DE EVENT LISTENERS =================
+function configurarEventListeners() {
+  // ... (seus event listeners existentes)
   
-  const botoesTeste = [
-    'btnAddMed', 'btnAddReceita', 'btnAddConsult', 
-    'btnAlarm', 'btnVoiceFlow', 'btnExport', 'btnImport'
-  ];
+  // Adicionar estes novos:
+  document.getElementById('btnTestNotif').onclick = testNotification;
+  document.getElementById('btnSaveNotif').onclick = saveNotifSettings;
   
-  botoesTeste.forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      console.log(`🔘 ${id}:`, {
-        existe: true,
-        onclick: typeof btn.onclick,
-        display: getComputedStyle(btn).display,
-        visibility: getComputedStyle(btn).visibility,
-        pointerEvents: getComputedStyle(btn).pointerEvents
-      });
-      
-      // Testar clique programático
-      btn.addEventListener('click', () => {
-        console.log(`🎯 ${id} - CLIQUE DETECTADO VIA EVENT LISTENER`);
-      });
-    } else {
-      console.log(`❌ ${id}: BOTÃO NÃO ENCONTRADO`);
+  // Modificar o botão de alarme para abrir configurações
+  document.getElementById('btnAlarm').onclick = openNotifSettings;
+}
+
+// ================= MANIFEST.PWA (adicione este arquivo) =================
+// Crie um arquivo manifest.json na raiz do seu projeto:
+/*
+{
+  "name": "Meu Remédio",
+  "short_name": "MeuRemedio",
+  "description": "Seu assistente pessoal para medicamentos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfdfc",
+  "theme_color": "#00796b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  });
+  ],
+  "categories": ["health", "medical"]
 }
-// Debug do modal de receitas
-function debugReceitaModal() {
-  console.log('=== DEBUG MODAL RECEITA ===');
-  
-  const modal = document.getElementById('modalReceita');
-  const btnAdd = document.getElementById('btnAddReceita');
-  
-  console.log('Modal encontrado:', !!modal);
-  console.log('Botão adicionar encontrado:', !!btnAdd);
-  
-  if (modal) {
-    console.log('Modal styles:', {
-      display: getComputedStyle(modal).display,
-      visibility: getComputedStyle(modal).visibility,
-      opacity: getComputedStyle(modal).opacity
-    });
-  }
-  
-  if (btnAdd) {
-    console.log('Botão onclick:', typeof btnAdd.onclick);
-    console.log('Botão display:', getComputedStyle(btnAdd).display);
-    
-    // Testar abertura programática
-    console.log('🧪 Testando abertura programática...');
-    modal.classList.add('open');
-    console.log('Modal aberto?', modal.classList.contains('open'));
-  }
-}
-
-// Execute no console: debugReceitaModal()
-
-
-// ================= FUNÇÕES SIMPLES PARA TESTE =================
-function openMedModal() {
-  console.log('Abrindo modal de medicamento...');
-  document.getElementById('modalMed').classList.add('open');
-}
-
-function iniciarFluxoVoz() {
-  console.log('Iniciando fluxo por voz...');
-  if (narrarEnabled()) speak('Iniciando assistente por voz.');
-}
-
-function abrirConfigAlarme() {
-  console.log('Abrindo configurações de alarme...');
-  document.getElementById('modalNotifSettings').classList.add('open');
-}
-
-function openReceitaModal() {
-  console.log('Abrindo modal de receita...');
-  document.getElementById('modalReceita').classList.add('open');
-}
-
-function openConsultModal() {
-  console.log('Abrindo modal de consulta...');
-  document.getElementById('modalConsult').classList.add('open');
-}
-
-function exportarDados() {
-  console.log('Exportando dados...');
-  // Implementação simples de export
-  alert('Funcionalidade de exportação');
-}
-
-function importarDados() {
-  console.log('Importando dados...');
-  // Implementação simples de import
-  alert('Funcionalidade de importação');
-}
-
-function limparHistorico() {
-  console.log('Limpando histórico...');
-  if (confirm('Tem certeza que deseja limpar o histórico?')) {
-    hist = [];
-    saveAll();
-    refreshUI();
-  }
-}
-// ================= FUNÇÕES UTILITÁRIAS =================
-function uid(){
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-}
-
-function esc(s){
-  if(!s) return '';
-  return String(s).replace(/[&<>"'`=\/]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'})[c]);
-}
-
-function saveAll(){
-  localStorage.setItem(LS_MED, JSON.stringify(meds));
-  localStorage.setItem(LS_HIST, JSON.stringify(hist));
-  localStorage.setItem(LS_CONS, JSON.stringify(consults));
-  localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
-}
-
-// ================= TUTORIAL E ACESSIBILIDADE =================
-
-
-function increaseTextSize() {
-  const currentSize = parseInt(getComputedStyle(document.body).fontSize) || 16;
-  document.body.style.fontSize = (currentSize + 2) + 'px';
-  localStorage.setItem('textSize', document.body.style.fontSize);
-  if (narrarEnabled()) {
-    speak('Texto aumentado');
-  }
-}
-
-function decreaseTextSize() {
-  const currentSize = parseInt(getComputedStyle(document.body).fontSize) || 16;
-  document.body.style.fontSize = Math.max(14, currentSize - 2) + 'px';
-  localStorage.setItem('textSize', document.body.style.fontSize);
-  if (narrarEnabled()) {
-    speak('Texto diminuído');
-  }
-}
-
-function readCurrentScreen() {
-  if (!narrarEnabled()) return;
-  const mainTitle = document.querySelector('header')?.textContent || '';
-  const medCount = meds.length;
-  const histCount = hist.length;
-  const consCount = consults.length;
-  speak(`${mainTitle}. Você tem ${medCount} medicamentos cadastrados, ${histCount} registros no histórico e ${consCount} consultas agendadas. Use os botões no topo para navegar.`);
-}
-
-// ================= DEBUG DO TUTORIAL =================
-function debugTutorial() {
-  console.log('=== DEBUG TUTORIAL ===');
-  console.log('Current Step:', currentStep);
-  console.log('Total Steps:', totalSteps);
-  
-  const btnStart = document.getElementById('btnStartApp');
-  const btnNext = document.getElementById('btnNextTutorial');
-  const btnSkip = document.getElementById('btnSkipTutorial');
-  
-  console.log('Btn Start:', btnStart);
-  console.log('Btn Start Display:', btnStart?.style.display);
-  console.log('Btn Start Class:', btnStart?.className);
-  console.log('Btn Next Display:', btnNext?.style.display);
-  console.log('Btn Skip Display:', btnSkip?.style.display);
-  console.log('====================');
-}
-
-// ================= TUTORIAL E TERMOS CORRIGIDOS =================
-function initTutorial() {
-  const tutorialCompleted = localStorage.getItem(LS_TUTORIAL) === 'true';
-  const termsAccepted = localStorage.getItem(LS_TERMS) === '1';
-  
-  console.log('Iniciando app:', { tutorialCompleted, termsAccepted });
-  
-  if (!termsAccepted) {
-    // Mostrar apenas termos primeiro
-    document.getElementById('modalTerms').classList.add('open');
-    if (narrarEnabled()) {
-      speak('Por favor, leia e aceite os termos de uso para continuar.');
-    }
-  } else if (!tutorialCompleted) {
-    // Termos aceitos, mas tutorial não completado
-    setTimeout(() => {
-      showTutorial();
-    }, 500);
-  } else {
-    // Tudo completo - mostrar apenas ajuda
-    document.getElementById('btnHelp').style.display = 'block';
-    // Inicializar a interface principal
-    refreshUI();
-  }
-}
-
-function showTutorial() {
-  console.log('Abrindo tutorial...');
-  
-  // Fechar termos se estiver aberto
-  document.getElementById('modalTerms').classList.remove('open');
-  
-  // Abrir tutorial
-  document.getElementById('modalTutorial').classList.add('open');
-  
-  if (narrarEnabled()) {
-    setTimeout(() => {
-      speak('Bem-vindo ao Meu Remédio! Vamos aprender a usar o aplicativo. Pressione próximo para continuar.');
-    }, 300);
-  }
-  
-  updateTutorialStep(1);
-}
-
-// CORREÇÃO: APENAS UMA FUNÇÃO updateTutorialStep
-function updateTutorialStep(step) {
-  console.log(`Mudando para passo: ${step}`);
-  currentStep = step;
-  
-  // Esconder todos os passos
-  document.querySelectorAll('.tutorial-step').forEach(el => {
-    el.classList.add('hidden');
-    el.classList.remove('active');
-  });
-  
-  // Mostrar passo atual
-  const currentStepEl = document.querySelector(`[data-step="${step}"]`);
-  if (currentStepEl) {
-    currentStepEl.classList.remove('hidden');
-    currentStepEl.classList.add('active');
-    console.log(`Passo ${step} ativado`);
-  }
-  
-  // CORREÇÃO COMPLETA: Lógica de exibição dos botões
-  const btnPrev = document.getElementById('btnPrevTutorial');
-  const btnNext = document.getElementById('btnNextTutorial');
-  const btnSkip = document.getElementById('btnSkipTutorial');
-  const btnStart = document.getElementById('btnStartApp');
-  
-  if (btnPrev) btnPrev.disabled = step === 1;
-  
-  // VERIFICAÇÃO: É o último passo?
-  const isLastStep = step === totalSteps;
-  console.log(`É último passo? ${isLastStep}`);
-  
-  if (isLastStep) {
-    // ÚLTIMO PASSO: Mostrar apenas "Começar a Usar"
-    console.log('Mostrando botão Começar a Usar');
-    if (btnNext) btnNext.style.display = 'none';
-    if (btnSkip) btnSkip.style.display = 'none';
-    if (btnStart) {
-      btnStart.style.display = 'block';
-      btnStart.classList.remove('hidden');
-    }
-  } else {
-    // NÃO é último passo: Mostrar "Próximo" e "Pular"
-    console.log('Mostrando botões Próximo e Pular');
-    if (btnNext) btnNext.style.display = 'block';
-    if (btnSkip) btnSkip.style.display = 'block';
-    if (btnStart) btnStart.style.display = 'none';
-  }
-  
-  // Debug para verificar estado atual
-  debugTutorial();
-  
-  // Narração do passo
-  if (narrarEnabled()) {
-    readTutorialStep(step);
-  }
-}
-
-function readTutorialStep(step) {
-  const messages = {
-    1: 'Passo 1 de 4: Narrador de voz. O aplicativo fala com você! Toque nos botões e escute as instruções. Dica: deixe o narrador sempre ligado.',
-    2: 'Passo 2 de 4: Comandos por voz. Use o botão Preencher por voz para cadastrar remédios falando. Toque em Experimente falar para testar.',
-    3: 'Passo 3 de 4: Lembretes automáticos. O aplicativo avisa na hora certa de tomar seus remédios! Toque em Tomei quando tomar, receba lembretes no celular e consulte o histórico.',
-    4: 'Passo 4 de 4: Botões com símbolos. Use os símbolos para navegar. Pressione Começar a Usar para iniciar o aplicativo.'
-  };
-  
-  setTimeout(() => {
-    speak(messages[step] || `Passo ${step} de ${totalSteps}`);
-  }, 500);
-}
-
-function demoVoiceCommand() {
-  if (narrarEnabled()) {
-    speak('Experimente dizer: Paracetamol, para cadastrar um medicamento. Ou diga: Oito horas, para definir o horário.');
-  }
-}
-
-function completeTutorial() {
-  console.log('Completando tutorial...');
-  
-  const dontShowAgain = document.getElementById('dontShowAgain');
-  if (dontShowAgain && dontShowAgain.checked) {
-    localStorage.setItem(LS_TUTORIAL, 'true');
-    console.log('Tutorial marcado para não mostrar novamente');
-  }
-  
-  // Fechar modal do tutorial
-  document.getElementById('modalTutorial').classList.remove('open');
-  
-  // Mostrar botão de ajuda
-  document.getElementById('btnHelp').style.display = 'block';
-  
-  // Inicializar a interface principal
-  refreshUI();
-  
-  if (narrarEnabled()) {
-    speak('Tutorial concluído! Agora você pode usar o Meu Remédio. Toque no botão de ajuda no canto inferior direito se precisar de assistência.');
-  }
-  
-  console.log('Tutorial finalizado, app pronto para uso');
-}
-
-// ================= INICIALIZAÇÃO CORRIGIDA =================
-document.addEventListener("DOMContentLoaded", () => {
-  console.log('=== INICIANDO APP ===');
-  
-  // Restaurar configurações de acessibilidade
-  const savedHighContrast = localStorage.getItem('highContrast') === 'true';
-  const savedTextSize = localStorage.getItem('textSize');
-  
-  if (savedHighContrast) {
-    document.body.classList.add('high-contrast');
-  }
-  
-  if (savedTextSize) {
-    document.body.style.fontSize = savedTextSize;
-  }
-
-  // Configurar botão "Começar a Usar" do tutorial
-  const btnStart = document.getElementById("btnStartApp");
-  
-  if (btnStart) {
-    btnStart.addEventListener("click", completeTutorial);
-    console.log('Botão Começar a Usar configurado');
-  }
-
-  // Configurar botão de aceitar termos
-  const btnAcceptTerms = document.getElementById("btnAcceptTerms");
-  
-  if (btnAcceptTerms) {
-    btnAcceptTerms.addEventListener("click", () => {
-      console.log('Termos aceitos, indo para tutorial...');
-      
-      // Salvar aceitação dos termos
-      localStorage.setItem(LS_TERMS, "1");
-      
-      // Fechar modal de termos
-      document.getElementById("modalTerms").classList.remove("open");
-      
-      // Feedback de voz
-      if (narrarEnabled()) {
-        speak('Termos aceitos com sucesso. Iniciando tutorial em instantes.');
-      }
-      
-      // Aguardar um pouco e abrir tutorial
-      setTimeout(() => {
-        showTutorial();
-      }, 800);
-    });
-  }
-
-  // Configurar botão de ler termos
-  const btnReadTerms = document.getElementById("btnReadTerms");
-  
-  if (btnReadTerms) {
-    btnReadTerms.addEventListener("click", () => {
-      if (narrarEnabled()) {
-        speak(`Termos de Uso do Meu Remédio: 
-          Ao utilizar este aplicativo, você concorda que todas as informações inseridas, 
-          incluindo nomes, horários de medicamentos e fotos, serão armazenadas apenas 
-          no seu dispositivo. Nenhum dado pessoal é enviado para servidores externos 
-          sem seu consentimento explícito. 
-          
-          Este aplicativo é um auxílio para organização de medicamentos e consultas 
-          e não substitui orientação médica profissional. 
-          
-          Sempre consulte um médico para questões de saúde.`);
-      } else {
-        alert("📜 Termos de Uso\n\nAo usar este app, você concorda que:\n• Seus dados ficam apenas no seu dispositivo\n• Nada é enviado sem sua permissão\n• É um auxílio, não substitui o médico");
-      }
-    });
-  }
-
-  // Configurar navegação do tutorial
-  const btnNext = document.getElementById('btnNextTutorial');
-  const btnPrev = document.getElementById('btnPrevTutorial');
-  const btnSkip = document.getElementById('btnSkipTutorial');
-  
-  if (btnNext) {
-    btnNext.addEventListener('click', () => {
-      console.log('Botão Próximo clicado');
-      if (currentStep < totalSteps) {
-        updateTutorialStep(currentStep + 1);
-      }
-    });
-  }
-  
-  if (btnPrev) {
-    btnPrev.addEventListener('click', () => {
-      console.log('Botão Anterior clicado');
-      if (currentStep > 1) {
-        updateTutorialStep(currentStep - 1);
-      }
-    });
-  }
-  
-  if (btnSkip) {
-    btnSkip.addEventListener('click', () => {
-      console.log('Botão Pular clicado');
-      completeTutorial();
-    });
-  }
-
-  // Configurar botão de ajuda
-  const btnHelp = document.getElementById("btnHelp");
-  if (btnHelp) {
-    btnHelp.addEventListener("click", showQuickHelp);
-  }
-  
-  // Inicializar tutorial e app
-  initTutorial();
-  
-  // Configurar outros event listeners de acessibilidade
-  setupAccessibilityControls();
-  
-  console.log('=== APP INICIALIZADO ===');
-});
-
-// ================= FUNÇÃO AUXILIAR PARA CONTROLES DE ACESSIBILIDADE =================
-function setupAccessibilityControls() {
-  // Atalhos de teclado para acessibilidade
-  document.addEventListener('keydown', (e) => {
-    // Ctrl + H = Ajuda
-    if (e.ctrlKey && e.key === 'h') {
-      e.preventDefault();
-      showQuickHelp();
-    }
-    
-    // Ctrl + M = Ler tela atual
-    if (e.ctrlKey && e.key === 'm') {
-      e.preventDefault();
-      readCurrentScreen();
-    }
-    
-    // Ctrl + + = Aumentar texto
-    if (e.ctrlKey && e.key === '+') {
-      e.preventDefault();
-      increaseTextSize();
-    }
-    
-    // Ctrl + - = Diminuir texto
-    if (e.ctrlKey && e.key === '-') {
-      e.preventDefault();
-      decreaseTextSize();
-    }
-    
-    // Ctrl + C = Alto contraste
-    if (e.ctrlKey && e.key === 'c') {
-      e.preventDefault();
-      toggleHighContrast();
-    }
-  });
-
-  // Anúncio de foco para leitores de tela
-  document.addEventListener('focus', (e) => {
-    if (narrarEnabled() && e.target.tagName === 'BUTTON') {
-      const buttonText = e.target.textContent || e.target.getAttribute('aria-label') || '';
-      if (buttonText && !buttonText.includes('❓')) {
-        setTimeout(() => speak(buttonText), 100);
-      }
-    }
-  }, true);
-}
-
-// ================= FUNÇÃO MELHORADA DE AJUDA RÁPIDA =================
-function showQuickHelp() {
-  if (narrarEnabled()) {
-    speak(`Ajuda rápida do Meu Remédio:
-      Use o botão de microfone para cadastrar remédios falando. 
-      Toque em Tomei ao lado de cada remédio quando tomar. 
-      Use Alarme para lembrete sonoro.
-      Controles de acessibilidade: 
-      - A+ e A- para tamanho do texto
-      - Alto Contraste para melhor visibilidade
-      - Ler Tela para ouvir o resumo atual
-      O narrador guia você em cada passo.`);
-  } else {
-    alert(`📋 AJUDA RÁPIDA - MEU REMÉDIO
-
-🎙️ VOZ: Toque em "Preencher por voz" e fale os dados
-✅ TOMEI: Toque ao lado do remédio quando tomar  
-⏰ ALARME: Para lembrete sonoro
-✏️ ADICIONAR: Para cadastrar manualmente
-
-♿ ACESSIBILIDADE:
-A+ = Aumentar texto
-A- = Diminuir texto 
-Alto Contraste = Melhor visibilidade
-Ler Tela = Ouvir resumo
-
-💡 DICA: Ative o NARRADOR para guia por voz!`);
-  }
-}
-
-// ================= NARRAÇÃO E RECONHECIMENTO DE VOZ =================
-function narrarEnabled(){
-  return document.getElementById('toggleNarrador').checked;
-}
-
-function verboEnabled(){
-  return document.getElementById('toggleVerboso').checked;
-}
-
-function speak(text){
-  if(!narrarEnabled()) return;
-  try{
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'pt-BR';
-    u.rate = 1;
-    window.speechSynthesis.speak(u);
-  }catch(e){
-    console.warn('Erro síntese de voz:', e);
-  }
-}
-
-let recognition = null;
-if('webkitSpeechRecognition' in window){
-  recognition = new webkitSpeechRecognition();
-  recognition.lang = 'pt-BR';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-}
-
-async function safeVoice(prompt){
-  if(!recognition){
-    alert('Reconhecimento de voz não suportado neste navegador.');
-    return null;
-  }
-  
-  if(narrarEnabled()) speak(prompt);
-  
-  await new Promise(r=>{
-    let waited=0;
-    const iv=setInterval(()=>{
-      if(!window.speechSynthesis.speaking || waited>2500){
-        clearInterval(iv);
-        r();
-      }
-      waited+=200;
-    },200);
-  });
-  
-  return new Promise((resolve)=>{
-    recognition.start();
-    recognition.onresult = e => {
-      const t = e.results[0][0].transcript.trim();
-      if(narrarEnabled()) speak('Você disse: ' + t);
-      recognition.onresult = null;
-      recognition.onerror = null;
-      resolve(t);
-    };
-    recognition.onerror = ev => {
-      if(narrarEnabled()) speak('Não entendi.');
-      recognition.onresult = null;
-      recognition.onerror = null;
-      resolve(null);
-    };
-  });
-}
-
-// ================= FUNÇÕES DE DATA/HORA =================
-function formatarDataHoraPTBR(date, includeTime = true) {
-  const options = {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    ...(includeTime && {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    })
-  };
-  return new Intl.DateTimeFormat('pt-BR', options).format(date);
-}
-
-function formatarDataPTBR(dateString) {
-  const date = new Date(dateString + 'T00:00:00');
-  return formatarDataHoraPTBR(date, false);
-}
-
-function calcularProximaHora(horaStr, dias = 0) {
-  const [hh, mm] = horaStr.split(':').map(n => parseInt(n, 10));
-  const next = new Date();
-  next.setHours(hh, mm, 0, 0);
-  next.setDate(next.getDate() + dias);
-  if (next <= new Date()) {
-    next.setDate(next.getDate() + 1);
-  }
-  return next;
-}
-
-function parseHoraFromFala(texto) {
-  const regex = /(\d{1,2})[:h\s]?\s?(\d{1,2})?/;
-  const match = texto.match(regex);
-  if (match) {
-    let hora = parseInt(match[1], 10);
-    let minuto = match[2] ? parseInt(match[2], 10) : 0;
-    if (hora < 0 || hora > 23) hora = new Date().getHours();
-    if (minuto < 0 || minuto > 59) minuto = 0;
-    return `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
-  }
-  return null;
-}
-
-// ================= SISTEMA DE NOTIFICAÇÕES =================
-async function ensureNotificationPermission(){
-  if(!('Notification' in window)) {
-    updateNotificationStatus('unsupported');
-    return false;
-  }
-  
-  if(Notification.permission === 'granted') {
-    updateNotificationStatus('granted');
-    return true;
-  }
-  
-  try{
-    const p = await Notification.requestPermission();
-    const granted = p === 'granted';
-    updateNotificationStatus(granted ? 'granted' : 'denied');
-    return granted;
-  }catch(e){
-    updateNotificationStatus('denied');
-    return false;
-  }
-}
-
-function updateNotificationStatus(status){
-  const elem = document.getElementById('notificationStatus');
-  if(!elem) return;
-  switch(status){
-    case 'granted':
-      elem.innerHTML = '🔔 Notificações Ativas';
-      elem.className = 'status-online';
-      break;
-    case 'denied':
-      elem.innerHTML = '🔕 Notificações Bloqueadas';
-      elem.className = 'status-offline';
-      break;
-    case 'unsupported':
-      elem.innerHTML = '❌ Notif. Não Suportadas';
-      elem.className = 'status-offline';
-      break;
-    default:
-      elem.innerHTML = '🔕 Notificações';
-      elem.className = 'status-offline';
-  }
-}
-
-// ... (adicione aqui as funções refreshUI() e outras funções de renderização que faltam)
-
-
-document.body.appendChild(testButton);
-const LS_RECEITAS="meu_remedio_receitas_v1";let receitas=JSON.parse(localStorage.getItem(LS_RECEITAS)||"[]");function initReceitas(){renderReceitas();checkReceitasVencidas();scheduleReceitaAlerts()}function renderReceitas(){const e=document.querySelector("#tblReceitas tbody");e.innerHTML="",document.getElementById("receitaCount").textContent=receitas.length,0===receitas.length?(document.getElementById("emptyReceitas").style.display="block",document.getElementById("receitaAlerts").innerHTML=""):(document.getElementById("emptyReceitas").style.display="none",receitas.sort((e,t)=>new Date(e.dataValidade)-new Date(t.dataValidade)),receitas.forEach(t=>{const a=document.createElement("tr"),i=getReceitaStatus(t);a.innerHTML=`<td>${t.foto?`<img src="${t.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${t.foto}')" style="cursor:pointer;">`:"—"}</td><td>${esc(t.paciente)}</td><td>${esc(t.medico)}</td><td>${formatarDataPTBR(t.dataEmissao)}</td><td>${formatarDataPTBR(t.dataValidade)}</td><td><span class="status-receita ${i.classe}">${i.texto}</span>${i.dias?`<br><small>${i.dias}</small>`:""}</td><td><div class="actions">${t.foto?`<button class="btn-small" data-id="${t.id}" data-act="verFoto">👁️ Ver</button>`:""}<button class="btn-ghost" data-id="${t.id}" data-act="editarReceita">✏️ Editar</button><button class="btn-ghost" data-id="${t.id}" data-act="excluirReceita">🗑️ Excluir</button></div></td>`,e.appendChild(a)}),updateReceitaAlerts())}function getReceitaStatus(e){const t=new Date,a=new Date(e.dataValidade),i=a-t,c=Math.ceil(i/864e5);return c<0?{texto:"VENCIDA",classe:"status-vencida",dias:`Há ${Math.abs(c)} dias`}:c<=7?{texto:"VENCE EM BREVE",classe:"status-proximo",dias:`${c} dias`}:{texto:"VÁLIDA",classe:"status-valida",dias:`${c} dias restantes`}}function updateReceitaAlerts(){const e=document.getElementById("receitaAlerts"),t=new Date;let a=[];receitas.forEach(i=>{const c=new Date(i.dataValidade),s=c-t,n=Math.ceil(s/864e5);n<0?a.push({tipo:"danger",mensagem:`⚠️ <strong>RECEITA VENCIDA:</strong> ${i.paciente} - ${i.medico} (Venceu há ${Math.abs(n)} dias)`,receita:i}):n<=3?a.push({tipo:"warning",mensagem:`🔔 <strong>RECEITA VENCE EM BREVE:</strong> ${i.paciente} - ${i.medico} (Vence em ${n} dias)`,receita:i}):n<=7&&a.push({tipo:"info",mensagem:`📅 <strong>RECEITA PRÓXIMA DO VENCIMENTO:</strong> ${i.paciente} - ${i.medico} (Vence em ${n} dias)`,receita:i})}),0===a.length?(e.innerHTML="",void 0):(a.sort((e,a)=>{const i=Math.ceil((new Date(e.receita.dataValidade)-t)/864e5),c=Math.ceil((new Date(a.receita.dataValidade)-t)/864e5);return i-c}),e.innerHTML=a.map(e=>`<div class="alert-${e.tipo}">${e.mensagem}</div>`).join(""))}function checkReceitasVencidas(){const e=(new Date).toISOString().split("T")[0],t=receitas.filter(t=>t.dataValidade<e);t.length>0&&narrarEnabled()&&speak(`Atenção: você tem ${t.length} receita(s) vencida(s). Verifique a lista de receitas.`)}function scheduleReceitaAlerts(){for(const[e,t]of scheduledTimers.entries())e.startsWith("receita_")&&(clearTimeout(t),scheduledTimers.delete(e));receitas.forEach(e=>{const t=new Date(e.dataValidade),a=new Date(t);a.setDate(t.getDate()-7),a>new Date()&&scheduleNotification(`receita_${e.id}`,a,"📋 Receita Vencendo em Breve",`${e.paciente} - ${e.medico}\nValidade: ${formatarDataPTBR(e.dataValidade)}`,{type:"receita",id:e.id});const i=new Date(t);i.setHours(9,0,0,0),i>new Date()&&scheduleNotification(`receita_venc_${e.id}`,i,"⚠️ Receita Vencendo Hoje",`${e.paciente} - ${e.medico}\nValidade hoje!`,{type:"receita_venc",id:e.id})})}function openReceitaModal(e=null){const t=document.getElementById("modalReceita"),a=t.querySelector("form")||t;if(e){const t=receitas.find(t=>t.id===e);t&&(document.getElementById("receitaMedico").value=t.medico,document.getElementById("receitaPaciente").value=t.paciente,document.getElementById("receitaMedicamentos").value=t.medicamentos||"",document.getElementById("receitaDataEmissao").value=t.dataEmissao,document.getElementById("receitaDataValidade").value=t.dataValidade,document.getElementById("receitaObservacoes").value=t.observacoes||"",t.foto&&(document.getElementById("receitaFotoPreview").src=t.foto,document.getElementById("receitaFotoPreview").classList.remove("hidden"),document.getElementById("btnRemoverFotoReceita").classList.remove("hidden")))}else a.reset(),document.getElementById("receitaFotoPreview").src="",document.getElementById("receitaFotoPreview").classList.add("hidden"),document.getElementById("btnRemoverFotoReceita").classList.add("hidden");t.classList.add("open"),narrarEnabled()&&speak("Abrindo formulário de receita médica.")}function saveReceita(){const e=document.getElementById("receitaMedico").value.trim(),t=document.getElementById("receitaPaciente").value.trim(),a=document.getElementById("receitaDataEmissao").value,i=document.getElementById("receitaDataValidade").value;if(!e||!t||!a||!i)return void alert("Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.");if(new Date(i)<new Date(a))return void alert("A data de validade não pode ser anterior à data de emissão.");const c={medico:e,paciente:t,medicamentos:document.getElementById("receitaMedicamentos").value.trim(),dataEmissao:a,dataValidade:i,observacoes:document.getElementById("receitaObservacoes").value.trim(),foto:document.getElementById("receitaFotoPreview").src||"",criadoEm:new Date().toISOString()},s=document.getElementById("receitaFotoInput");s.files&&s.files[0]?(()=>{const e=new FileReader;e.onload=function(e){c.foto=e.target.result,commitSaveReceita(c)},e.readAsDataURL(s.files[0])})():commitSaveReceita(c)}function commitSaveReceita(e){const t=document.getElementById("modalReceita").getAttribute("data-edit-id");if(t){const a=receitas.findIndex(e=>e.id===t);a>-1&&(receitas[a]={...receitas[a],...e}),document.getElementById("modalReceita").removeAttribute("data-edit-id")}else receitas.push({id:uid(),...e});localStorage.setItem(LS_RECEITAS,JSON.stringify(receitas)),renderReceitas(),scheduleReceitaAlerts(),document.getElementById("modalReceita").classList.remove("open"),narrarEnabled()&&speak("Receita salva com sucesso. Lembretes configurados.")}function ampliarFoto(e){const t=document.createElement("div");t.className="receita-modal-overlay open",t.innerHTML=`<img src="${e}" class="receita-modal-img" alt="Receita ampliada"><button onclick="this.parentElement.remove()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>`,document.body.appendChild(t),t.addEventListener("click",a=>{a.target===t&&t.remove()})}function configurarBotaoReceitas(){console.log("🎯 Configurando botão de receitas...");const e=document.getElementById("btnAddReceita");if(!e){console.error("❌ Botão btnAddReceita não encontrado!");const e=document.querySelectorAll("button");return void e.forEach((e,t)=>{(e.textContent.includes("Receita")||e.textContent.includes("receita"))&&(console.log(`📌 Botão similar encontrado [${t}]:`,e.textContent),e.onclick=()=>openReceitaModal())})}console.log("✅ Botão encontrado, configurando onclick..."),e.onclick=function(t){console.log("🎯 CLIQUE NO BOTÃO RECEITA DETECTADO!",{eventType:t.type,target:t.target.id}),t.preventDefault(),t.stopPropagation(),openReceitaModal()},e.addEventListener("click",function(e){console.log("📝 EVENT LISTENER: Botão receita clicado"),e.preventDefault(),e.stopPropagation(),openReceitaModal()},!0),e.style.pointerEvents="auto",e.style.cursor="pointer",e.style.position="relative",e.style.zIndex="100",console.log("✅ Botão de receitas completamente configurado")}document.addEventListener("DOMContentLoaded",()=>{document.getElementById("btnAddReceita").addEventListener("click",()=>openReceitaModal()),document.getElementById("btnCancelReceita").addEventListener("click",()=>{document.getElementById("modalReceita").classList.remove("open")}),document.getElementById("btnSaveReceita").addEventListener("click",saveReceita),document.getElementById("receitaFotoInput").addEventListener("change",function(e){const t=e.target.files[0];if(t){const e=new FileReader;e.onload=function(e){document.getElementById("receitaFotoPreview").src=e.target.result,document.getElementById("receitaFotoPreview").classList.remove("hidden"),document.getElementById("btnRemoverFotoReceita").classList.remove("hidden")},e.readAsDataURL(t)}}),document.getElementById("btnRemoverFotoReceita").addEventListener("click",function(){document.getElementById("receitaFotoInput").value="",document.getElementById("receitaFotoPreview").src="",document.getElementById("receitaFotoPreview").classList.add("hidden"),this.classList.add("hidden")}),document.getElementById("tblReceitas").addEventListener("click",function(e){const t=e.target.closest("button");if(!t)return;const a=t.dataset.id,i=t.dataset.act,c=receitas.find(e=>e.id===a);c&&("verFoto"===i?ampliarFoto(c.foto):"editarReceita"===i?(document.getElementById("modalReceita").setAttribute("data-edit-id",a),openReceitaModal(a)):"excluirReceita"===i&&confirm("Excluir esta receita?")&&(receitas=receitas.filter(e=>e.id!==a),localStorage.setItem(LS_RECEITAS,JSON.stringify(receitas)),renderReceitas(),scheduleReceitaAlerts(),narrarEnabled()&&speak("Receita excluída.")))}),initReceitas()});
-
+*/
 </script>
 
 </body>
