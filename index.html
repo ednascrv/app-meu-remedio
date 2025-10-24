@@ -5,25 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /> 
 <title>Meu Remédio</title> 
 
-<!-- Meta tags PWA melhoradas -->
-<link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+<!-- PWA Meta Tags -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00796b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Meu Remédio">
 <link rel="apple-touch-icon" href="icon-192.png">
-
-<!-- Meta tags para Android -->
-<meta name="theme-color" content="#00796b">
-<meta name="mobile-web-app-capable" content="yes">
-
-<!-- Meta tags para compartilhamento -->
-<meta property="og:title" content="Meu Remédio - Assistente de Medicamentos">
-<meta property="og:description" content="App para gerenciar remédios, receitas e consultas médicas">
-<meta property="og:image" content="icon-512.png">
-<meta property="og:url" content="https://seu-app.netlify.app">
-
-<!-- Preload crítico -->
-<link rel="preload" as="style" href="styles.css">
 
 <style>
 /* ================= VARIÁVEIS E ESTILOS GERAIS ================= */
@@ -641,6 +629,87 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
     transform: scale(1);
   }
 }
+/* Estilos para os novos componentes */
+.alarm-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin: 8px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #00796b;
+}
+
+.alarm-time {
+  font-weight: bold;
+  min-width: 80px;
+  margin-right: 12px;
+}
+
+.alarm-info {
+  flex: 1;
+}
+
+.alarm-info strong {
+  display: block;
+  color: #333;
+}
+
+.alarm-info span {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.alarm-info small {
+  display: block;
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 4px;
+}
+
+.btn-cancel {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-cancel:hover {
+  background: #ffebee;
+}
+
+.no-alarms {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+}
+
+.status-online { color: #4caf50; }
+.status-offline { color: #f44336; }
+.status-syncing { color: #ff9800; }
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 10000;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+}
 </style>
 </head> 
 
@@ -983,250 +1052,318 @@ input[type="text"], input[type="time"], input[type="date"], textarea, select{
 <button id="btnHelp" class="help-floating" aria-label="Ajuda e tutorial" title="Precisa de ajuda?">
   ❓ Ajuda
 </button>
+
 <script>
-// ================= SERVICE WORKER REGISTRATION =================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('ServiceWorker registrado com sucesso:', registration);
-    } catch (error) {
-      console.log('ServiceWorker registration failed:', error);
-      // Fallback: usar service worker inline se o arquivo não existir
-      registerInlineServiceWorker();
-    }
-  });
+// ================= VARIÁVEIS GLOBAIS =================
+const LS_MED = 'meu_remedio_med_photos_v3';
+const LS_HIST = 'meu_remedio_hist_v3';
+const LS_CONS = 'meu_remedio_consults_v3';
+const LS_TERMS = 'meu_remedio_termos_v3';
+const LS_TUTORIAL = 'meu_remedio_tutorial_v3';
+const LS_NOTIF_SETTINGS = 'meu_remedio_notif_settings_v3';
+const LS_RECEITAS = 'meu_remedio_receitas_v1';
+
+let meds = JSON.parse(localStorage.getItem(LS_MED) || '[]');
+let hist = JSON.parse(localStorage.getItem(LS_HIST) || '[]');
+let consults = JSON.parse(localStorage.getItem(LS_CONS) || '[]');
+let receitas = JSON.parse(localStorage.getItem(LS_RECEITAS) || '[]');
+let notifSettings = JSON.parse(localStorage.getItem(LS_NOTIF_SETTINGS) || '{"medEnabled":true,"consEnabled":true,"soundEnabled":true,"advanceTime":15}');
+
+let currentStep = 1;
+const totalSteps = 4;
+
+// ================= FUNÇÕES UTILITÁRIAS =================
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 }
 
-function registerInlineServiceWorker() {
-  const swCode = `
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  console.log('Service Worker instalado');
-});
+function esc(s) {
+  if(!s) return '';
+  return String(s).replace(/[&<>"'`=\/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'})[c]);
+}
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
-  console.log('Service Worker ativado');
-});
+function saveAll() {
+  localStorage.setItem(LS_MED, JSON.stringify(meds));
+  localStorage.setItem(LS_HIST, JSON.stringify(hist));
+  localStorage.setItem(LS_CONS, JSON.stringify(consults));
+  localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
+  localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
+}
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SCHEDULE_ALARM') {
-    const { id, time, title, body } = event.data;
-    scheduleAlarm(id, time, title, body);
-  }
-});
+function formatarDataPTBR(dateString) {
+  const date = new Date(dateString + 'T00:00:00');
+  return date.toLocaleDateString('pt-BR');
+}
 
-function scheduleAlarm(id, time, title, body) {
-  const now = Date.now();
-  const targetTime = new Date(time).getTime();
-  const timeout = targetTime - now;
+// ================= FUNÇÕES DE NARRAÇÃO =================
+function narrarEnabled() {
+  return document.getElementById('toggleNarrador').checked;
+}
 
-  if (timeout > 0) {
-    setTimeout(() => {
-      self.registration.showNotification(title, {
-        body: body,
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
-        tag: id,
-        requireInteraction: true,
-        actions: [
-          { action: 'tomei', title: '✅ Tomei' },
-          { action: 'adiar', title: '⏰ Adiar 10min' }
-        ]
-      });
-    }, timeout);
-    console.log(\`Alarme \${id} agendado para \${new Date(time)}\`);
+function speak(text) {
+  if(!narrarEnabled()) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'pt-BR';
+    u.rate = 1;
+    window.speechSynthesis.speak(u);
+  } catch(e) {
+    console.warn('Erro síntese de voz:', e);
   }
 }
 
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  if (event.action === 'tomei') {
-    // Marcar como tomado via postMessage para o client
-    event.waitUntil(
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'MEDICATION_TAKEN',
-            medId: event.notification.tag
-          });
-        });
-      })
-    );
-  } else if (event.action === 'adiar') {
-    // Reagendar para 10 minutos depois
-    const newTime = new Date(Date.now() + 10 * 60 * 1000);
-    scheduleAlarm(event.notification.tag, newTime, 
-      event.notification.title, 
-      'Lembrete adiado: ' + event.notification.body);
-  } else {
-    // Clique na notificação - focar na app
-    event.waitUntil(
-      self.clients.matchAll().then(clients => {
-        if (clients.length > 0) {
-          clients[0].focus();
-        } else {
-          self.clients.openWindow('/');
-        }
-      })
-    );
-  }
-});
-`;
-
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swURL = URL.createObjectURL(blob);
-  
-  navigator.serviceWorker.register(swURL)
-    .then(registration => console.log('Inline ServiceWorker registrado'))
-    .catch(error => console.log('Falha no ServiceWorker inline:', error));
+// ================= FUNÇÕES DE ACESSIBILIDADE =================
+function increaseTextSize() {
+  const currentSize = parseInt(getComputedStyle(document.body).fontSize) || 16;
+  document.body.style.fontSize = (currentSize + 2) + 'px';
+  localStorage.setItem('textSize', document.body.style.fontSize);
+  if (narrarEnabled()) speak('Texto aumentado');
 }
 
-// ================= SISTEMA DE ALARMES OFFLINE =================
-const alarmStorageKey = 'meu_remedio_alarms_v2';
-
-function scheduleOfflineAlarms() {
-  if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-    console.log('Service Worker não disponível para alarmes offline');
-    return;
-  }
-
-  // Limpar alarmes antigos
-  const now = new Date().getTime();
-  const storedAlarms = JSON.parse(localStorage.getItem(alarmStorageKey) || '{}');
-  
-  Object.keys(storedAlarms).forEach(key => {
-    if (new Date(storedAlarms[key].time).getTime() < now) {
-      delete storedAlarms[key];
-    }
-  });
-
-  // Agendar alarmes dos medicamentos
-  meds.forEach(med => {
-    if (med.hora && med.ativo !== false) {
-      scheduleMedicationAlarm(med);
-    }
-  });
-
-  // Agendar alarmes das receitas
-  scheduleReceitaAlerts();
-
-  localStorage.setItem(alarmStorageKey, JSON.stringify(storedAlarms));
+function decreaseTextSize() {
+  const currentSize = parseInt(getComputedStyle(document.body).fontSize) || 16;
+  document.body.style.fontSize = Math.max(14, currentSize - 2) + 'px';
+  localStorage.setItem('textSize', document.body.style.fontSize);
+  if (narrarEnabled()) speak('Texto diminuído');
 }
 
-function scheduleMedicationAlarm(med) {
-  const [hours, minutes] = med.hora.split(':').map(Number);
-  const now = new Date();
-  const alarmTime = new Date();
-  
-  alarmTime.setHours(hours, minutes, 0, 0);
-  
-  // Se o horário já passou hoje, agenda para amanhã
-  if (alarmTime <= now) {
-    alarmTime.setDate(alarmTime.getDate() + 1);
-  }
-
-  const alarmId = `med_${med.id}_${alarmTime.getTime()}`;
-  const alarmData = {
-    id: alarmId,
-    time: alarmTime.toISOString(),
-    title: '💊 Hora do Remédio',
-    body: `${med.nome} - ${med.paciente}${med.instrucao ? ` (${med.instrucao})` : ''}`,
-    medId: med.id
-  };
-
-  // Enviar para Service Worker
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: 'SCHEDULE_ALARM',
-      ...alarmData
-    });
-  }
-
-  // Armazenar localmente para recuperação
-  const storedAlarms = JSON.parse(localStorage.getItem(alarmStorageKey) || '{}');
-  storedAlarms[alarmId] = alarmData;
-  localStorage.setItem(alarmStorageKey, JSON.stringify(storedAlarms));
-
-  console.log(`Alarme agendado: ${med.nome} às ${alarmTime.toLocaleTimeString('pt-BR')}`);
+function readCurrentScreen() {
+  if (!narrarEnabled()) return;
+  const mainTitle = document.querySelector('header')?.textContent || '';
+  const medCount = meds.length;
+  const histCount = hist.length;
+  const consCount = consults.length;
+  const recCount = receitas.length;
+  speak(`${mainTitle}. Você tem ${medCount} medicamentos, ${recCount} receitas, ${histCount} registros no histórico e ${consCount} consultas.`);
 }
 
-// ================= NOTIFICAÇÕES PERSISTENTES =================
-async function initializeNotifications() {
-  if (!('Notification' in window)) {
-    updateNotificationStatus('unsupported');
-    return false;
-  }
-
-  if (Notification.permission === 'granted') {
-    await setupPeriodicSync();
-    updateNotificationStatus('granted');
-    return true;
-  }
-
-  // Solicitar permissão com contexto melhor
-  const result = await Notification.requestPermission();
-  const granted = result === 'granted';
-  
-  if (granted) {
-    await setupPeriodicSync();
-    updateNotificationStatus('granted');
-  } else {
-    updateNotificationStatus('denied');
-  }
-  
-  return granted;
-}
-
-async function setupPeriodicSync() {
-  if ('periodicSync' in window && 'serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      await registration.periodicSync.register('medication-reminders', {
-        minInterval: 24 * 60 * 60 * 1000 // 1 dia
-      });
-      console.log('Periodic Sync registrado');
-    } catch (error) {
-      console.log('Periodic Sync não suportado:', error);
-    }
-  }
-
-  // Fallback: usar alarmes offline
-  scheduleOfflineAlarms();
-}
-
-// ================= GESTÃO DE ESTADO OFFLINE =================
-let isOnline = navigator.onLine;
-
-window.addEventListener('online', () => {
-  isOnline = true;
-  document.getElementById('connectionStatus').textContent = '● Online';
-  document.getElementById('connectionStatus').className = 'status-online';
-  console.log('App online - sincronizando alarmes');
-  scheduleOfflineAlarms();
-});
-
-window.addEventListener('offline', () => {
-  isOnline = false;
-  document.getElementById('connectionStatus').textContent = '● Offline';
-  document.getElementById('connectionStatus').className = 'status-offline';
-  console.log('App offline - usando alarmes locais');
-});
-
-// ================= ATUALIZAÇÃO DO CÓDIGO EXISTENTE =================
-
-// Modifique a função refreshUI para incluir agendamento de alarmes
+// ================= FUNÇÕES DE INTERFACE =================
 function refreshUI() {
   renderMeds();
   renderHist();
   renderConsults();
   renderReceitas();
-  scheduleOfflineAlarms(); // ← ADICIONAR ESTA LINHA
 }
 
-// Modifique a função salvarMedicamento para agendar alarmes
+function renderMeds() {
+  const tbody = document.querySelector('#tblMeds tbody');
+  const empty = document.getElementById('emptyMeds');
+  const count = document.getElementById('medCount');
+  
+  count.textContent = meds.length;
+  
+  if (meds.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  tbody.innerHTML = meds.map(med => `
+    <tr>
+      <td>${med.foto ? `<img src="${med.foto}" class="pill-img" alt="${esc(med.nome)}">` : '—'}</td>
+      <td>${esc(med.paciente)}</td>
+      <td>${esc(med.nome)}</td>
+      <td>${esc(med.instrucao)}</td>
+      <td>${med.hora}</td>
+      <td>
+        <div class="actions">
+          <button class="btn-small" onclick="marcarComoTomado('${med.id}')">✅ Tomei</button>
+          <button class="btn-ghost" onclick="editarMedicamento('${med.id}')">✏️ Editar</button>
+          <button class="btn-ghost" onclick="excluirMedicamento('${med.id}')">🗑️ Excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderHist() {
+  const histList = document.getElementById('histList');
+  const count = document.getElementById('histCount');
+  
+  count.textContent = hist.length;
+  
+  if (hist.length === 0) {
+    histList.innerHTML = '<div class="small">Nenhum registro no histórico.</div>';
+    return;
+  }
+  
+  histList.innerHTML = hist.slice(-10).reverse().map(item => `
+    <div class="history-item">
+      <div class="flex-space">
+        <strong>${esc(item.medicamento)}</strong>
+        <span class="small">${new Date(item.data).toLocaleString('pt-BR')}</span>
+      </div>
+      <div class="small">Paciente: ${esc(item.paciente)}</div>
+    </div>
+  `).join('');
+}
+
+function renderConsults() {
+  const tbody = document.querySelector('#tblConsults tbody');
+  const empty = document.getElementById('emptyConsults');
+  const count = document.getElementById('consCount');
+  
+  count.textContent = consults.length;
+  
+  if (consults.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  tbody.innerHTML = consults.map(cons => `
+    <tr>
+      <td>${formatarDataPTBR(cons.data)}</td>
+      <td>${esc(cons.prof)}</td>
+      <td>${esc(cons.obs)}</td>
+      <td>
+        <div class="actions">
+          <button class="btn-ghost" onclick="editarConsulta('${cons.id}')">✏️ Editar</button>
+          <button class="btn-ghost" onclick="excluirConsulta('${cons.id}')">🗑️ Excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ================= FUNÇÕES DE RECEITAS =================
+function renderReceitas() {
+  const tbody = document.querySelector('#tblReceitas tbody');
+  const empty = document.getElementById('emptyReceitas');
+  const count = document.getElementById('receitaCount');
+  
+  count.textContent = receitas.length;
+  
+  if (receitas.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('receitaAlerts').innerHTML = '';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  
+  // Ordenar por validade
+  receitas.sort((a, b) => new Date(a.dataValidade) - new Date(b.dataValidade));
+  
+  tbody.innerHTML = receitas.map(rec => {
+    const status = getReceitaStatus(rec);
+    return `
+      <tr>
+        <td>${rec.foto ? `<img src="${rec.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${rec.foto}')" style="cursor:pointer;">` : '—'}</td>
+        <td>${esc(rec.paciente)}</td>
+        <td>${esc(rec.medico)}</td>
+        <td>${formatarDataPTBR(rec.dataEmissao)}</td>
+        <td>${formatarDataPTBR(rec.dataValidade)}</td>
+        <td><span class="status-receita ${status.classe}">${status.texto}</span>${status.dias ? `<br><small>${status.dias}</small>` : ''}</td>
+        <td>
+          <div class="actions">
+            ${rec.foto ? `<button class="btn-small" data-id="${rec.id}" data-act="verFoto">👁️ Ver</button>` : ''}
+            <button class="btn-ghost" onclick="editarReceita('${rec.id}')">✏️ Editar</button>
+            <button class="btn-ghost" onclick="excluirReceita('${rec.id}')">🗑️ Excluir</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  updateReceitaAlerts();
+}
+
+function getReceitaStatus(rec) {
+  const hoje = new Date();
+  const validade = new Date(rec.dataValidade);
+  const diff = validade - hoje;
+  const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  
+  if (dias < 0) {
+    return {texto: "VENCIDA", classe: "status-vencida", dias: `Há ${Math.abs(dias)} dias`};
+  } else if (dias <= 7) {
+    return {texto: "VENCE EM BREVE", classe: "status-proximo", dias: `${dias} dias`};
+  } else {
+    return {texto: "VÁLIDA", classe: "status-valida", dias: `${dias} dias restantes`};
+  }
+}
+
+function updateReceitaAlerts() {
+  const alerts = document.getElementById('receitaAlerts');
+  const hoje = new Date();
+  let alertas = [];
+  
+  receitas.forEach(rec => {
+    const validade = new Date(rec.dataValidade);
+    const diff = validade - hoje;
+    const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    if (dias < 0) {
+      alertas.push({tipo: "danger", mensagem: `⚠️ <strong>RECEITA VENCIDA:</strong> ${rec.paciente} - ${rec.medico} (Venceu há ${Math.abs(dias)} dias)`});
+    } else if (dias <= 3) {
+      alertas.push({tipo: "warning", mensagem: `🔔 <strong>RECEITA VENCE EM BREVE:</strong> ${rec.paciente} - ${rec.medico} (Vence em ${dias} dias)`});
+    } else if (dias <= 7) {
+      alertas.push({tipo: "info", mensagem: `📅 <strong>RECEITA PRÓXIMA DO VENCIMENTO:</strong> ${rec.paciente} - ${rec.medico} (Vence em ${dias} dias)`});
+    }
+  });
+  
+  if (alertas.length === 0) {
+    alerts.innerHTML = '';
+  } else {
+    alerts.innerHTML = alertas.map(a => `<div class="alert-${a.tipo}">${a.mensagem}</div>`).join('');
+  }
+}
+
+function ampliarFoto(src) {
+  const overlay = document.createElement('div');
+  overlay.className = 'receita-modal-overlay open';
+  overlay.innerHTML = `
+    <img src="${src}" class="receita-modal-img" alt="Receita ampliada">
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+}
+
+// ================= FUNÇÕES DE MEDICAMENTOS =================
+function openMedModal(editId = null) {
+  const modal = document.getElementById('modalMed');
+  const title = document.getElementById('modalMedTitle');
+  
+  if (editId) {
+    title.textContent = 'Editar medicamento';
+    const med = meds.find(m => m.id === editId);
+    if (med) {
+      document.getElementById('medPaciente').value = med.paciente || '';
+      document.getElementById('medNome').value = med.nome || '';
+      document.getElementById('medInstr').value = med.instrucao || '';
+      document.getElementById('medHora').value = med.hora || '';
+      if (med.foto) {
+        document.getElementById('medFotoPreview').src = med.foto;
+        document.getElementById('medFotoPreview').classList.remove('hidden');
+        document.getElementById('btnRemoverFoto').classList.remove('hidden');
+      }
+    }
+    modal.setAttribute('data-edit-id', editId);
+  } else {
+    title.textContent = 'Adicionar medicamento';
+    document.getElementById('medPaciente').value = '';
+    document.getElementById('medNome').value = '';
+    document.getElementById('medInstr').value = '';
+    document.getElementById('medHora').value = '';
+    document.getElementById('medFotoInput').value = '';
+    document.getElementById('medFotoPreview').src = '';
+    document.getElementById('medFotoPreview').classList.add('hidden');
+    document.getElementById('btnRemoverFoto').classList.add('hidden');
+    modal.removeAttribute('data-edit-id');
+  }
+  
+  modal.classList.add('open');
+  if (narrarEnabled()) speak('Formulário de medicamento aberto.');
+}
+
 function salvarMedicamento() {
   const nome = document.getElementById('medNome').value.trim();
   if (!nome) {
@@ -1242,11 +1379,20 @@ function salvarMedicamento() {
   const foto = document.getElementById('medFotoPreview').src || '';
   
   if (editId) {
+    // Edição
     const idx = meds.findIndex(m => m.id === editId);
     if (idx > -1) {
-      meds[idx] = { ...meds[idx], paciente, nome, instrucao: instr, hora, foto };
+      meds[idx] = {
+        ...meds[idx],
+        paciente,
+        nome,
+        instrucao: instr,
+        hora,
+        foto
+      };
     }
   } else {
+    // Novo
     meds.push({
       id: uid(),
       paciente,
@@ -1254,8 +1400,7 @@ function salvarMedicamento() {
       instrucao: instr,
       hora,
       foto,
-      criadoEm: new Date().toISOString(),
-      ativo: true
+      criadoEm: new Date().toISOString()
     });
   }
   
@@ -1263,193 +1408,893 @@ function salvarMedicamento() {
   refreshUI();
   document.getElementById('modalMed').classList.remove('open');
   
-  // Agendar alarme para o novo medicamento
-  if (hora) {
-    const novoMed = meds.find(m => m.nome === nome && m.paciente === paciente);
-    if (novoMed) scheduleMedicationAlarm(novoMed);
-  }
-  
   if (narrarEnabled()) speak('Medicamento salvo com sucesso.');
 }
 
-// Adicione esta função para lidar com notificações de tomou o remédio
-function setupNotificationHandlers() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (event.data && event.data.type === 'MEDICATION_TAKEN') {
-        const medId = event.data.medId.split('_')[1]; // Extrair ID do medicamento
-        marcarComoTomado(medId);
-      }
+function marcarComoTomado(medId) {
+  const med = meds.find(m => m.id === medId);
+  if (med) {
+    hist.push({
+      id: uid(),
+      medicamento: med.nome,
+      paciente: med.paciente,
+      data: new Date().toISOString()
     });
+    saveAll();
+    refreshUI();
+    if (narrarEnabled()) speak(`Medicamento ${med.nome} marcado como tomado.`);
   }
 }
 
-// ================= CONFIGURAÇÃO DE NOTIFICAÇÕES =================
-function openNotifSettings() {
-  const modal = document.getElementById('modalNotifSettings');
+function editarMedicamento(medId) {
+  openMedModal(medId);
+}
+
+function excluirMedicamento(medId) {
+  if (confirm('Tem certeza que deseja excluir este medicamento?')) {
+    meds = meds.filter(m => m.id !== medId);
+    saveAll();
+    refreshUI();
+    if (narrarEnabled()) speak('Medicamento excluído.');
+  }
+}
+
+// ================= FUNÇÕES DE RECEITAS =================
+function openReceitaModal(editId = null) {
+  const modal = document.getElementById('modalReceita');
   
-  // Preencher configurações atuais
-  document.getElementById('notifMedEnabled').checked = notifSettings.medEnabled;
-  document.getElementById('notifConsEnabled').checked = notifSettings.consEnabled;
-  document.getElementById('notifSoundEnabled').checked = notifSettings.soundEnabled;
-  document.getElementById('notifAdvanceTime').value = notifSettings.advanceTime;
-  
-  // Mostrar próximos alarmes
-  updateNextAlarmsList();
+  if (editId) {
+    const rec = receitas.find(r => r.id === editId);
+    if (rec) {
+      document.getElementById('receitaMedico').value = rec.medico || '';
+      document.getElementById('receitaPaciente').value = rec.paciente || '';
+      document.getElementById('receitaMedicamentos').value = rec.medicamentos || '';
+      document.getElementById('receitaDataEmissao').value = rec.dataEmissao || '';
+      document.getElementById('receitaDataValidade').value = rec.dataValidade || '';
+      document.getElementById('receitaObservacoes').value = rec.observacoes || '';
+      if (rec.foto) {
+        document.getElementById('receitaFotoPreview').src = rec.foto;
+        document.getElementById('receitaFotoPreview').classList.remove('hidden');
+        document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
+      }
+    }
+    modal.setAttribute('data-edit-id', editId);
+  } else {
+    document.getElementById('receitaMedico').value = '';
+    document.getElementById('receitaPaciente').value = '';
+    document.getElementById('receitaMedicamentos').value = '';
+    document.getElementById('receitaDataEmissao').value = '';
+    document.getElementById('receitaDataValidade').value = '';
+    document.getElementById('receitaObservacoes').value = '';
+    document.getElementById('receitaFotoInput').value = '';
+    document.getElementById('receitaFotoPreview').src = '';
+    document.getElementById('receitaFotoPreview').classList.add('hidden');
+    document.getElementById('btnRemoverFotoReceita').classList.add('hidden');
+    modal.removeAttribute('data-edit-id');
+  }
   
   modal.classList.add('open');
-  if (narrarEnabled()) speak('Configurações de notificação abertas.');
+  if (narrarEnabled()) speak('Formulário de receita médica aberto.');
 }
 
-function updateNextAlarmsList() {
-  const list = document.getElementById('nextAlarmsList');
-  const now = new Date();
-  const nextAlarms = [];
+function salvarReceita() {
+  const medico = document.getElementById('receitaMedico').value.trim();
+  const paciente = document.getElementById('receitaPaciente').value.trim();
+  const dataEmissao = document.getElementById('receitaDataEmissao').value;
+  const dataValidade = document.getElementById('receitaDataValidade').value;
   
-  // Próximos alarmes de medicamentos
-  meds.forEach(med => {
-    if (med.hora && med.ativo !== false) {
-      const [hours, minutes] = med.hora.split(':').map(Number);
-      const alarmTime = new Date();
-      alarmTime.setHours(hours, minutes, 0, 0);
-      if (alarmTime <= now) alarmTime.setDate(alarmTime.getDate() + 1);
-      
-      nextAlarms.push({
-        time: alarmTime,
-        text: `${med.nome} - ${med.paciente}`
-      });
-    }
-  });
-  
-  // Ordenar por horário
-  nextAlarms.sort((a, b) => a.time - b.time);
-  
-  if (nextAlarms.length === 0) {
-    list.innerHTML = '<em>Nenhum alarme agendado</em>';
-  } else {
-    list.innerHTML = nextAlarms.slice(0, 5).map(alarm => 
-      `<div>🕒 ${alarm.time.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} - ${alarm.text}</div>`
-    ).join('');
-  }
-}
-
-function saveNotifSettings() {
-  notifSettings.medEnabled = document.getElementById('notifMedEnabled').checked;
-  notifSettings.consEnabled = document.getElementById('notifConsEnabled').checked;
-  notifSettings.soundEnabled = document.getElementById('notifSoundEnabled').checked;
-  notifSettings.advanceTime = parseInt(document.getElementById('notifAdvanceTime').value);
-  
-  localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
-  
-  // Reagendar alarmes com novas configurações
-  scheduleOfflineAlarms();
-  
-  document.getElementById('modalNotifSettings').classList.remove('open');
-  if (narrarEnabled()) speak('Configurações salvas.');
-}
-
-function testNotification() {
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
-    alert('Permissão de notificação não concedida.');
+  if (!medico || !paciente || !dataEmissao || !dataValidade) {
+    alert('Preencha os campos obrigatórios: Médico, Paciente, Data de Emissão e Data de Validade.');
     return;
   }
   
-  const notification = new Notification('✅ Teste do Meu Remédio', {
-    body: 'Esta é uma notificação de teste. Se você vê esta mensagem, as notificações estão funcionando!',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    requireInteraction: true
-  });
+  if (new Date(dataValidade) < new Date(dataEmissao)) {
+    alert('A data de validade não pode ser anterior à data de emissão.');
+    return;
+  }
   
-  setTimeout(() => notification.close(), 5000);
+  const receitaData = {
+    medico,
+    paciente,
+    medicamentos: document.getElementById('receitaMedicamentos').value.trim(),
+    dataEmissao,
+    dataValidade,
+    observacoes: document.getElementById('receitaObservacoes').value.trim(),
+    foto: document.getElementById('receitaFotoPreview').src || ''
+  };
+  
+  const editId = document.getElementById('modalReceita').getAttribute('data-edit-id');
+  
+  if (editId) {
+    // Edição
+    const idx = receitas.findIndex(r => r.id === editId);
+    if (idx > -1) {
+      receitas[idx] = { ...receitas[idx], ...receitaData };
+    }
+  } else {
+    // Nova receita
+    receitas.push({
+      id: uid(),
+      ...receitaData,
+      criadoEm: new Date().toISOString()
+    });
+  }
+  
+  localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
+  renderReceitas();
+  document.getElementById('modalReceita').classList.remove('open');
+  
+  if (narrarEnabled()) speak('Receita salva com sucesso.');
 }
 
-// ================= INICIALIZAÇÃO ATUALIZADA =================
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log('🚀 Iniciando Meu Remédio PWA...');
+function editarReceita(recId) {
+  openReceitaModal(recId);
+}
+
+function excluirReceita(recId) {
+  if (confirm('Excluir esta receita?')) {
+    receitas = receitas.filter(r => r.id !== recId);
+    localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
+    renderReceitas();
+    if (narrarEnabled()) speak('Receita excluída.');
+  }
+}
+
+// ================= FUNÇÕES DE CONSULTAS =================
+function openConsultModal(editId = null) {
+  const modal = document.getElementById('modalConsult');
   
-  // Configurações básicas
+  if (editId) {
+    const cons = consults.find(c => c.id === editId);
+    if (cons) {
+      document.getElementById('consData').value = cons.data || '';
+      document.getElementById('consProf').value = cons.prof || '';
+      document.getElementById('consObs').value = cons.obs || '';
+    }
+    modal.setAttribute('data-edit-id', editId);
+  } else {
+    document.getElementById('consData').value = '';
+    document.getElementById('consProf').value = '';
+    document.getElementById('consObs').value = '';
+    modal.removeAttribute('data-edit-id');
+  }
+  
+  modal.classList.add('open');
+  if (narrarEnabled()) speak('Formulário de consulta aberto.');
+}
+
+function salvarConsulta() {
+  const data = document.getElementById('consData').value;
+  const prof = document.getElementById('consProf').value.trim();
+  
+  if (!data || !prof) {
+    alert('Preencha a data e o profissional/local.');
+    return;
+  }
+  
+  const obs = document.getElementById('consObs').value.trim();
+  const editId = document.getElementById('modalConsult').getAttribute('data-edit-id');
+  
+  if (editId) {
+    // Edição
+    const idx = consults.findIndex(c => c.id === editId);
+    if (idx > -1) {
+      consults[idx] = {
+        ...consults[idx],
+        data,
+        prof,
+        obs
+      };
+    }
+  } else {
+    // Nova consulta
+    consults.push({
+      id: uid(),
+      data,
+      prof,
+      obs,
+      criadoEm: new Date().toISOString()
+    });
+  }
+  
+  saveAll();
+  refreshUI();
+  document.getElementById('modalConsult').classList.remove('open');
+  
+  if (narrarEnabled()) speak('Consulta salva com sucesso.');
+}
+
+function editarConsulta(consId) {
+  openConsultModal(consId);
+}
+
+function excluirConsulta(consId) {
+  if (confirm('Excluir esta consulta?')) {
+    consults = consults.filter(c => c.id !== consId);
+    saveAll();
+    refreshUI();
+    if (narrarEnabled()) speak('Consulta excluída.');
+  }
+}
+
+// ================= FUNÇÕES DO TUTORIAL =================
+function initTutorial() {
+  const tutorialCompleted = localStorage.getItem(LS_TUTORIAL) === 'true';
+  const termsAccepted = localStorage.getItem(LS_TERMS) === '1';
+  
+  if (!termsAccepted) {
+    document.getElementById('modalTerms').classList.add('open');
+    if (narrarEnabled()) speak('Por favor, leia e aceite os termos de uso para continuar.');
+  } else if (!tutorialCompleted) {
+    setTimeout(() => showTutorial(), 500);
+  } else {
+    document.getElementById('btnHelp').style.display = 'block';
+    refreshUI();
+  }
+}
+
+function showTutorial() {
+  document.getElementById('modalTerms').classList.remove('open');
+  document.getElementById('modalTutorial').classList.add('open');
+  updateTutorialStep(1);
+  
+  if (narrarEnabled()) {
+    setTimeout(() => speak('Bem-vindo ao Meu Remédio! Vamos aprender a usar o aplicativo.'), 300);
+  }
+}
+
+function updateTutorialStep(step) {
+  currentStep = step;
+  
+  document.querySelectorAll('.tutorial-step').forEach(el => {
+    el.classList.add('hidden');
+    el.classList.remove('active');
+  });
+  
+  const currentStepEl = document.querySelector(`[data-step="${step}"]`);
+  if (currentStepEl) {
+    currentStepEl.classList.remove('hidden');
+    currentStepEl.classList.add('active');
+  }
+  
+  const btnPrev = document.getElementById('btnPrevTutorial');
+  const btnNext = document.getElementById('btnNextTutorial');
+  const btnSkip = document.getElementById('btnSkipTutorial');
+  const btnStart = document.getElementById('btnStartApp');
+  
+  btnPrev.disabled = step === 1;
+  
+  if (step === totalSteps) {
+    btnNext.style.display = 'none';
+    btnSkip.style.display = 'none';
+    btnStart.style.display = 'block';
+  } else {
+    btnNext.style.display = 'block';
+    btnSkip.style.display = 'block';
+    btnStart.style.display = 'none';
+  }
+  
+  if (narrarEnabled()) readTutorialStep(step);
+}
+
+function readTutorialStep(step) {
+  const messages = {
+    1: 'Passo 1: Narrador de voz. O aplicativo fala com você! Deixe o narrador sempre ligado.',
+    2: 'Passo 2: Comandos por voz. Use o botão Preencher por voz para cadastrar remédios falando.',
+    3: 'Passo 3: Lembretes automáticos. O app avisa na hora certa de tomar seus remédios!',
+    4: 'Passo 4: Botões com símbolos. Use os símbolos para navegar no aplicativo.'
+  };
+  
+  setTimeout(() => speak(messages[step] || `Passo ${step} de ${totalSteps}`), 500);
+}
+
+function completeTutorial() {
+  const dontShowAgain = document.getElementById('dontShowAgain');
+  if (dontShowAgain && dontShowAgain.checked) {
+    localStorage.setItem(LS_TUTORIAL, 'true');
+  }
+  
+  document.getElementById('modalTutorial').classList.remove('open');
+  document.getElementById('btnHelp').style.display = 'block';
+  refreshUI();
+  
+  if (narrarEnabled()) speak('Tutorial concluído! Agora você pode usar o Meu Remédio.');
+}
+
+function demovoiceCommand() {
+  if (narrarEnabled()) speak('Experimente dizer: Paracetamol, para cadastrar um medicamento.');
+}
+
+function showQuickHelp() {
+  if (narrarEnabled()) {
+    speak(`Ajuda rápida: Use o botão de microfone para cadastrar por voz, toque em Tomei quando tomar o remédio, e use Alarme para lembretes.`);
+  } else {
+    alert(`📋 AJUDA RÁPIDA\n\n🎙️ VOZ: Cadastre remédios falando\n✅ TOMEI: Marque quando tomar\n⏰ ALARME: Lembretes sonoros\n✏️ ADICIONAR: Cadastro manual`);
+  }
+}
+
+// ================= CONFIGURAÇÃO DE EVENT LISTENERS =================
+function configurarEventListeners() {
+  // Botões principais
+  document.getElementById('btnAddMed').onclick = () => openMedModal();
+  document.getElementById('btnAddReceita').onclick = () => openReceitaModal();
+  document.getElementById('btnAddConsult').onclick = () => openConsultModal();
+  document.getElementById('btnAlarm').onclick = () => document.getElementById('modalNotifSettings').classList.add('open');
+  document.getElementById('btnVoiceFlow').onclick = () => iniciarFluxoVoz();
+  document.getElementById('btnExport').onclick = exportarDados;
+  document.getElementById('btnImport').onclick = importarDados;
+  document.getElementById('btnClearHist').onclick = limparHistorico;
+  document.getElementById('notificationStatus').onclick = () => document.getElementById('modalNotifSettings').classList.add('open');
+  
+  // Botões de fechar modais
+  document.getElementById('btnCancelMed').onclick = () => document.getElementById('modalMed').classList.remove('open');
+  document.getElementById('btnCancelReceita').onclick = () => document.getElementById('modalReceita').classList.remove('open');
+  document.getElementById('btnCancelCons').onclick = () => document.getElementById('modalConsult').classList.remove('open');
+  document.getElementById('btnCancelNotif').onclick = () => document.getElementById('modalNotifSettings').classList.remove('open');
+  
+  // Botões de salvar
+  document.getElementById('btnSaveMed').onclick = salvarMedicamento;
+  document.getElementById('btnSaveReceita').onclick = salvarReceita;
+  document.getElementById('btnSaveCons').onclick = salvarConsulta;
+  
+  // Tutorial
+  document.getElementById('btnAcceptTerms').onclick = aceitarTermos;
+  document.getElementById('btnReadTerms').onclick = lerTermos;
+  document.getElementById('btnNextTutorial').onclick = () => currentStep < totalSteps && updateTutorialStep(currentStep + 1);
+  document.getElementById('btnPrevTutorial').onclick = () => currentStep > 1 && updateTutorialStep(currentStep - 1);
+  document.getElementById('btnSkipTutorial').onclick = completeTutorial;
+  document.getElementById('btnStartApp').onclick = completeTutorial;
+  document.getElementById('btnHelp').onclick = showQuickHelp;
+  
+  // Upload de fotos
+  document.getElementById('medFotoInput').addEventListener('change', handleFotoUpload);
+  document.getElementById('receitaFotoInput').addEventListener('change', handleReceitaFotoUpload);
+  document.getElementById('btnRemoverFoto').onclick = () => removerFoto('med');
+  document.getElementById('btnRemoverFotoReceita').onclick = () => removerFoto('receita');
+  
+  // Fechar modais clicando fora
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    };
+  });
+}
+
+function aceitarTermos() {
+  localStorage.setItem(LS_TERMS, "1");
+  document.getElementById("modalTerms").classList.remove("open");
+  if (narrarEnabled()) speak('Termos aceitos com sucesso.');
+  setTimeout(() => showTutorial(), 800);
+}
+
+function lerTermos() {
+  if (narrarEnabled()) {
+    speak(`Termos de Uso: Suas informações ficam apenas no seu dispositivo. Nada é enviado sem sua permissão. Este app é um auxílio e não substitui o médico.`);
+  } else {
+    alert("📜 Termos de Uso\n\nSeus dados ficam apenas no seu dispositivo.\nNada é enviado sem sua permissão.\nÉ um auxílio, não substitui o médico.");
+  }
+}
+
+function handleFotoUpload(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('medFotoPreview').src = e.target.result;
+      document.getElementById('medFotoPreview').classList.remove('hidden');
+      document.getElementById('btnRemoverFoto').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function handleReceitaFotoUpload(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('receitaFotoPreview').src = e.target.result;
+      document.getElementById('receitaFotoPreview').classList.remove('hidden');
+      document.getElementById('btnRemoverFotoReceita').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removerFoto(tipo) {
+  if (tipo === 'med') {
+    document.getElementById('medFotoInput').value = '';
+    document.getElementById('medFotoPreview').src = '';
+    document.getElementById('medFotoPreview').classList.add('hidden');
+    document.getElementById('btnRemoverFoto').classList.add('hidden');
+  } else {
+    document.getElementById('receitaFotoInput').value = '';
+    document.getElementById('receitaFotoPreview').src = '';
+    document.getElementById('receitaFotoPreview').classList.add('hidden');
+    document.getElementById('btnRemoverFotoReceita').classList.add('hidden');
+  }
+}
+
+// ================= FUNÇÕES A IMPLEMENTAR =================
+function iniciarFluxoVoz() {
+  if (narrarEnabled()) speak('Funcionalidade de voz em desenvolvimento.');
+  else alert('Funcionalidade de voz em desenvolvimento.');
+}
+
+function exportarDados() {
+  const dados = { meds, hist, consults, receitas };
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'meu_remedio_dados.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarDados() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const dados = JSON.parse(e.target.result);
+        if (dados.meds) meds = dados.meds;
+        if (dados.hist) hist = dados.hist;
+        if (dados.consults) consults = dados.consults;
+        if (dados.receitas) receitas = dados.receitas;
+        saveAll();
+        refreshUI();
+        alert('Dados importados com sucesso!');
+      } catch (err) {
+        alert('Erro ao importar dados: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function limparHistorico() {
+  if (confirm('Tem certeza que deseja limpar o histórico?')) {
+    hist = [];
+    saveAll();
+    refreshUI();
+    if (narrarEnabled()) speak('Histórico limpo.');
+  }
+}
+
+// ================= INICIALIZAÇÃO =================
+document.addEventListener("DOMContentLoaded", () => {
+  // Restaurar configurações
   const savedTextSize = localStorage.getItem('textSize');
   if (savedTextSize) document.body.style.fontSize = savedTextSize;
   
-  // Inicializar notificações
-  await initializeNotifications();
-  
-  // Configurar handlers
+  // Configurar event listeners
   configurarEventListeners();
-  setupNotificationHandlers();
   
   // Inicializar sistemas
   initTutorial();
   
-  // Verificar estado online/offline
-  if (!isOnline) {
-    document.getElementById('connectionStatus').textContent = '● Offline';
-    document.getElementById('connectionStatus').className = 'status-offline';
-  }
-  
-  console.log('✅ PWA inicializado com sistema de alarmes offline');
+  console.log('✅ Aplicação inicializada com sucesso');
 });
+// ================= SISTEMA DE NOTIFICAÇÕES CONFIÁVEL =================
+class NotificationManager {
+  constructor() {
+    this.permission = null;
+    this.init();
+  }
 
-// ================= ATUALIZAR CONFIGURAÇÃO DE EVENT LISTENERS =================
-function configurarEventListeners() {
-  // ... (seus event listeners existentes)
-  
-  // Adicionar estes novos:
-  document.getElementById('btnTestNotif').onclick = testNotification;
-  document.getElementById('btnSaveNotif').onclick = saveNotifSettings;
-  
-  // Modificar o botão de alarme para abrir configurações
-  document.getElementById('btnAlarm').onclick = openNotifSettings;
+  async init() {
+    this.permission = Notification.permission;
+    await this.setupEventListeners();
+  }
+
+  async setupEventListeners() {
+    // Listener para mensagens do Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage.bind(this));
+    }
+  }
+
+  handleServiceWorkerMessage(event) {
+    const { type, medId, alarmId, newTime } = event.data;
+
+    switch (type) {
+      case 'MEDICATION_TAKEN':
+        alarmManager.marcarComoTomado(medId);
+        break;
+      case 'RESCHEDULE_ALARM':
+        this.handleReschedule(medId, newTime, alarmId);
+        break;
+      case 'SYNC_ALARMS':
+        this.syncAlarms();
+        break;
+      case 'PLAY_SOUND':
+        this.playNotificationSound();
+        break;
+    }
+  }
+
+  handleReschedule(medId, newTime, alarmId) {
+    const med = meds.find(m => m.id === medId);
+    if (med) {
+      // Cancelar alarme anterior
+      alarmManager.cancelAlarm(alarmId);
+      // Agendar novo alarme
+      alarmManager.scheduleAlarm(med, newTime);
+      
+      // Mostrar confirmação
+      this.showToast('⏰ Lembrete adiado por 10 minutos');
+    }
+  }
+
+  async syncAlarms() {
+    console.log('🔄 Sincronizando alarmes...');
+    alarmManager.cleanupExpiredAlarms();
+    
+    // Reagendar todos os medicamentos ativos
+    meds.forEach(med => {
+      if (med.hora && med.ativo !== false) {
+        alarmManager.scheduleAlarm(med);
+      }
+    });
+  }
+
+  playNotificationSound() {
+    if (notifSettings.soundEnabled) {
+      // Criar som de notificação simples
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    }
+  }
+
+  showToast(message, duration = 3000) {
+    // Implementação de toast notification
+    const toast = document.createElement('div');
+    toast.style.cssText = \`
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    \`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Animação de entrada
+    setTimeout(() => toast.style.opacity = '1', 10);
+    
+    // Remover após duração
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, duration);
+  }
+
+  async requestPermission() {
+    if (!('Notification' in window)) {
+      throw new Error('Notificações não suportadas');
+    }
+
+    if (this.permission === 'granted') {
+      return true;
+    }
+
+    // Solicitar permissão com contexto
+    const result = await Notification.requestPermission();
+    this.permission = result;
+    
+    if (result === 'granted') {
+      await this.setupPeriodicSync();
+      this.showToast('🔔 Notificações ativadas com sucesso!');
+      return true;
+    } else {
+      throw new Error('Permissão de notificação negada');
+    }
+  }
+
+  async setupPeriodicSync() {
+    if ('periodicSync' in window && 'serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.periodicSync.register('medication-reminders', {
+          minInterval: 24 * 60 * 60 * 1000 // 1 dia
+        });
+        console.log('✅ Periodic Sync registrado');
+      } catch (error) {
+        console.log('⚠️ Periodic Sync não suportado:', error);
+      }
+    }
+
+    // Fallback: usar alarmes offline
+    this.syncAlarms();
+  }
+
+  getNextAlarmsHTML(limit = 5) {
+    const nextAlarms = alarmManager.getNextAlarms(limit);
+    
+    if (nextAlarms.length === 0) {
+      return '<div class="no-alarms">Nenhum alarme agendado</div>';
+    }
+
+    return nextAlarms.map(alarm => \`
+      <div class="alarm-item">
+        <div class="alarm-time">
+          🕒 \${alarm.time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+        </div>
+        <div class="alarm-info">
+          <strong>\${alarm.med.nome}</strong>
+          <span>\${alarm.med.paciente}</span>
+          \${alarm.med.instrucao ? \`<small>\${alarm.med.instrucao}</small>\` : ''}
+        </div>
+        <button onclick="alarmManager.cancelAlarm('\${alarm.alarmId}')" class="btn-cancel">
+          ❌
+        </button>
+      </div>
+    \`).join('');
+  }
 }
-  // Botão de instalação
-function showInstallPrompt() {
-  const installBtn = document.createElement('button');
-  installBtn.innerHTML = '📱 Instalar App';
-  installBtn.style.cssText = `
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 12px 20px;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 1000;
-    cursor: pointer;
-  `;
-  
-  installBtn.onclick = async () => {
-    if ('BeforeInstallPromptEvent' in window) {
-      const promptEvent = window.deferredPrompt;
-      if (promptEvent) {
-        promptEvent.prompt();
-        const result = await promptEvent.userChoice;
-        if (result.outcome === 'accepted') {
-          installBtn.remove();
-          console.log('App instalado!');
+
+// Instância global do gerenciador de notificações
+const notificationManager = new NotificationManager();
+    // ================= SISTEMA DE ALARMES OFFLINE MELHORADO =================
+const alarmStorageKey = 'meu_remedio_alarms_v3';
+
+class AlarmManager {
+  constructor() {
+    this.alarms = new Map();
+    this.loadAlarms();
+  }
+
+  loadAlarms() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(alarmStorageKey) || '{}');
+      this.alarms = new Map(Object.entries(stored));
+      console.log(`📋 ${this.alarms.size} alarmes carregados`);
+    } catch (error) {
+      console.error('Erro ao carregar alarmes:', error);
+      this.alarms = new Map();
+    }
+  }
+
+  saveAlarms() {
+    try {
+      const obj = Object.fromEntries(this.alarms);
+      localStorage.setItem(alarmStorageKey, JSON.stringify(obj));
+    } catch (error) {
+      console.error('Erro ao salvar alarmes:', error);
+    }
+  }
+
+  scheduleAlarm(med, customTime = null) {
+    if (!med.hora || med.ativo === false) return null;
+
+    const alarmTime = this.calculateAlarmTime(med, customTime);
+    if (!alarmTime) return null;
+
+    const alarmId = `med_${med.id}_${alarmTime.getTime()}`;
+    
+    const alarmData = {
+      id: alarmId,
+      time: alarmTime.toISOString(),
+      title: '💊 Hora do Remédio',
+      body: this.formatNotificationBody(med),
+      medId: med.id,
+      timestamp: Date.now()
+    };
+
+    // Agendar no Service Worker
+    this.sendToServiceWorker(alarmData);
+    
+    // Armazenar localmente
+    this.alarms.set(alarmId, alarmData);
+    this.saveAlarms();
+
+    console.log(`⏰ Alarme agendado: ${med.nome} às ${alarmTime.toLocaleTimeString('pt-BR')}`);
+    return alarmId;
+  }
+
+  calculateAlarmTime(med, customTime = null) {
+    if (customTime) {
+      return new Date(customTime);
+    }
+
+    const [hours, minutes] = med.hora.split(':').map(Number);
+    const now = new Date();
+    const alarmTime = new Date();
+    
+    alarmTime.setHours(hours, minutes, 0, 0);
+    
+    // Se o horário já passou hoje, agenda para amanhã
+    if (alarmTime <= now) {
+      alarmTime.setDate(alarmTime.getDate() + 1);
+    }
+
+    return alarmTime;
+  }
+
+  formatNotificationBody(med) {
+    let body = `${med.nome} - ${med.paciente}`;
+    if (med.instrucao) body += ` (${med.instrucao})`;
+    if (med.dosagem) body += ` - ${med.dosagem}`;
+    return body;
+  }
+
+  sendToServiceWorker(alarmData) {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SCHEDULE_ALARM',
+        ...alarmData
+      });
+    } else {
+      console.warn('Service Worker não disponível para agendar alarme');
+      this.scheduleFallbackAlarm(alarmData);
+    }
+  }
+
+  scheduleFallbackAlarm(alarmData) {
+    const now = Date.now();
+    const targetTime = new Date(alarmData.time).getTime();
+    const timeout = targetTime - now;
+
+    if (timeout > 0 && timeout < 24 * 60 * 60 * 1000) { // Máximo 24 horas
+      setTimeout(() => {
+        this.showFallbackNotification(alarmData);
+      }, timeout);
+    }
+  }
+
+  showFallbackNotification(alarmData) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(alarmData.title, {
+        body: alarmData.body,
+        icon: '/icon-192.png',
+        tag: alarmData.id,
+        requireInteraction: true
+      });
+
+      notification.onclick = () => {
+        this.handleNotificationClick(alarmData.medId, 'tomei');
+        notification.close();
+      };
+    }
+  }
+
+  handleNotificationClick(medId, action) {
+    if (action === 'tomei') {
+      this.marcarComoTomado(medId);
+    }
+  }
+
+  marcarComoTomado(medId) {
+    const med = meds.find(m => m.id === medId);
+    if (med) {
+      // Registrar no histórico
+      const historico = JSON.parse(localStorage.getItem('meuRemedio_historico') || '[]');
+      historico.push({
+        id: uid(),
+        medId: med.id,
+        medicamento: med.nome,
+        paciente: med.paciente,
+        data: new Date().toISOString(),
+        tipo: 'medicamento',
+        status: 'tomado'
+      });
+      localStorage.setItem('meuRemedio_historico', JSON.stringify(historico));
+      
+      // Reagendar para o próximo dia
+      this.rescheduleMedication(med);
+      
+      console.log(`✅ ${med.nome} marcado como tomado`);
+    }
+  }
+
+  rescheduleMedication(med) {
+    // Cancelar alarme atual
+    this.cancelAlarmsForMed(med.id);
+    
+    // Agendar para amanhã
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const newAlarmId = this.scheduleAlarm(med);
+    
+    return newAlarmId;
+  }
+
+  cancelAlarmsForMed(medId) {
+    for (const [alarmId, alarmData] of this.alarms) {
+      if (alarmData.medId === medId) {
+        this.cancelAlarm(alarmId);
+      }
+    }
+  }
+
+  cancelAlarm(alarmId) {
+    this.alarms.delete(alarmId);
+    this.saveAlarms();
+    
+    // Notificar Service Worker
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CANCEL_ALARM',
+        alarmId: alarmId
+      });
+    }
+  }
+
+  cleanupExpiredAlarms() {
+    const now = Date.now();
+    let cleaned = 0;
+
+    for (const [alarmId, alarmData] of this.alarms) {
+      const alarmTime = new Date(alarmData.time).getTime();
+      if (alarmTime < now - 60 * 60 * 1000) { // Alarmes com mais de 1 hora
+        this.alarms.delete(alarmId);
+        cleaned++;
+      }
+    }
+
+    if (cleaned > 0) {
+      this.saveAlarms();
+      console.log(`🧹 ${cleaned} alarmes expirados removidos`);
+    }
+  }
+
+  getNextAlarms(limit = 5) {
+    const now = new Date();
+    const upcoming = [];
+
+    for (const alarmData of this.alarms.values()) {
+      const alarmTime = new Date(alarmData.time);
+      if (alarmTime > now) {
+        const med = meds.find(m => m.id === alarmData.medId);
+        if (med) {
+          upcoming.push({
+            time: alarmTime,
+            med: med,
+            alarmId: alarmData.id
+          });
         }
       }
-    } else {
-      alert('Para instalar: no menu do navegador, escolha "Adicionar à tela inicial"');
     }
-  };
-  
-  document.body.appendChild(installBtn);
+
+    return upcoming
+      .sort((a, b) => a.time - b.time)
+      .slice(0, limit);
+  }
 }
 
-// Detectar se pode instalar
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  window.deferredPrompt = e;
-  showInstallPrompt();
-});
-
-
+// Instância global do gerenciador de alarmes
+const alarmManager = new AlarmManager();
 </script>
 </body>
 </html>
-
-
