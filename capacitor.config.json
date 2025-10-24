@@ -1,13 +1,15 @@
 {
-  "appId": "com.joao.meuremedio",
+  "appId": "com.meuremedio.app",
   "appName": "Meu Remédio",
-  "webDir": "www",
-  "bundledWebRuntime": false,
-  "plugins": {
-    "SplashScreen": { "launchShowDuration": 0 },
-    "LocalNotifications": {}
-  },
+  "webDir": "src",
   "server": {
     "androidScheme": "https"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#00796b",
+      "sound": "beep.wav"
+    }
   }
 }
