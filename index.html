@@ -1402,6 +1402,50 @@ function configurarEventListeners() {
   // Modificar o botão de alarme para abrir configurações
   document.getElementById('btnAlarm').onclick = openNotifSettings;
 }
+  // Botão de instalação
+function showInstallPrompt() {
+  const installBtn = document.createElement('button');
+  installBtn.innerHTML = '📱 Instalar App';
+  installBtn.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    cursor: pointer;
+  `;
+  
+  installBtn.onclick = async () => {
+    if ('BeforeInstallPromptEvent' in window) {
+      const promptEvent = window.deferredPrompt;
+      if (promptEvent) {
+        promptEvent.prompt();
+        const result = await promptEvent.userChoice;
+        if (result.outcome === 'accepted') {
+          installBtn.remove();
+          console.log('App instalado!');
+        }
+      }
+    } else {
+      alert('Para instalar: no menu do navegador, escolha "Adicionar à tela inicial"');
+    }
+  };
+  
+  document.body.appendChild(installBtn);
+}
+
+// Detectar se pode instalar
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  window.deferredPrompt = e;
+  showInstallPrompt();
+});
 
 // ================= MANIFEST.PWA (adicione este arquivo) =================
 // Crie um arquivo manifest.json na raiz do seu projeto:
@@ -1431,6 +1475,14 @@ function configurarEventListeners() {
 }
 */
 </script>
-
+<!-- No final do <body> -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GA_MEASUREMENT_ID');
+</script>
 </body>
 </html>
+
