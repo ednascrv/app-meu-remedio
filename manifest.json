@@ -1,125 +1,136 @@
-{
-  "name": "Meu Remédio",
-  "short_name": "MeuRemedio",
-  "description": "Gerenciador de medicamentos e consultas médicas",
-  "start_url": "/",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay"],
-  "theme_color": "#00796b",
-  "background_color": "#fbfdfc",
-  "orientation": "portrait",
-  "scope": "/",
-  "categories": ["health", "medical", "productivity"],
-  "lang": "pt-BR",
-  "dir": "ltr",
-  "icons": [
-    {
-      "src": "icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshot-1.png",
-      "sizes": "640x320",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Tela principal do Meu Remédio"
-    },
-    {
-      "src": "screenshot-2.png",
-      "sizes": "640x320",
-      "type": "image/png",
-      "form_factor": "wide", 
-      "label": "Gestão de medicamentos"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Adicionar Medicamento",
-      "short_name": "Novo Remédio",
-      "description": "Cadastrar novo medicamento",
-      "url": "/?action=add-med",
-      "icons": [
-        {
-          "src": "shortcut-med.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Registrar Dose",
-      "short_name": "Tomei Remédio",
-      "description": "Registrar que tomou o medicamento",
-      "url": "/?action=take-med",
-      "icons": [
-        {
-          "src": "shortcut-take.png", 
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Nova Consulta",
-      "short_name": "Nova Consulta",
-      "description": "Agendar nova consulta médica",
-      "url": "/?action=add-consult",
-      "icons": [
-        {
-          "src": "shortcut-consult.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "edge_side_panel": {
-    "preferred_width": 400
+const CACHE_NAME = 'meu-remedio-v1.2.0';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
+self.addEventListener('install', (event) => {
+  console.log('Service Worker instalando...');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Cache aberto');
+        return cache.addAll(urlsToCache);
+      })
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker ativado');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deletando cache antigo:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.url.startsWith('http')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
+            return response;
+          }
+          
+          return fetch(event.request).then((response) => {
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+            
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+              
+            return response;
+          });
+        })
+    );
+  }
+});
+
+// Sistema de alarmes em background
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SCHEDULE_ALARM') {
+    const { id, time, title, body, medId } = event.data;
+    scheduleAlarm(id, time, title, body, medId);
+  }
+});
+
+function scheduleAlarm(id, time, title, body, medId) {
+  const now = Date.now();
+  const targetTime = new Date(time).getTime();
+  const timeout = targetTime - now;
+
+  if (timeout > 0 && timeout < 24 * 60 * 60 * 1000) { // Máximo 24h
+    console.log(`Agendando alarme: ${title} para ${new Date(time)}`);
+    
+    setTimeout(() => {
+      self.registration.showNotification(title, {
+        body: body,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: id,
+        requireInteraction: true,
+        vibrate: [200, 100, 200],
+        actions: [
+          { action: 'tomei', title: '✅ Tomei' },
+          { action: 'adiar', title: '⏰ Adiar 10min' }
+        ],
+        data: { medId: medId }
+      });
+    }, timeout);
   }
 }
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  if (event.action === 'tomei') {
+    // Marcar como tomado
+    event.waitUntil(
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'MEDICATION_TAKEN',
+            medId: event.notification.data.medId || event.notification.tag
+          });
+        });
+      })
+    );
+  } else if (event.action === 'adiar') {
+    // Reagendar para 10 minutos
+    const newTime = new Date(Date.now() + 10 * 60 * 1000);
+    scheduleAlarm(
+      event.notification.tag + '_delay', 
+      newTime, 
+      event.notification.title, 
+      '🕙 Lembrete adiado: ' + event.notification.body,
+      event.notification.data.medId
+    );
+  } else {
+    // Focar na app
+    event.waitUntil(
+      self.clients.matchAll().then(clients => {
+        if (clients.length > 0) {
+          return clients[0].focus();
+        } else {
+          return self.clients.openWindow('/');
+        }
+      })
+    );
+  }
+});
