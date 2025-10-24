@@ -5,13 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /> 
 <title>Meu Remédio</title> 
 
-<!-- PWA Meta Tags -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00796b">
+<!-- Meta tags PWA melhoradas -->
+<link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Meu Remédio">
 <link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Meta tags para Android -->
+<meta name="theme-color" content="#00796b">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Meta tags para compartilhamento -->
+<meta property="og:title" content="Meu Remédio - Assistente de Medicamentos">
+<meta property="og:description" content="App para gerenciar remédios, receitas e consultas médicas">
+<meta property="og:image" content="icon-512.png">
+<meta property="og:url" content="https://seu-app.netlify.app">
+
+<!-- Preload crítico -->
+<link rel="preload" as="style" href="styles.css">
 
 <style>
 /* ================= VARIÁVEIS E ESTILOS GERAIS ================= */
