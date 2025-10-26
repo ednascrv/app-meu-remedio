@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Meu Remédio">
 <link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
 :root {
   --cor-principal: #00796b;
@@ -19,6 +20,16 @@
   --cor-fundo: #f5f5f5;
   --cor-texto: #222;
   --cor-clara: #fff;
+  --cor-borda: #ddd;
+  --cor-alerta: #f44336;
+  --cor-aviso: #ff9800;
+  --cor-sucesso: #4caf50;
+  --cor-info: #2196f3;
+  --sombra: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -27,7 +38,8 @@ body {
   color: var(--cor-texto);
   margin: 0;
   padding: 0;
-  text-align: center;
+  line-height: 1.5;
+  font-size: 16px;
 }
 
 header {
@@ -36,10 +48,16 @@ header {
   padding: 1rem;
   font-size: 1.3rem;
   font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
 }
 
 .app {
   padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 button {
@@ -51,47 +69,391 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
-button:hover {
+button:hover, button:focus {
   background: var(--cor-secundaria);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--cor-principal);
+  border: 1px solid var(--cor-principal);
+}
+
+.btn-ghost:hover, .btn-ghost:focus {
+  background: rgba(0, 121, 107, 0.1);
 }
 
 input, select, textarea {
   width: 100%;
-  max-width: 400px;
-  padding: 0.5rem;
+  max-width: 100%;
+  padding: 0.7rem;
   margin: 0.4rem 0;
-  border: 1px solid #ccc;
+  border: 1px solid var(--cor-borda);
   border-radius: 6px;
+  font-size: 1rem;
 }
 
-.dialog {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
+.card {
+  background: var(--cor-clara);
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--sombra);
+}
+
+.flex {
+  display: flex;
   align-items: center;
 }
 
-.dialog-content {
+.flex-space {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: var(--cor-principal);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+.small {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.small-note {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.modal.open {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.modal-content {
   background: var(--cor-clara);
   padding: 1.5rem;
   border-radius: 10px;
-  max-width: 400px;
-  width: 90%;
+  max-width: 500px;
+  width: 100%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
+.form-row {
+  margin-bottom: 1rem;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th, .table td {
+  padding: 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.table th {
+  background: #f9f9f9;
+  font-weight: bold;
+}
+
+/* Status indicators */
+.status-online {
+  color: var(--cor-sucesso);
+}
+
+.status-offline {
+  color: #999;
+}
+
+.status-vencida {
+  color: var(--cor-alerta);
+  font-weight: bold;
+}
+
+.status-proximo {
+  color: var(--cor-aviso);
+  font-weight: bold;
+}
+
+.status-valida {
+  color: var(--cor-sucesso);
+  font-weight: bold;
+}
+
+/* Alert styles */
+.alert-danger, .alert-warning, .alert-info {
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.alert-danger {
+  background: #ffebee;
+  border-left: 4px solid var(--cor-alerta);
+}
+
+.alert-warning {
+  background: #fff8e1;
+  border-left: 4px solid var(--cor-aviso);
+}
+
+.alert-info {
+  background: #e3f2fd;
+  border-left: 4px solid var(--cor-info);
+}
+
+/* Image preview */
+.pill-img {
+  max-width: 60px;
+  max-height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.input-file-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* History item */
+.history-item {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+/* Tutorial styles */
+.tutorial-step {
+  display: none;
+}
+
+.tutorial-step.active {
+  display: block;
+}
+
+.tutorial-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Help button */
+.help-floating {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--cor-principal);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 0.8rem 1.2rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  z-index: 99;
+  display: none;
+}
+
+/* Text controls */
+.text-controls {
+  display: flex;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+  border-top: 1px solid var(--cor-borda);
+  margin-top: 2rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .app {
+    padding: 0.5rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .table {
+    font-size: 0.9rem;
+  }
+  
+  .table th, .table td {
+    padding: 0.5rem;
+  }
+  
+  .flex-space {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  button {
+    width: 100%;
+    margin: 0.2rem 0;
+  }
+  
+  .text-controls {
+    flex-wrap: wrap;
+  }
+  
+  /* Make tables scrollable on mobile */
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  /* Stack table rows on very small screens */
+  @media (max-width: 480px) {
+    .table thead {
+      display: none;
+    }
+    
+    .table, .table tbody, .table tr, .table td {
+      display: block;
+      width: 100%;
+    }
+    
+    .table tr {
+      margin-bottom: 1rem;
+      border: 1px solid var(--cor-borda);
+      border-radius: 8px;
+      padding: 0.5rem;
+    }
+    
+    .table td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table td:last-child {
+      border-bottom: none;
+    }
+    
+    .table td:before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      width: calc(50% - 20px);
+      font-weight: bold;
+      text-align: left;
+    }
+  }
+}
+
+/* High contrast mode */
 .high-contrast {
   background: #000;
+  color: #fff;
+}
+
+.high-contrast .card {
+  background: #222;
   color: #fff;
 }
 
 .high-contrast button {
   background: #fff;
   color: #000;
+  border: 1px solid #fff;
+}
+
+.high-contrast input, .high-contrast select, .high-contrast textarea {
+  background: #222;
+  color: #fff;
+  border: 1px solid #fff;
 }
 </style>
 </head> 
@@ -121,6 +483,7 @@ input, select, textarea {
       <button onclick="increaseTextSize()" title="Aumentar texto">A+</button>
       <button onclick="decreaseTextSize()" title="Diminuir texto">A-</button>
       <button onclick="readCurrentScreen()" title="Ler tela atual">🔊 Ler Tela</button>
+      <button onclick="toggleHighContrast()" title="Alto contraste">🌗 Contraste</button>
     </div>
     
     <div class="flex" style="margin-top:8px"> 
@@ -137,10 +500,12 @@ input, select, textarea {
         <button id="btnImport" class="btn-small">⬆ Importar</button> 
       </div> 
     </div>
-    <table class="table" id="tblMeds" aria-describedby="Lista de medicamentos">
-      <thead><tr><th>Foto</th><th>Paciente</th><th>Medicamento</th><th>Instrução</th><th>Hora</th><th>Ações</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-container">
+      <table class="table" id="tblMeds" aria-describedby="Lista de medicamentos">
+        <thead><tr><th>Foto</th><th>Paciente</th><th>Medicamento</th><th>Instrução</th><th>Hora</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
     <div id="emptyMeds" class="small">Nenhum medicamento cadastrado.</div>
   </section> 
 
@@ -155,20 +520,22 @@ input, select, textarea {
     
     <div id="receitaAlerts" style="margin: 10px 0;"></div>
     
-    <table class="table" id="tblReceitas" aria-describedby="Lista de receitas médicas">
-      <thead>
-        <tr>
-          <th>Foto</th>
-          <th>Paciente</th>
-          <th>Médico</th>
-          <th>Emissão</th>
-          <th>Validade</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-container">
+      <table class="table" id="tblReceitas" aria-describedby="Lista de receitas médicas">
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Paciente</th>
+            <th>Médico</th>
+            <th>Emissão</th>
+            <th>Validade</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
     <div id="emptyReceitas" class="small">Nenhuma receita cadastrada.</div>
   </section>
 
@@ -185,10 +552,12 @@ input, select, textarea {
       <h2>Consultas <span id="consCount" class="badge">0</span></h2> 
       <div class="actions"><button id="btnAddConsult" class="btn-small">➕ Nova consulta</button></div> 
     </div>
-    <table class="table" id="tblConsults">
-      <thead><tr><th>Data</th><th>Profissional / Local</th><th>Observação</th><th>Ações</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-container">
+      <table class="table" id="tblConsults">
+        <thead><tr><th>Data</th><th>Profissional / Local</th><th>Observação</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
     <div id="emptyConsults" class="small">Nenhuma consulta cadastrada.</div>
   </section> 
 </main> 
@@ -471,6 +840,7 @@ function saveAll() {
   localStorage.setItem(LS_CONS, JSON.stringify(consults));
   localStorage.setItem(LS_RECEITAS, JSON.stringify(receitas));
   localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
+  updateAlarms();
 }
 
 function formatarDataPTBR(dateString) {
@@ -511,6 +881,13 @@ function decreaseTextSize() {
   if (narrarEnabled()) speak('Texto diminuído');
 }
 
+function toggleHighContrast() {
+  document.body.classList.toggle('high-contrast');
+  const isHighContrast = document.body.classList.contains('high-contrast');
+  localStorage.setItem('highContrast', isHighContrast);
+  if (narrarEnabled()) speak(isHighContrast ? 'Modo alto contraste ativado' : 'Modo alto contraste desativado');
+}
+
 function readCurrentScreen() {
   if (!narrarEnabled()) return;
   const mainTitle = document.querySelector('header')?.textContent || '';
@@ -543,22 +920,47 @@ function renderMeds() {
   }
   
   empty.style.display = 'none';
-  tbody.innerHTML = meds.map(med => `
-    <tr>
-      <td>${med.foto ? `<img src="${med.foto}" class="pill-img" alt="${esc(med.nome)}">` : '—'}</td>
-      <td>${esc(med.paciente)}</td>
-      <td>${esc(med.nome)}</td>
-      <td>${esc(med.instrucao)}</td>
-      <td>${med.hora}</td>
-      <td>
-        <div class="actions">
-          <button class="btn-small" onclick="marcarComoTomado('${med.id}')">✅ Tomei</button>
-          <button class="btn-ghost" onclick="editarMedicamento('${med.id}')">✏️ Editar</button>
-          <button class="btn-ghost" onclick="excluirMedicamento('${med.id}')">🗑️ Excluir</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
+  
+  // Adaptar tabela para mobile
+  const isMobile = window.innerWidth <= 480;
+  
+  tbody.innerHTML = meds.map(med => {
+    if (isMobile) {
+      return `
+        <tr>
+          <td data-label="Foto">${med.foto ? `<img src="${med.foto}" class="pill-img" alt="${esc(med.nome)}">` : '—'}</td>
+          <td data-label="Paciente">${esc(med.paciente)}</td>
+          <td data-label="Medicamento">${esc(med.nome)}</td>
+          <td data-label="Instrução">${esc(med.instrucao)}</td>
+          <td data-label="Hora">${med.hora}</td>
+          <td data-label="Ações">
+            <div class="actions">
+              <button class="btn-small" onclick="marcarComoTomado('${med.id}')">✅ Tomei</button>
+              <button class="btn-ghost" onclick="editarMedicamento('${med.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirMedicamento('${med.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      return `
+        <tr>
+          <td>${med.foto ? `<img src="${med.foto}" class="pill-img" alt="${esc(med.nome)}">` : '—'}</td>
+          <td>${esc(med.paciente)}</td>
+          <td>${esc(med.nome)}</td>
+          <td>${esc(med.instrucao)}</td>
+          <td>${med.hora}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-small" onclick="marcarComoTomado('${med.id}')">✅ Tomei</button>
+              <button class="btn-ghost" onclick="editarMedicamento('${med.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirMedicamento('${med.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+  }).join('');
 }
 
 function renderHist() {
@@ -597,19 +999,41 @@ function renderConsults() {
   }
   
   empty.style.display = 'none';
-  tbody.innerHTML = consults.map(cons => `
-    <tr>
-      <td>${formatarDataPTBR(cons.data)}</td>
-      <td>${esc(cons.prof)}</td>
-      <td>${esc(cons.obs)}</td>
-      <td>
-        <div class="actions">
-          <button class="btn-ghost" onclick="editarConsulta('${cons.id}')">✏️ Editar</button>
-          <button class="btn-ghost" onclick="excluirConsulta('${cons.id}')">🗑️ Excluir</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
+  
+  // Adaptar tabela para mobile
+  const isMobile = window.innerWidth <= 480;
+  
+  tbody.innerHTML = consults.map(cons => {
+    if (isMobile) {
+      return `
+        <tr>
+          <td data-label="Data">${formatarDataPTBR(cons.data)}</td>
+          <td data-label="Profissional">${esc(cons.prof)}</td>
+          <td data-label="Observação">${esc(cons.obs)}</td>
+          <td data-label="Ações">
+            <div class="actions">
+              <button class="btn-ghost" onclick="editarConsulta('${cons.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirConsulta('${cons.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      return `
+        <tr>
+          <td>${formatarDataPTBR(cons.data)}</td>
+          <td>${esc(cons.prof)}</td>
+          <td>${esc(cons.obs)}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-ghost" onclick="editarConsulta('${cons.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirConsulta('${cons.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+  }).join('');
 }
 
 // ================= FUNÇÕES DE RECEITAS =================
@@ -632,25 +1056,49 @@ function renderReceitas() {
   // Ordenar por validade
   receitas.sort((a, b) => new Date(a.dataValidade) - new Date(b.dataValidade));
   
+  // Adaptar tabela para mobile
+  const isMobile = window.innerWidth <= 480;
+  
   tbody.innerHTML = receitas.map(rec => {
     const status = getReceitaStatus(rec);
-    return `
-      <tr>
-        <td>${rec.foto ? `<img src="${rec.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${rec.foto}')" style="cursor:pointer;">` : '—'}</td>
-        <td>${esc(rec.paciente)}</td>
-        <td>${esc(rec.medico)}</td>
-        <td>${formatarDataPTBR(rec.dataEmissao)}</td>
-        <td>${formatarDataPTBR(rec.dataValidade)}</td>
-        <td><span class="status-receita ${status.classe}">${status.texto}</span>${status.dias ? `<br><small>${status.dias}</small>` : ''}</td>
-        <td>
-          <div class="actions">
-            ${rec.foto ? `<button class="btn-small" data-id="${rec.id}" data-act="verFoto">👁️ Ver</button>` : ''}
-            <button class="btn-ghost" onclick="editarReceita('${rec.id}')">✏️ Editar</button>
-            <button class="btn-ghost" onclick="excluirReceita('${rec.id}')">🗑️ Excluir</button>
-          </div>
-        </td>
-      </tr>
-    `;
+    
+    if (isMobile) {
+      return `
+        <tr>
+          <td data-label="Foto">${rec.foto ? `<img src="${rec.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${rec.foto}')" style="cursor:pointer;">` : '—'}</td>
+          <td data-label="Paciente">${esc(rec.paciente)}</td>
+          <td data-label="Médico">${esc(rec.medico)}</td>
+          <td data-label="Emissão">${formatarDataPTBR(rec.dataEmissao)}</td>
+          <td data-label="Validade">${formatarDataPTBR(rec.dataValidade)}</td>
+          <td data-label="Status"><span class="status-receita ${status.classe}">${status.texto}</span>${status.dias ? `<br><small>${status.dias}</small>` : ''}</td>
+          <td data-label="Ações">
+            <div class="actions">
+              ${rec.foto ? `<button class="btn-small" data-id="${rec.id}" data-act="verFoto">👁️ Ver</button>` : ''}
+              <button class="btn-ghost" onclick="editarReceita('${rec.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirReceita('${rec.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      return `
+        <tr>
+          <td>${rec.foto ? `<img src="${rec.foto}" class="pill-img" alt="foto receita" onclick="ampliarFoto('${rec.foto}')" style="cursor:pointer;">` : '—'}</td>
+          <td>${esc(rec.paciente)}</td>
+          <td>${esc(rec.medico)}</td>
+          <td>${formatarDataPTBR(rec.dataEmissao)}</td>
+          <td>${formatarDataPTBR(rec.dataValidade)}</td>
+          <td><span class="status-receita ${status.classe}">${status.texto}</span>${status.dias ? `<br><small>${status.dias}</small>` : ''}</td>
+          <td>
+            <div class="actions">
+              ${rec.foto ? `<button class="btn-small" data-id="${rec.id}" data-act="verFoto">👁️ Ver</button>` : ''}
+              <button class="btn-ghost" onclick="editarReceita('${rec.id}')">✏️ Editar</button>
+              <button class="btn-ghost" onclick="excluirReceita('${rec.id}')">🗑️ Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
   }).join('');
   
   updateReceitaAlerts();
@@ -699,10 +1147,12 @@ function updateReceitaAlerts() {
 
 function ampliarFoto(src) {
   const overlay = document.createElement('div');
-  overlay.className = 'receita-modal-overlay open';
+  overlay.className = 'modal open';
   overlay.innerHTML = `
-    <img src="${src}" class="receita-modal-img" alt="Receita ampliada">
-    <button onclick="this.parentElement.remove()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+    <div class="modal-content" style="max-width: 90%; max-height: 90%; display: flex; justify-content: center; align-items: center;">
+      <img src="${src}" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
+      <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+    </div>
   `;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e) => {
@@ -1000,10 +1450,269 @@ function excluirConsulta(consId) {
   }
 }
 
+// ================= SISTEMA DE NOTIFICAÇÕES E ALARMES =================
+function updateAlarms() {
+  // Limpar alarmes existentes
+  if (window.alarmTimeouts) {
+    window.alarmTimeouts.forEach(timeout => clearTimeout(timeout));
+  }
+  window.alarmTimeouts = [];
+  
+  // Atualizar lista de próximos alarmes
+  updateNextAlarmsList();
+  
+  if (!notifSettings.medEnabled) return;
+  
+  const agora = new Date();
+  
+  // Configurar alarmes para medicamentos
+  meds.forEach(med => {
+    if (!med.hora) return;
+    
+    const [hora, minuto] = med.hora.split(':').map(Number);
+    const alarmTime = new Date();
+    alarmTime.setHours(hora, minuto, 0, 0);
+    
+    // Se o horário já passou hoje, agendar para amanhã
+    if (alarmTime < agora) {
+      alarmTime.setDate(alarmTime.getDate() + 1);
+    }
+    
+    const diffMs = alarmTime - agora - (notifSettings.advanceTime * 60 * 1000);
+    
+    if (diffMs > 0) {
+      const timeout = setTimeout(() => {
+        triggerAlarm(med);
+      }, diffMs);
+      
+      window.alarmTimeouts.push(timeout);
+    }
+  });
+  
+  // Configurar lembretes para consultas (1 dia antes)
+  consults.forEach(cons => {
+    const consultaDate = new Date(cons.data + 'T00:00:00');
+    const lembreteDate = new Date(consultaDate);
+    lembreteDate.setDate(lembreteDate.getDate() - 1);
+    lembreteDate.setHours(9, 0, 0, 0); // 9h da manhã
+    
+    const diffMs = lembreteDate - agora;
+    
+    if (diffMs > 0) {
+      const timeout = setTimeout(() => {
+        triggerConsultaAlarm(cons);
+      }, diffMs);
+      
+      window.alarmTimeouts.push(timeout);
+    }
+  });
+  
+  // Configurar lembretes para receitas (7 dias antes do vencimento)
+  receitas.forEach(rec => {
+    const validade = new Date(rec.dataValidade + 'T00:00:00');
+    const lembreteDate = new Date(validade);
+    lembreteDate.setDate(lembreteDate.getDate() - 7);
+    lembreteDate.setHours(9, 0, 0, 0); // 9h da manhã
+    
+    const diffMs = lembreteDate - agora;
+    
+    if (diffMs > 0) {
+      const timeout = setTimeout(() => {
+        triggerReceitaAlarm(rec);
+      }, diffMs);
+      
+      window.alarmTimeouts.push(timeout);
+    }
+  });
+}
+
+function updateNextAlarmsList() {
+  const list = document.getElementById('nextAlarmsList');
+  if (!list) return;
+  
+  const agora = new Date();
+  const proximosAlarmes = [];
+  
+  // Próximos alarmes de medicamentos
+  meds.forEach(med => {
+    if (!med.hora) return;
+    
+    const [hora, minuto] = med.hora.split(':').map(Number);
+    const alarmTime = new Date();
+    alarmTime.setHours(hora, minuto, 0, 0);
+    
+    // Se o horário já passou hoje, considerar amanhã
+    if (alarmTime < agora) {
+      alarmTime.setDate(alarmTime.getDate() + 1);
+    }
+    
+    proximosAlarmes.push({
+      tipo: 'medicamento',
+      nome: med.nome,
+      horario: alarmTime,
+      paciente: med.paciente
+    });
+  });
+  
+  // Ordenar por horário
+  proximosAlarmes.sort((a, b) => a.horario - b.horario);
+  
+  // Mostrar apenas os próximos 3 alarmes
+  const proximos = proximosAlarmes.slice(0, 3);
+  
+  if (proximos.length === 0) {
+    list.innerHTML = '<div class="small">Nenhum alarme agendado</div>';
+  } else {
+    list.innerHTML = proximos.map(alarme => `
+      <div class="small">
+        ${alarme.tipo === 'medicamento' ? '💊' : '📅'} 
+        ${alarme.nome} (${alarme.paciente}) - 
+        ${alarme.horario.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}
+      </div>
+    `).join('');
+  }
+}
+
+function triggerAlarm(med) {
+  // Verificar se as notificações estão permitidas no navegador
+  if (!("Notification" in window)) {
+    console.log("Este navegador não suporta notificações");
+    return;
+  }
+  
+  // Solicitar permissão se necessário
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        showNotification(med);
+      }
+    });
+  } else if (Notification.permission === "granted") {
+    showNotification(med);
+  }
+  
+  // Tocar som se habilitado
+  if (notifSettings.soundEnabled) {
+    playNotificationSound();
+  }
+  
+  // Falar o lembrete se o narrador estiver ativo
+  if (narrarEnabled()) {
+    speak(`Lembrete: Hora de tomar ${med.nome} para ${med.paciente}`);
+  }
+}
+
+function triggerConsultaAlarm(cons) {
+  if (Notification.permission === "granted") {
+    const notification = new Notification("📅 Lembrete de Consulta", {
+      body: `Consulta com ${cons.prof} amanhã!`,
+      icon: "icon-192.png",
+      tag: "consulta"
+    });
+    
+    notification.onclick = function() {
+      window.focus();
+      this.close();
+    };
+  }
+  
+  if (narrarEnabled()) {
+    speak(`Lembrete: Consulta com ${cons.prof} amanhã!`);
+  }
+}
+
+function triggerReceitaAlarm(rec) {
+  if (Notification.permission === "granted") {
+    const notification = new Notification("📋 Receita Vencendo", {
+      body: `Receita de ${rec.paciente} vence em 7 dias!`,
+      icon: "icon-192.png",
+      tag: "receita"
+    });
+    
+    notification.onclick = function() {
+      window.focus();
+      this.close();
+    };
+  }
+  
+  if (narrarEnabled()) {
+    speak(`Atenção: Receita de ${rec.paciente} vence em 7 dias!`);
+  }
+}
+
+function showNotification(med) {
+  const notification = new Notification("💊 Hora do Remédio", {
+    body: `${med.nome} para ${med.paciente} - ${med.instrucao || ''}`,
+    icon: "icon-192.png",
+    tag: "medicamento"
+  });
+  
+  notification.onclick = function() {
+    window.focus();
+    this.close();
+  };
+}
+
+function playNotificationSound() {
+  // Criar um som de notificação simples
+  const context = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0, context.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.3, context.currentTime + 0.1);
+  gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.3);
+  
+  oscillator.start(context.currentTime);
+  oscillator.stop(context.currentTime + 0.3);
+}
+
+function testNotification() {
+  if (meds.length > 0) {
+    triggerAlarm(meds[0]);
+  } else {
+    // Notificação de teste genérica
+    if (Notification.permission === "granted") {
+      const notification = new Notification("🔔 Teste de Notificação", {
+        body: "Esta é uma notificação de teste do Meu Remédio",
+        icon: "icon-192.png"
+      });
+      
+      notification.onclick = function() {
+        window.focus();
+        this.close();
+      };
+    } else if (Notification.permission === "default") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          testNotification();
+        }
+      });
+    }
+    
+    if (narrarEnabled()) {
+      speak("Notificação de teste disparada");
+    }
+  }
+}
+
 // ================= FUNÇÕES DO TUTORIAL =================
 function initTutorial() {
   const tutorialCompleted = localStorage.getItem(LS_TUTORIAL) === 'true';
   const termsAccepted = localStorage.getItem(LS_TERMS) === '1';
+  
+  // Restaurar configurações de acessibilidade
+  const savedTextSize = localStorage.getItem('textSize');
+  if (savedTextSize) document.body.style.fontSize = savedTextSize;
+  
+  const highContrast = localStorage.getItem('highContrast') === 'true';
+  if (highContrast) document.body.classList.add('high-contrast');
   
   if (!termsAccepted) {
     document.getElementById('modalTerms').classList.add('open');
@@ -1013,6 +1722,7 @@ function initTutorial() {
   } else {
     document.getElementById('btnHelp').style.display = 'block';
     refreshUI();
+    updateAlarms(); // Iniciar alarmes após o tutorial
   }
 }
 
@@ -1080,6 +1790,7 @@ function completeTutorial() {
   document.getElementById('modalTutorial').classList.remove('open');
   document.getElementById('btnHelp').style.display = 'block';
   refreshUI();
+  updateAlarms(); // Iniciar alarmes após o tutorial
   
   if (narrarEnabled()) speak('Tutorial concluído! Agora você pode usar o Meu Remédio.');
 }
@@ -1120,6 +1831,9 @@ function configurarEventListeners() {
   document.getElementById('btnSaveReceita').onclick = salvarReceita;
   document.getElementById('btnSaveCons').onclick = salvarConsulta;
   
+  // Configurações de notificação
+  document.getElementById('btnTestNotif').onclick = testNotification;
+  
   // Tutorial
   document.getElementById('btnAcceptTerms').onclick = aceitarTermos;
   document.getElementById('btnReadTerms').onclick = lerTermos;
@@ -1135,12 +1849,42 @@ function configurarEventListeners() {
   document.getElementById('btnRemoverFoto').onclick = () => removerFoto('med');
   document.getElementById('btnRemoverFotoReceita').onclick = () => removerFoto('receita');
   
+  // Configurações de notificação
+  document.getElementById('notifMedEnabled').addEventListener('change', (e) => {
+    notifSettings.medEnabled = e.target.checked;
+    saveAll();
+  });
+  
+  document.getElementById('notifConsEnabled').addEventListener('change', (e) => {
+    notifSettings.consEnabled = e.target.checked;
+    saveAll();
+  });
+  
+  document.getElementById('notifSoundEnabled').addEventListener('change', (e) => {
+    notifSettings.soundEnabled = e.target.checked;
+    saveAll();
+  });
+  
+  document.getElementById('notifAdvanceTime').addEventListener('change', (e) => {
+    notifSettings.advanceTime = parseInt(e.target.value);
+    saveAll();
+  });
+  
+  // Carregar configurações de notificação na UI
+  document.getElementById('notifMedEnabled').checked = notifSettings.medEnabled;
+  document.getElementById('notifConsEnabled').checked = notifSettings.consEnabled;
+  document.getElementById('notifSoundEnabled').checked = notifSettings.soundEnabled;
+  document.getElementById('notifAdvanceTime').value = notifSettings.advanceTime;
+  
   // Fechar modais clicando fora
   document.querySelectorAll('.modal').forEach(modal => {
     modal.onclick = (e) => {
       if (e.target === modal) modal.classList.remove('open');
     };
   });
+  
+  // Redimensionamento da janela para ajustar layout responsivo
+  window.addEventListener('resize', refreshUI);
 }
 
 function aceitarTermos() {
@@ -1252,10 +1996,6 @@ function limparHistorico() {
 
 // ================= INICIALIZAÇÃO =================
 document.addEventListener("DOMContentLoaded", () => {
-  // Restaurar configurações
-  const savedTextSize = localStorage.getItem('textSize');
-  if (savedTextSize) document.body.style.fontSize = savedTextSize;
-  
   // Configurar event listeners
   configurarEventListeners();
   
@@ -1267,4 +2007,3 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
-
