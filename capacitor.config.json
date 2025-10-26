@@ -1,15 +1,42 @@
 {
   "appId": "com.meuremedio.app",
   "appName": "Meu Remédio",
-  "webDir": "src",
+  "webDir": ".",
+  "bundledWebRuntime": false,
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "allowNavigation": []
   },
   "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#00796b",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "androidSpinnerStyle": "large",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#ffffff",
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "layoutName": "launch_screen",
+      "useDialog": false
+    },
     "LocalNotifications": {
-      "smallIcon": "ic_stat_icon",
+      "smallIcon": "ic_stat_icon_config_sample",
       "iconColor": "#00796b",
       "sound": "beep.wav"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
     }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "ios": {
+    "scheme": "MeuRemedioApp"
   }
 }
