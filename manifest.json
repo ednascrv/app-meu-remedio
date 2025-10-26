@@ -1,37 +1,77 @@
 {
   "name": "Meu Remédio",
   "short_name": "MeuRemedio",
-  "description": "Seu assistente pessoal para medicamentos com lembretes inteligentes",
+  "description": "Seu assistente pessoal para medicamentos, lembretes e receitas",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fbfdfc",
   "theme_color": "#00796b",
-  "orientation": "portrait",
-  "categories": ["health", "medical", "productivity"],
-  "lang": "pt-BR",
+  "background_color": "#f5f5f5",
+  "orientation": "portrait-primary",
   "scope": "/",
-  
+  "lang": "pt-BR",
+  "categories": ["health", "productivity"],
   "icons": [
+    {
+      "src": "icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     }
   ],
-  
   "screenshots": [
     {
       "src": "screenshot-mobile.png",
       "sizes": "375x667",
       "type": "image/png",
       "form_factor": "narrow"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
