@@ -734,7 +734,7 @@ input, select, textarea {
       <!-- Passo 1 -->
       <div class="tutorial-step active" data-step="1">
         <h4>🔊 <span class="tutorial-voice">NARRADOR DE VOZ</span></h4>
-        <p>O app FALA com você! Toque nos botões e escute as instruções.</p>
+        <p>Bem Vindo ao Meu Remédio! Toque nos botões e escute as instruções.</p>
         <div class="tutorial-tip">
           <strong>Dica:</strong> Deixe o narrador sempre LIGADO
         </div>
@@ -1772,7 +1772,7 @@ function updateTutorialStep(step) {
 
 function readTutorialStep(step) {
   const messages = {
-    1: 'Passo 1: Narrador de voz. O aplicativo fala com você! Deixe o narrador sempre ligado.',
+    1: 'Passo 1: Bem vindo ao Meu Remédio! Deixe o narrador sempre ligado.',
     2: 'Passo 2: Comandos por voz. Use o botão Preencher por voz para cadastrar remédios falando.',
     3: 'Passo 3: Lembretes automáticos. O app avisa na hora certa de tomar seus remédios!',
     4: 'Passo 4: Botões com símbolos. Use os símbolos para navegar no aplicativo.'
@@ -1801,7 +1801,7 @@ function demovoiceCommand() {
 
 function showQuickHelp() {
   if (narrarEnabled()) {
-    speak(`Ajuda rápida: Use o botão de microfone para cadastrar por voz, toque em Tomei quando tomar o remédio, e use Alarme para lembretes.`);
+    speak(`Ajuda rápida: Use o botão de microfone para cadastrar por voz, o botão com lápis para adicionar medicamentos, toque em Tomei quando tomar o remédio, e use Alarme para lembretes. Também é possível adicionar data de consultas, vencimento de receitas, e verificar no histórico último remédio tomado e horário.`);
   } else {
     alert(`📋 AJUDA RÁPIDA\n\n🎙️ VOZ: Cadastre remédios falando\n✅ TOMEI: Marque quando tomar\n⏰ ALARME: Lembretes sonoros\n✏️ ADICIONAR: Cadastro manual`);
   }
@@ -2007,3 +2007,4 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
