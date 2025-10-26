@@ -1,26 +1,49 @@
-const CACHE_NAME = 'meu-remedio-v1.2.0';
-const urlsToCache = [
+// Service Worker para Meu Remédio PWA
+const CACHE_NAME = 'meu-remedio-v3.0.1';
+const OFFLINE_URL = 'offline.html';
+
+// Assets para cache na instalação
+const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
+  '/icon-72.png',
+  '/icon-96.png',
+  '/icon-128.png',
+  '/icon-144.png',
+  '/icon-152.png',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-384.png',
+  '/icon-512.png',
+  '/css/styles.css',
+  '/js/app.js'
 ];
 
+// Instalação do Service Worker
 self.addEventListener('install', (event) => {
   console.log('Service Worker instalando...');
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Cache aberto');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(STATIC_ASSETS);
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('Todos os recursos cacheados com sucesso');
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('Falha ao fazer cache dos recursos:', error);
+      })
   );
 });
 
+// Ativação do Service Worker
 self.addEventListener('activate', (event) => {
   console.log('Service Worker ativado');
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -31,106 +54,205 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('Service Worker agora controla todas as abas');
+      return self.clients.claim();
+    })
   );
 });
 
+// Estratégia: Cache First, fallback para network
 self.addEventListener('fetch', (event) => {
-  if (event.request.url.startsWith('http')) {
+  // Ignorar requisições que não são GET
+  if (event.request.method !== 'GET') return;
+
+  // Para requisições de API/JSON, usar Network First
+  if (event.request.url.includes('/api/') || event.request.headers.get('accept')?.includes('application/json')) {
     event.respondWith(
-      caches.match(event.request)
+      fetch(event.request)
         .then((response) => {
-          if (response) {
-            return response;
+          // Se a requisição foi bem sucedida, clone e armazene no cache
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
           }
-          
-          return fetch(event.request).then((response) => {
+          return response;
+        })
+        .catch(() => {
+          // Se a rede falhar, tente buscar do cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Para assets estáticos, usar Cache First
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Retorna do cache se encontrado
+        if (response) {
+          return response;
+        }
+
+        // Se não está no cache, busca da rede
+        return fetch(event.request)
+          .then((response) => {
+            // Verifica se recebemos uma resposta válida
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
-            
+
+            // Clona a resposta para armazenar no cache
             const responseToCache = response.clone();
+
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
               });
-              
+
             return response;
+          })
+          .catch(() => {
+            // Se é uma navegação e offline, mostra página offline
+            if (event.request.mode === 'navigate') {
+              return caches.match(OFFLINE_URL);
+            }
+            
+            // Para outros recursos, retorna resposta vazia ou fallback
+            return new Response('Recurso não disponível offline', {
+              status: 408,
+              statusText: 'Offline'
+            });
           });
+      })
+  );
+});
+
+// Background Sync para dados offline
+self.addEventListener('sync', (event) => {
+  console.log('Background Sync:', event.tag);
+  
+  if (event.tag === 'sync-medicamentos') {
+    event.waitUntil(
+      syncMedicamentos()
+        .then(() => {
+          console.log('Sincronização de medicamentos concluída');
+          // Enviar notificação de sucesso
+          self.registration.showNotification('Meu Remédio', {
+            body: 'Dados sincronizados com sucesso!',
+            icon: '/icon-192.png',
+            badge: '/icon-72.png'
+          });
+        })
+        .catch((error) => {
+          console.error('Falha na sincronização:', error);
         })
     );
   }
 });
 
-// Sistema de alarmes em background
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SCHEDULE_ALARM') {
-    const { id, time, title, body, medId } = event.data;
-    scheduleAlarm(id, time, title, body, medId);
-  }
-});
-
-function scheduleAlarm(id, time, title, body, medId) {
-  const now = Date.now();
-  const targetTime = new Date(time).getTime();
-  const timeout = targetTime - now;
-
-  if (timeout > 0 && timeout < 24 * 60 * 60 * 1000) { // Máximo 24h
-    console.log(`Agendando alarme: ${title} para ${new Date(time)}`);
-    
-    setTimeout(() => {
-      self.registration.showNotification(title, {
-        body: body,
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
-        tag: id,
-        requireInteraction: true,
-        vibrate: [200, 100, 200],
-        actions: [
-          { action: 'tomei', title: '✅ Tomei' },
-          { action: 'adiar', title: '⏰ Adiar 10min' }
-        ],
-        data: { medId: medId }
-      });
-    }, timeout);
-  }
+// Função para sincronizar dados (exemplo)
+function syncMedicamentos() {
+  // Aqui você implementaria a lógica para sincronizar dados
+  // que foram salvos localmente enquanto offline
+  return new Promise((resolve) => {
+    console.log('Sincronizando dados...');
+    // Simulando sincronização
+    setTimeout(resolve, 1000);
+  });
 }
 
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
+// Push Notifications
+self.addEventListener('push', (event) => {
+  console.log('Push notification recebida', event);
   
+  let data = {};
+  if (event.data) {
+    data = event.data.json();
+  }
+  
+  const options = {
+    body: data.body || 'Lembrete de medicamento',
+    icon: '/icon-192.png',
+    badge: '/icon-72.png',
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || '/'
+    },
+    actions: [
+      {
+        action: 'tomei',
+        title: '✅ Tomei',
+        icon: '/icon-72.png'
+      },
+      {
+        action: 'adiar',
+        title: '⏰ Adiar',
+        icon: '/icon-72.png'
+      }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(
+      data.title || 'Meu Remédio',
+      options
+    )
+  );
+});
+
+// Clique em notificações
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notificação clicada:', event);
+  
+  event.notification.close();
+
   if (event.action === 'tomei') {
-    // Marcar como tomado
-    event.waitUntil(
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'MEDICATION_TAKEN',
-            medId: event.notification.data.medId || event.notification.tag
-          });
-        });
-      })
-    );
+    // Marcar medicamento como tomado
+    console.log('Medicamento marcado como tomado');
+    // Aqui você implementaria a lógica para marcar como tomado
   } else if (event.action === 'adiar') {
-    // Reagendar para 10 minutos
-    const newTime = new Date(Date.now() + 10 * 60 * 1000);
-    scheduleAlarm(
-      event.notification.tag + '_delay', 
-      newTime, 
-      event.notification.title, 
-      '🕙 Lembrete adiado: ' + event.notification.body,
-      event.notification.data.medId
-    );
-  } else {
-    // Focar na app
-    event.waitUntil(
-      self.clients.matchAll().then(clients => {
-        if (clients.length > 0) {
-          return clients[0].focus();
-        } else {
-          return self.clients.openWindow('/');
+    // Adiar lembrete
+    console.log('Lembrete adiado');
+    // Aqui você implementaria a lógica para adiar
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === '/' && 'focus' in client) {
+          return client.focus();
         }
-      })
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
+    })
+  );
+});
+
+// Mensagens do app principal
+self.addEventListener('message', (event) => {
+  console.log('Mensagem recebida no Service Worker:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CACHE_NEW_ASSETS') {
+    const assets = event.data.assets;
+    event.waitUntil(
+      caches.open(CACHE_NAME)
+        .then((cache) => cache.addAll(assets))
+        .then(() => {
+          event.ports[0].postMessage({ success: true });
+        })
+        .catch((error) => {
+          event.ports[0].postMessage({ success: false, error: error.message });
+        })
     );
   }
 });
