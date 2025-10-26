@@ -1,7 +1,41 @@
 {
+  "name": "meu-remedio-pwa",
+  "version": "1.0.0",
+  "description": "Aplicativo PWA para gerenciamento de medicamentos e lembretes",
+  "main": "index.html",
   "scripts": {
-    "build": "cp seu-html-original/* src/",
-    "ios": "npm run build && npx cap sync && npx cap open ios",
-    "android": "npm run build && npx cap sync && npx cap open android"
+    "start": "http-server -c-1 -p 8080",
+    "build": "echo 'No build process needed'",
+    "test": "echo 'No tests specified'",
+    "serve": "http-server -c-1 -p 3000",
+    "cap:init": "npx cap init",
+    "cap:add": "npx cap add",
+    "cap:sync": "npx cap sync"
+  },
+  "keywords": [
+    "pwa",
+    "medicamentos",
+    "saude",
+    "lembretes",
+    "acessibilidade"
+  ],
+  "author": "Meu Remédio App",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.0.0",
+    "@capacitor/app": "^5.0.0",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/haptics": "^5.0.0",
+    "@capacitor/keyboard": "^5.0.0",
+    "@capacitor/status-bar": "^5.0.0",
+    "@capacitor/toast": "^5.0.0"
+  },
+  "capacitor": {
+    "appId": "com.meuremedio.app",
+    "appName": "Meu Remédio",
+    "webDir": "."
   }
 }
